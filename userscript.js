@@ -268,6 +268,11 @@ pageLoad["list"] = function() {
 
 // updates dataStream cell
 function updateList(dataStream, forceReload) {
+	// remove old divs
+	dataStream.find(".nextep").remove();
+	dataStream.find(".loading").remove();
+	dataStream.find(".timer").remove();
+	// get episode list from data
 	let episodeList = dataStream.data("episodeList");
 	if (episodeList && !forceReload) {
 		// episode list exists
@@ -279,9 +284,6 @@ function updateList(dataStream, forceReload) {
 }
 
 function updateList_exists(dataStream) {
-	// remove old nextep if exists
-	dataStream.find(".nextep").remove();
-	dataStream.find(".loading").remove();
 	// listitem
 	let listitem = dataStream.parents(".list-item");
 	// get current episode number
@@ -360,7 +362,7 @@ function updateList_doesntExist(dataStream) {
 		if (url) {
 			// comment valid
 			// add loading
-			dataStream.append("<div class='loading'>Loading...</div>");
+			dataStream.prepend("<div class='loading'>Loading...</div>");
 			// add eplist to dataStream
 			if (dataStream.find(".eplist").length === 0) {
 				let eplistUrl = getEplistUrl[url[0]](url[1]);
