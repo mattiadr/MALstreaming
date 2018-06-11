@@ -52,7 +52,8 @@ const getEplistUrl = {};
 const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
-	{id:"kissanime", name:"Kissanime"}
+	{id:"kissanime", name:"Kissanime"},
+	{id:"nineanime", name:"9anime"}
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
@@ -103,7 +104,6 @@ pageLoad["kissanime"] = function() {
 	}
 }
 
-// get episodes from a kissanime page
 getEpisodes["kissanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
@@ -141,12 +141,10 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 	});
 }
 
-// get kissanime eplist url from partial url
 getEplistUrl["kissanime"] = function(partialUrl) {
 	return kissanime.anime + partialUrl;
 }
 
-// execute search on kissanime
 searchSite["kissanime"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "POST",
@@ -182,6 +180,83 @@ searchSite["kissanime"] = function(id, title) {
 				}
 				// callback
 				putResults(id, results, kissanime.base);
+			}
+		}
+	});
+}
+
+/* 9anime */
+/*******************************************************************************************************************************************************************/
+const nineanime = {};
+nineanime.base = "https://www5.9anime.is/";
+nineanime.anime = nineanime.base + "watch/";
+nineanime.search = nineanime.base + "search?keyword=";
+nineanime.server = "33"; // RapidVideo = 33, MyCloud = 28, Streamango = 34, OpenLoad = 24
+
+getEpisodes["nineanime"] = function(dataStream, url) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: nineanime.anime + url,
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let episodes = [];
+				// get servers
+				let servers = jqPage.find("#main > div > div.widget.servers > div.widget-body > .server");
+				let server = null;
+				// if possibe use specified server
+				servers.each(function() {
+					if ($(this).attr("data-name") == nineanime.server) {
+						server = $(this);
+					}
+				});
+				// else use first one
+				if (!server) {
+					server = servers.first();
+				}
+				// get anchors
+				let as = server.find("li > a");
+				as.each(function() {
+					episodes.push({
+						text:"Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
+						href:nineanime.base + $(this).attr("href")
+					});
+				});
+				// callback
+				putEpisodes(dataStream, episodes, undefined);
+			}
+		}
+	});
+}
+
+getEplistUrl["nineanime"] = function(partialUrl) {
+	return nineanime.anime + partialUrl;
+}
+
+searchSite["nineanime"] = function(id, title) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: nineanime.search + encodeURI(title),
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let results = [];
+				// get results from response
+				let list = jqPage.find("#main > div > div:nth-child(1) > div.widget-body > div.film-list > .item");
+				list = list.slice(0, 10);
+				// add to results
+				list.each(function() {
+					let a = $(this).find("a")[1];
+					results.push({
+						title:a.text,
+						href:a.href.split("/")[4],
+						fullhref:a.href
+					});
+				});
+				// callback
+				putResults(id, results, nineanime.base);
 			}
 		}
 	});
@@ -254,13 +329,13 @@ pageLoad["list"] = function() {
 
 	// table cell
 	$(".data.stream").on("click", function() {
-		updateList($(this), true);
+		updateList($(this), true, true);
 	});
 
 	// complete one episode
 	$(".icon-add-episode").on("click", function() {
 		let dataStream = $(this).parents(".list-item").find(".data.stream");
-		updateList(dataStream, false);
+		updateList(dataStream, false, true);
 	});
 
 	// update timer
@@ -270,7 +345,7 @@ pageLoad["list"] = function() {
 }
 
 // updates dataStream cell
-function updateList(dataStream, forceReload) {
+function updateList(dataStream, forceReload, canReload) {
 	// remove old divs
 	dataStream.find(".nextep").remove();
 	dataStream.find(".loading").remove();
@@ -280,9 +355,11 @@ function updateList(dataStream, forceReload) {
 	if (episodeList && !forceReload) {
 		// episode list exists
 		updateList_exists(dataStream);
-	} else {
+	} else if (canReload) {
 		// episode list doesn't exist or needs to be reloaded
 		updateList_doesntExist(dataStream);
+	} else {
+		dataStream.prepend("Error while loading");
 	}
 }
 
@@ -387,7 +464,7 @@ function updateList_doesntExist(dataStream) {
 function putEpisodes(dataStream, episodes, timeMillis) {
 	dataStream.data("episodeList", episodes);
 	dataStream.data("timeMillis", timeMillis);
-	updateList(dataStream, false);
+	updateList(dataStream, false, false);
 }
 
 /* MAL edit anime */

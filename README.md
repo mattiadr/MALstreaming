@@ -6,7 +6,7 @@ Adds streaming links to the next available episode to your Currently Watching pa
 
 Supported streaming websites:
 - [x] <a href='http://kissanime.ru' target='_blank'>Kissanime</a>
-- [ ] <a href='https://9anime.is' target='_blank'>9anime</a>
+- [x] <a href='https://9anime.is' target='_blank'>9anime</a>
 
 ## Usage
 This script is only active if you are logged in and in your currently watching page.
