@@ -22,7 +22,7 @@ The Comment must contain the name of the website followed by the partial url for
 To easily set the comment, in the edit page a search function is provided (shown below).
 
 <details><summary>Show/Hide Image</summary>
-![Edit Page](images/edit_page.png)
+<img src="images/edit_page.png" alt="Edit Page">
 </details>
 
 ## How to Install
