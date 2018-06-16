@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         MAL to streaming
+// @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
 // @version      4.0
 // @author       https://github.com/mattiadr
@@ -11,8 +11,7 @@
 // @supportURL   https://github.com/mattiadr/MALstreaming/issues
 // @match        https://myanimelist.net/animelist/*
 // @match        https://myanimelist.net/ownlist/anime/*/edit*
-// @match        https://myanimelist.net/editlist.php?type=anime&id=*
-// @match        https://myanimelist.net/panel.php?go=add&selected_series_id=*
+// @match        https://myanimelist.net/ownlist/anime/add?selected_series_id=*
 // @match        http://kissanime.ru/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @grant        GM_xmlhttpRequest
