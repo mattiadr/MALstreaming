@@ -225,10 +225,13 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				// get time if available
 				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
 				let timeMillis;
-				if (time.length === 0) {
-					timeMillis = undefined;
-				} else {
+				if (time.length !== 0) {
+					// timer is present
 					timeMillis = time.data("to") * 1000 - Date.now();
+				} else {
+					// timer is not present, estimating based on latest episode
+					let timeStr = as.last().data("title").replace("-", "");
+					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
 				}
 				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
@@ -357,6 +360,7 @@ function updateList(dataStream, forceReload, canReload) {
 	dataStream.find(".nextep").remove();
 	dataStream.find(".loading").remove();
 	dataStream.find(".timer").remove();
+	dataStream.off("update-time");
 	// get episode list from data
 	let episodeList = dataStream.data("episodeList");
 	if (episodeList && !forceReload) {
