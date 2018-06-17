@@ -80,7 +80,7 @@ kissanime.epsBlacklist = [
 // regexes
 kissanime.regexWhitelist = /episode|movie|special|OVA/i;
 kissanime.regexBlacklist = /\b_[a-z]+|recap|\.5/i;
-kissanime.regexCountdown = /\d+(?=\), function)/g;
+kissanime.regexCountdown = /\d+(?=\), function)/;
 
 // loads kissanime cookies and then calls back
 function kissanime_loadCookies(callback, arg1, arg2) {
@@ -222,8 +222,16 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 						href:nineanime.base + $(this).attr("href")
 					});
 				});
+				// get time if available
+				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
+				let timeMillis;
+				if (time.length === 0) {
+					timeMillis = undefined;
+				} else {
+					timeMillis = time.data("to") * 1000 - Date.now();
+				}
 				// callback
-				putEpisodes(dataStream, episodes, undefined);
+				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}
 	});
@@ -379,7 +387,7 @@ function updateList_exists(dataStream) {
 		// there are episodes available
 		let isAiring = listitem.find("span.content-status:contains('Airing')").length !== 0;
 		let t = episodes[currEp].text;
-		
+
 		let a = $("<a></a>");
 		a.text(t.length > 13 ? t.substr(0, 12) + "&hellip;" : t);
 		if (t.length > 13) a.attr("title", t);
@@ -403,7 +411,7 @@ function updateList_exists(dataStream) {
 			// get time from data
 			let timeMillis = dataStream.data("timeMillis");
 			let time;
-			if (isNaN(timeMillis)) {
+			if (!timeMillis || isNaN(timeMillis)) {
 				time = "Not Yet Aired";
 			} else {
 				const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
@@ -413,17 +421,18 @@ function updateList_exists(dataStream) {
 				if (d > 0) {
 					time = d + (d == 1 ? " day " : " days ") + time;
 				}
+				// subtract time
+				dataStream.data("timeMillis", timeMillis - 1000);
+				// if 0 is reached, stop it
+				if (timeMillis < 1000) {
+					dataStream.removeData("timeMillis");
+				}
 			}
 			// if timer doesn't exist create it, otherwise update it
 			if (dataStream.find(".timer").length === 0) {
 				dataStream.prepend("<div class='timer'>" + time + "<div>");
 			} else {
 				dataStream.find(".timer").html(time);
-			}
-			// subtract time
-			dataStream.data("timeMillis", timeMillis - 1000);
-			if (timeMillis < 1000) {
-				dataStream.trigger("click");
 			}
 		});
 
