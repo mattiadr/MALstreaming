@@ -415,7 +415,7 @@ function updateList_exists(dataStream) {
 			// get time from data
 			let timeMillis = dataStream.data("timeMillis");
 			let time;
-			if (!timeMillis || isNaN(timeMillis)) {
+			if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 				time = "Not Yet Aired";
 			} else {
 				const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
