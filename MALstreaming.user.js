@@ -219,7 +219,7 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				as.each(function() {
 					episodes.push({
 						text:"Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-						href:nineanime.base + $(this).attr("href")
+						href:nineanime.base + $(this).attr("href").substr(1)
 					});
 				});
 				// get time if available
