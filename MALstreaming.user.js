@@ -23,7 +23,7 @@
 
 /*
 	HOW TO ADD A NEW STREAMING SERVICE:
-	- add a new object to the streamingServices array with attributes id (unique id without spaces) and name (display name)
+	- add a new object to the streamingServices array with attributes id (unique id, must be a valid identifier) and name (display name)
 	- create a new function in getEplistUrl that will simply return the full url from the partial url (saved in comments)
 	- create a new function in getEpisodes that will accept dataStream and url,
 	  the function needs to callback to putEpisodes(dataStream, episodes, timeMillis)
@@ -363,14 +363,15 @@ function updateList(dataStream, forceReload, canReload) {
 	dataStream.off("update-time");
 	// get episode list from data
 	let episodeList = dataStream.data("episodeList");
-	if (episodeList && !forceReload) {
+	if (episodeList && episodeList.length > 0 && !forceReload) {
 		// episode list exists
 		updateList_exists(dataStream);
 	} else if (canReload) {
 		// episode list doesn't exist or needs to be reloaded
 		updateList_doesntExist(dataStream);
 	} else {
-		dataStream.prepend("Error while loading");
+		// broken link
+		dataStream.prepend("<font color='red'>Broken link</font><br>");
 	}
 }
 

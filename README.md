@@ -27,7 +27,7 @@ To easily set the comment, in the edit page a search function is provided (shown
 
 ## How to Install
 1. Install <a href='https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo' target='_blank'>Tampermonkey (Chrome)</a> or <a href='https://addons.mozilla.org/firefox/addon/greasemonkey/' target='_blank'>Greasemonkey (Firefox)</a>
-2. Click <a href='https://raw.githubusercontent.com/mattiadr/MALstreaming/master/MALstreaming.user.js'>here to install the script</a>
+2. Click <a href='https://raw.githubusercontent.com/mattiadr/MALstreaming/master/MALstreaming.user.js'>here to install the script</a> or visit the <a href='https://greasyfork.org/en/scripts/369605-malstreaming'>GreasyFork page</a>
 
 ## Post Install
 Since this script adds another column to the list, an alternate css is recommended to make the list wider.
@@ -37,5 +37,6 @@ You change the background image just by substituting the default background-url 
 This script will work with most anime, but since there can be exceptions there might be some errors in the episode count.
 If you want to report a bug or request a feature you can:
 - <a href='https://github.com/mattiadr/MALstreaming/issues' target='_blank'>Submit an issue on github</a>
+- <a href='https://greasyfork.org/en/scripts/369605-malstreaming/feedback' target='_blank'>Start a discussion on GreasyFork</a>
 - Message me directly on <a href='https://www.reddit.com/user/mattiadr96/' target='_blank'>reddit</a> or <a href='https://myanimelist.net/profile/mattiadr' target='_blank'>MAL</a>
 - Email me at mattiadr96@gmail.com
