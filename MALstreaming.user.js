@@ -357,6 +357,7 @@ pageLoad["list"] = function() {
 // updates dataStream cell
 function updateList(dataStream, forceReload, canReload) {
 	// remove old divs
+	dataStream.find(".error").remove();
 	dataStream.find(".nextep").remove();
 	dataStream.find(".loading").remove();
 	dataStream.find(".timer").remove();
@@ -371,7 +372,7 @@ function updateList(dataStream, forceReload, canReload) {
 		updateList_doesntExist(dataStream);
 	} else {
 		// broken link
-		dataStream.prepend("<font color='red'>Broken link</font><br>");
+		dataStream.prepend("<div class='error' color='red'>Broken link</div><br>");
 	}
 }
 
@@ -465,11 +466,11 @@ function updateList_doesntExist(dataStream) {
 			getEpisodes[url[0]](dataStream, url[1]);
 		} else {
 			// comment invalid
-			dataStream.append("Invalid Link")
+			dataStream.append("<div class='error'>Invalid Link</div>")
 		}
 	} else {
 		// comment doesn't extst
-		dataStream.append("No Link");
+		dataStream.append("<div class='error'>No Link</div>");
 	}
 }
 
