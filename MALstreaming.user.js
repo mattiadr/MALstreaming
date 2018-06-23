@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      4.0
+// @version      4.1
 // @author       https://github.com/mattiadr
 // @description  Adds various streaming links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -32,7 +32,8 @@
 	  timeMillis can optionally be the time left until the next episode in milliseconds
 	- create a new function in search that will accept id and title
 	  the function needs to callback to putResults(id, results, manualSearch)
-	  results needs to be an array of object with title (display title), href (the url that will be put in the comments) and fullhref (full url of page) attributes
+	  results needs to be an array of object with title (display title), href (the url that will be put in the comments), fullhref (full url of page) attributes
+	  and epsiodes (optional number of episodes)
 	  manualSearch needs to be an url to visit if search yields no results
 	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another if in the "main"
 */
@@ -126,8 +127,8 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 						let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 						// prepend new object to array
 						episodes.unshift({
-							text:t,
-							href:kissanime.anime + e.href.split("/Anime/")[1] + kissanime.server
+							text: t,
+							href: kissanime.anime + e.href.split("/Anime/")[1] + kissanime.server
 						});
 					}
 				});
@@ -161,9 +162,9 @@ searchSite["kissanime"] = function(id, title) {
 				if (resp.finalUrl.indexOf(kissanime.search) == -1) {
 					// only one result
 					results.push({
-						title:title,
-						href:resp.finalUrl.split("/")[4],
-						fullhref:kissanime.anime + resp.finalUrl.split("/")[4]
+						title:    title,
+						href:     resp.finalUrl.split("/")[4],
+						fullhref: kissanime.anime + resp.finalUrl.split("/")[4]
 					});
 				} else {
 					// multiple results
@@ -171,9 +172,9 @@ searchSite["kissanime"] = function(id, title) {
 					list.each(function() {
 						let a = $(this).find("a")[0];
 						results.push({
-							title:a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
-							href:a.pathname.split("/")[2],
-							fullhref:kissanime.anime + a.pathname.split("/")[2]
+							title:    a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
+							href:     a.pathname.split("/")[2],
+							fullhref: kissanime.anime + a.pathname.split("/")[2]
 						});
 					})
 				}
@@ -218,8 +219,8 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				let as = server.find("li > a");
 				as.each(function() {
 					episodes.push({
-						text:"Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-						href:nineanime.base + $(this).attr("href").substr(1)
+						text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
+						href: nineanime.base + $(this).attr("href").substr(1)
 					});
 				});
 				// get time if available
@@ -258,11 +259,15 @@ searchSite["nineanime"] = function(id, title) {
 				list = list.slice(0, 10);
 				// add to results
 				list.each(function() {
+					// get anchor for text and href
 					let a = $(this).find("a")[1];
+					// get episode count
+					let ep = $(this).find(".status > .ep").text().match(/(?<=\/)\d+/);
 					results.push({
-						title:a.text,
-						href:a.href.split("/")[4],
-						fullhref:a.href
+						title:    a.text,
+						href:     a.href.split("/")[4],
+						fullhref: a.href,
+						episodes: ep ? (ep[0] + " eps") : "1 ep"
 					});
 				});
 				// callback
@@ -531,7 +536,11 @@ function putResults(id, results, manualSearch) {
 				$("#add_anime_comments").val(id + " " + r.href);
 				return false;
 			});
-			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + r.fullhref + "'>" + r.title + "</a>").append("<br>");
+			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + r.fullhref + "'>" + r.title + "</a>");
+			if (r.episodes) {
+				siteDiv.append(" (" + r.episodes + ")");
+			}
+			siteDiv.append("<br>");
 		}
 	}
 }
