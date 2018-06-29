@@ -71,8 +71,8 @@ const getEplistUrl = {};
 const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
-	{ id: "kissanime", anime: true, maga: false, name: "Kissanime" },
-	{ id: "nineanime", anime: true, maga: false, name: "9anime"    }
+	{ id: "kissanime", anime: true, manga: false, name: "Kissanime" },
+	{ id: "nineanime", anime: true, manga: false, name: "9anime"    }
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
