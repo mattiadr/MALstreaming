@@ -38,7 +38,7 @@
 	  results needs to be an array of object with title (display title), href (the url that will be put in the comments), fullhref (full url of page) attributes
 	  and epsiodes (optional number of episodes)
 	  manualSearch needs to be an url to visit if search yields no results
-	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another if in the "main"
+	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another object to the pages array
 */
 
 /* generic */
@@ -47,6 +47,8 @@
 let malProperties = {};
 malProperties["anime"] = {};
 malProperties["manga"] = {};
+malProperties["anime"].mode = "anime";
+malProperties["manga"].mode = "manga";
 malProperties["anime"].watching = ".list-unit.watching";
 malProperties["manga"].watching = ".list-unit.reading";
 malProperties["anime"].colHeader = "<th class='header-title stream'>Watch</th>";
@@ -69,11 +71,8 @@ const getEplistUrl = {};
 const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
-	// anime
-	{id:"kissanime", name:"Kissanime"},
-	{id:"nineanime", name:"9anime"}
-	// manga
-	//{id:"kissmanga", name:"Kissmanga"},
+	{ id: "kissanime", anime: true, maga: false, name: "Kissanime" },
+	{ id: "nineanime", anime: true, maga: false, name: "9anime"    }
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
@@ -516,6 +515,7 @@ pageLoad["edit"] = function() {
 	// add streamingServices
 	for (let i = 0 ; i < streamingServices.length; i++) {
 		let ss = streamingServices[i];
+		if (!ss[malProperties.mode]) continue;
 		if (i !== 0) search.append(", ");
 		// new anchor
 		let a = $("<a></a>");
