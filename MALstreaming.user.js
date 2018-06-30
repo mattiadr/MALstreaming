@@ -71,8 +71,8 @@ const getEplistUrl = {};
 const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
-	{ id: "kissanime", anime: true, manga: false, name: "Kissanime" },
-	{ id: "nineanime", anime: true, manga: false, name: "9anime"    }
+	{ id: "kissanime", type: "anime", name: "Kissanime" },
+	{ id: "nineanime", type: "anime", name: "9anime"    }
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
@@ -515,7 +515,7 @@ pageLoad["edit"] = function() {
 	// add streamingServices
 	for (let i = 0 ; i < streamingServices.length; i++) {
 		let ss = streamingServices[i];
-		if (!ss[properties.mode]) continue;
+		if (ss.type != properties.mode) continue;
 		if (i !== 0) search.append(", ");
 		// new anchor
 		let a = $("<a></a>");
