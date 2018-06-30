@@ -44,21 +44,21 @@
 /* generic */
 /*******************************************************************************************************************************************************************/
 // contains properties related to MAL
-let malProperties = {};
-malProperties["anime"] = {};
-malProperties["manga"] = {};
-malProperties["anime"].mode = "anime";
-malProperties["manga"].mode = "manga";
-malProperties["anime"].watching = ".list-unit.watching";
-malProperties["manga"].watching = ".list-unit.reading";
-malProperties["anime"].colHeader = "<th class='header-title stream'>Watch</th>";
-malProperties["manga"].colHeader = "<th class='header-title stream'>Read</th>";
-malProperties["anime"].commentsRegex = /Comments: ([\S ]+)(?=&nbsp;)/g;
-malProperties["manga"].commentsRegex = /Comments: ([\S ]+)(?=\n)/g;
-malProperties["anime"].findAiring = "span.content-status:contains('Airing')";
-malProperties["manga"].findAiring = "span.content-status:contains('Publishing')";
-malProperties["anime"].editPageBox = "#add_anime_comments";
-malProperties["manga"].editPageBox = "#add_manga_comments";
+let properties = {};
+properties["anime"] = {};
+properties["manga"] = {};
+properties["anime"].mode = "anime";
+properties["manga"].mode = "manga";
+properties["anime"].watching = ".list-unit.watching";
+properties["manga"].watching = ".list-unit.reading";
+properties["anime"].colHeader = "<th class='header-title stream'>Watch</th>";
+properties["manga"].colHeader = "<th class='header-title stream'>Read</th>";
+properties["anime"].commentsRegex = /Comments: ([\S ]+)(?=&nbsp;)/g;
+properties["manga"].commentsRegex = /Comments: ([\S ]+)(?=\n)/g;
+properties["anime"].findAiring = "span.content-status:contains('Airing')";
+properties["manga"].findAiring = "span.content-status:contains('Publishing')";
+properties["anime"].editPageBox = "#add_anime_comments";
+properties["manga"].editPageBox = "#add_manga_comments";
 // contains all functions to execute on page load
 const pageLoad = {};
 // contains all functions to get the episodes list from the streaming services
@@ -301,7 +301,7 @@ searchSite["nineanime"] = function(id, title) {
 pageLoad["list"] = function() {
 	// own list
 	if ($(".header-menu.other").length !== 0) return;
-	if ($(malProperties.watching).length !== 1) return;
+	if ($(properties.watching).length !== 1) return;
 
 	// force hide more-info
 	const styleSheet = document.createElement("style");
@@ -318,7 +318,7 @@ pageLoad["list"] = function() {
 	});
 
 	// add col to table
-	$("#list-container").find("th.header-title.title").after(malProperties.colHeader);
+	$("#list-container").find("th.header-title.title").after(properties.colHeader);
 	$(".list-item").each(function() {
 		$(this).find(".data.title").after("<td class='data stream'></td>");
 	});
@@ -337,7 +337,7 @@ pageLoad["list"] = function() {
 
 		// put comment into data("comment")
 		$(".list-item").each(function() {
-			let comment = $(this).find(".td1.borderRBL").html().match(malProperties.commentsRegex);
+			let comment = $(this).find(".td1.borderRBL").html().match(properties.commentsRegex);
 			if (comment) {
 				// revome the first 10 characters to remove "Comments: " since js doesn't support lookbehinds
 				comment = comment.toString().substring(10);
@@ -414,7 +414,7 @@ function updateList_exists(dataStream) {
 
 	if (episodes.length > currEp) {
 		// there are episodes available
-		let isAiring = listitem.find(malProperties.findAiring).length !== 0;
+		let isAiring = listitem.find(properties.findAiring).length !== 0;
 		let t = episodes[currEp].text;
 
 		let a = $("<a></a>");
@@ -511,11 +511,11 @@ pageLoad["edit"] = function() {
 	const title = $("#main-form > table:nth-child(1) > tbody > tr:nth-child(1) > td:nth-child(2) > strong > a")[0].text;
 	// add #search div
 	let search = $("<div id='search'><b style='font-size: 110%; line-height: 180%;'>Search: </b></div>");
-	$(malProperties.editPageBox).after(search);
+	$(properties.editPageBox).after(search);
 	// add streamingServices
 	for (let i = 0 ; i < streamingServices.length; i++) {
 		let ss = streamingServices[i];
-		if (!ss[malProperties.mode]) continue;
+		if (!ss[properties.mode]) continue;
 		if (i !== 0) search.append(", ");
 		// new anchor
 		let a = $("<a></a>");
@@ -552,7 +552,7 @@ function putResults(id, results, manualSearch) {
 			let r = results[i];
 			let a = $("<a href='#'>Select</a>");
 			a.on("click", function() {
-				$(malProperties.editPageBox).val(id + " " + r.href);
+				$(properties.editPageBox).val(id + " " + r.href);
 				return false;
 			});
 			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + r.fullhref + "'>" + r.title + "</a>");
@@ -566,7 +566,7 @@ function putResults(id, results, manualSearch) {
 
 /* main */
 /*******************************************************************************************************************************************************************/
-// associates an url with malProperties and pageLoad function
+// associates an url with properties and pageLoad function
 let pages = [
 	{ url: kissanime.base,                            prop: null,    load: "kissanime" },
 	{ url: "https://myanimelist.net/animelist/",      prop: "anime", load: "list"      },
@@ -578,7 +578,7 @@ let pages = [
 (function($) {
 	for (let i = 0; i < pages.length; i++) {
 		if (window.location.href.indexOf(pages[i].url) != -1) {
-			malProperties = malProperties[pages[i].prop];
+			properties = properties[pages[i].prop];
 			pageLoad[pages[i].load]();
 			break;
 		}
