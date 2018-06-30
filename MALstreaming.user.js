@@ -192,6 +192,7 @@ nineanime.base = "https://www5.9anime.is/";
 nineanime.anime = nineanime.base + "watch/";
 nineanime.search = nineanime.base + "search?keyword=";
 nineanime.server = "33"; // RapidVideo = 33, MyCloud = 28, Streamango = 34, OpenLoad = 24
+nineanime.regexBlacklist = /preview|special/i;
 
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
@@ -218,10 +219,14 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				// get anchors
 				let as = server.find("li > a");
 				as.each(function() {
-					episodes.push({
-						text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-						href: nineanime.base + $(this).attr("href").substr(1)
-					});
+					// ignore blacklisted episodes
+					if (!nineanime.regexBlacklist.test($(this).text())) {
+						// push episode to array
+						episodes.push({
+							text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
+							href: nineanime.base + $(this).attr("href").substr(1)
+						});
+					}
 				});
 				// get time if available
 				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
