@@ -52,8 +52,8 @@ const getEplistUrl = {};
 const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
+	{id:"nineanime", name:"9anime"},
 	{id:"kissanime", name:"Kissanime"},
-	{id:"nineanime", name:"9anime"}
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
@@ -63,6 +63,103 @@ function getUrlFromComment(comment) {
 		if (streamingServices[i].id == c[0]) return c;
 	}
 	return false;
+}
+
+/* 9anime */
+/*******************************************************************************************************************************************************************/
+const nineanime = {};
+nineanime.base = "https://www5.9anime.is/";
+nineanime.anime = nineanime.base + "watch/";
+nineanime.search = nineanime.base + "search?keyword=";
+nineanime.server = "33"; // RapidVideo = 33, MyCloud = 28, Streamango = 34, OpenLoad = 24
+nineanime.regexBlacklist = /preview|special/i;
+
+getEpisodes["nineanime"] = function(dataStream, url) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: nineanime.anime + url,
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let episodes = [];
+				// get servers
+				let servers = jqPage.find("#main > div > div.widget.servers > div.widget-body > .server");
+				let server = null;
+				// if possibe use specified server
+				servers.each(function() {
+					if ($(this).attr("data-name") == nineanime.server) {
+						server = $(this);
+					}
+				});
+				// else use first one
+				if (!server) {
+					server = servers.first();
+				}
+				// get anchors
+				let as = server.find("li > a");
+				as.each(function() {
+					// ignore blacklisted episodes
+					if (!nineanime.regexBlacklist.test($(this).text())) {
+						// push episode to array
+						episodes.push({
+							text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
+							href: nineanime.base + $(this).attr("href").substr(1)
+						});
+					}
+				});
+				// get time if available
+				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
+				let timeMillis;
+				if (time.length !== 0) {
+					// timer is present
+					timeMillis = time.data("to") * 1000 - Date.now();
+				} else {
+					// timer is not present, estimating based on latest episode
+					let timeStr = as.last().data("title").replace("-", "");
+					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
+				}
+				// callback
+				putEpisodes(dataStream, episodes, timeMillis);
+			}
+		}
+	});
+}
+
+getEplistUrl["nineanime"] = function(partialUrl) {
+	return nineanime.anime + partialUrl;
+}
+
+searchSite["nineanime"] = function(id, title) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: nineanime.search + encodeURI(title),
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let results = [];
+				// get results from response
+				let list = jqPage.find("#main > div > div:nth-child(1) > div.widget-body > div.film-list > .item");
+				list = list.slice(0, 10);
+				// add to results
+				list.each(function() {
+					// get anchor for text and href
+					let a = $(this).find("a")[1];
+					// get episode count
+					let ep = $(this).find(".status > .ep").text().match(/(?<=\/)\d+/);
+					results.push({
+						title:    a.text,
+						href:     a.href.split("/")[4],
+						fullhref: a.href,
+						episodes: ep ? (ep[0] + " eps") : "1 ep"
+					});
+				});
+				// callback
+				putResults(id, results, nineanime.base);
+			}
+		}
+	});
 }
 
 /* kissanime */
@@ -185,103 +282,6 @@ searchSite["kissanime"] = function(id, title) {
 	});
 }
 
-/* 9anime */
-/*******************************************************************************************************************************************************************/
-const nineanime = {};
-nineanime.base = "https://www5.9anime.is/";
-nineanime.anime = nineanime.base + "watch/";
-nineanime.search = nineanime.base + "search?keyword=";
-nineanime.server = "33"; // RapidVideo = 33, MyCloud = 28, Streamango = 34, OpenLoad = 24
-nineanime.regexBlacklist = /preview|special/i;
-
-getEpisodes["nineanime"] = function(dataStream, url) {
-	GM_xmlhttpRequest({
-		method: "GET",
-		url: nineanime.anime + url,
-		onload: function(resp) {
-			if (resp.status == 200) {
-				// OK
-				let jqPage = $(resp.response);
-				let episodes = [];
-				// get servers
-				let servers = jqPage.find("#main > div > div.widget.servers > div.widget-body > .server");
-				let server = null;
-				// if possibe use specified server
-				servers.each(function() {
-					if ($(this).attr("data-name") == nineanime.server) {
-						server = $(this);
-					}
-				});
-				// else use first one
-				if (!server) {
-					server = servers.first();
-				}
-				// get anchors
-				let as = server.find("li > a");
-				as.each(function() {
-					// ignore blacklisted episodes
-					if (!nineanime.regexBlacklist.test($(this).text())) {
-						// push episode to array
-						episodes.push({
-							text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-							href: nineanime.base + $(this).attr("href").substr(1)
-						});
-					}
-				});
-				// get time if available
-				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
-				let timeMillis;
-				if (time.length !== 0) {
-					// timer is present
-					timeMillis = time.data("to") * 1000 - Date.now();
-				} else {
-					// timer is not present, estimating based on latest episode
-					let timeStr = as.last().data("title").replace("-", "");
-					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
-				}
-				// callback
-				putEpisodes(dataStream, episodes, timeMillis);
-			}
-		}
-	});
-}
-
-getEplistUrl["nineanime"] = function(partialUrl) {
-	return nineanime.anime + partialUrl;
-}
-
-searchSite["nineanime"] = function(id, title) {
-	GM_xmlhttpRequest({
-		method: "GET",
-		url: nineanime.search + encodeURI(title),
-		onload: function(resp) {
-			if (resp.status == 200) {
-				// OK
-				let jqPage = $(resp.response);
-				let results = [];
-				// get results from response
-				let list = jqPage.find("#main > div > div:nth-child(1) > div.widget-body > div.film-list > .item");
-				list = list.slice(0, 10);
-				// add to results
-				list.each(function() {
-					// get anchor for text and href
-					let a = $(this).find("a")[1];
-					// get episode count
-					let ep = $(this).find(".status > .ep").text().match(/(?<=\/)\d+/);
-					results.push({
-						title:    a.text,
-						href:     a.href.split("/")[4],
-						fullhref: a.href,
-						episodes: ep ? (ep[0] + " eps") : "1 ep"
-					});
-				});
-				// callback
-				putResults(id, results, nineanime.base);
-			}
-		}
-	});
-}
-
 /* MAL animelist */
 /*******************************************************************************************************************************************************************/
 pageLoad["list"] = function() {
@@ -382,7 +382,7 @@ function updateList(dataStream, forceReload, canReload) {
 		updateList_doesntExist(dataStream);
 	} else {
 		// broken link
-		dataStream.prepend("<div class='error' color='red'>Broken link</div><br>");
+		dataStream.prepend("<div class='error' color='red'>Broken link<br></div>");
 	}
 }
 
