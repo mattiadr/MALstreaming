@@ -1,15 +1,22 @@
 # MALstreaming
-Adds streaming links to the next available episode to your Currently Watching page on <a href='https://myanimelist.net' target='_blank'>MAL</a>.
+Adds anime streaming links to the next available episode to your Currently Watching page on <a href='https://myanimelist.net' target='_blank'>MAL</a>.
+
+Since version 5.0 it also adds next available manga chapter to your Currently Reading list.
 
 ## Preview
 ![Preview Image](images/preview.png)
 
-Supported streaming websites:
-- [x] <a href='https://9anime.is' target='_blank'>9anime</a>
-- [x] <a href='http://kissanime.ru' target='_blank'>Kissanime</a>
+Supported anime websites:
+- [x] <a href='https://9anime.is/' target='_blank'>9anime</a>
+- [x] <a href='http://kissanime.ru/' target='_blank'>Kissanime</a>
 - [ ] <a href='https://www.masterani.me/' target='_blank'>Masterani.me</a>
 
+Supported manga websites (coming soon):
+- [ ] <a href='https://mangadex.org/' target='_blank'>MangaDex</a>
+
 ## Usage
+The functionality is the same for both anime and manga.
+
 This script is only active if you are logged in and in your currently watching page.
 It provides the link to the next available episode, if there are multiple episodes their number will be in parenthesis.
 The link will be green for currently airing anime or orange for non airing.
@@ -40,4 +47,4 @@ If you want to report a bug or request a feature you can:
 - <a href='https://github.com/mattiadr/MALstreaming/issues' target='_blank'>Submit an issue on github</a>
 - <a href='https://greasyfork.org/en/scripts/369605-malstreaming/feedback' target='_blank'>Start a discussion on GreasyFork</a>
 - Message me directly on <a href='https://www.reddit.com/user/mattiadr96/' target='_blank'>reddit</a> or <a href='https://myanimelist.net/profile/mattiadr' target='_blank'>MAL</a>
-- Email me at mattiadr96@gmail.com
+- Email me at <mattiadr96@gmail.com>
