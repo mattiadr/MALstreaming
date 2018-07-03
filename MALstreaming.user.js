@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.0
+// @version      5.1
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -34,10 +34,9 @@
 	  episodes needs to be an array of object with text and href attributes
 	  timeMillis can optionally be the time left until the next episode in milliseconds
 	- create a new function in search that will accept id and title
-	  the function needs to callback to putResults(id, results, manualSearch)
+	  the function needs to callback to putResults(id, results)
 	  results needs to be an array of object with title (display title), href (the url that will be put in the comments), fullhref (full url of page) attributes
 	  and epsiodes (optional number of episodes)
-	  manualSearch needs to be an url to visit if search yields no results
 	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another object to the pages array
 */
 
@@ -171,7 +170,7 @@ searchSite["nineanime"] = function(id, title) {
 					});
 				});
 				// callback
-				putResults(id, results, nineanime.base);
+				putResults(id, results);
 			}
 		}
 	});
@@ -291,7 +290,7 @@ searchSite["kissanime"] = function(id, title) {
 					})
 				}
 				// callback
-				putResults(id, results, kissanime.base);
+				putResults(id, results);
 			}
 		}
 	});
@@ -510,9 +509,11 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 pageLoad["edit"] = function() {
 	// get title
 	const title = $("#main-form > table:nth-child(1) > tbody > tr:nth-child(1) > td:nth-child(2) > strong > a")[0].text;
+	// add titleBox with default title
+	let titleBox = $("<input type='text' value='" + title + "' size='36' style='font-size: 11px; padding: 3px;'>");
 	// add #search div
 	let search = $("<div id='search'><b style='font-size: 110%; line-height: 180%;'>Search: </b></div>");
-	$(properties.editPageBox).after(search);
+	$(properties.editPageBox).after("<br>", titleBox, "<br>", search);
 	// add streamingServices
 	for (let i = 0 ; i < streamingServices.length; i++) {
 		let ss = streamingServices[i];
@@ -529,7 +530,7 @@ pageLoad["edit"] = function() {
 			// add new result box
 			search.append("<div class='site " + ss.id + "'><div id='searching'>Searching...</div></div>");
 			// execute search
-			searchSite[ss.id](ss.id, title);
+			searchSite[ss.id](ss.id, titleBox.val());
 			// return
 			return false;
 		});
@@ -538,14 +539,14 @@ pageLoad["edit"] = function() {
 	search.append("<br>");
 }
 
-function putResults(id, results, manualSearch) {
+function putResults(id, results) {
 	let siteDiv = $("#search").find("." + id);
 	// if div with current id cant be found then don't add results
 	if (siteDiv.length !== 0) {
 		siteDiv.find("#searching").remove();
 
 		if (results.length === 0) {
-			siteDiv.append("No Results. <a target='_blank' href='" + manualSearch + "'>Manual Search</a></div>");
+			siteDiv.append("No Results. Try changing the title in the search box above.");
 			return;
 		}
 		// add results
