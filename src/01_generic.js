@@ -54,6 +54,7 @@ const streamingServices = [
 	{ id: "nineanime", type: "anime", name: "9anime"    },
 	{ id: "kissanime", type: "anime", name: "Kissanime" },
 	// manga
+	{ id: "kissmanga", type: "manga", name: "Kissmanga" },
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
