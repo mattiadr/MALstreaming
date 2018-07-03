@@ -54,8 +54,14 @@ properties["anime"].colHeader = "<th class='header-title stream'>Watch</th>";
 properties["manga"].colHeader = "<th class='header-title stream'>Read</th>";
 properties["anime"].commentsRegex = /Comments: ([\S ]+)(?=&nbsp;)/g;
 properties["manga"].commentsRegex = /Comments: ([\S ]+)(?=\n)/g;
+properties["anime"].iconAdd = ".icon-add-episode";
+properties["manga"].iconAdd = ".icon-add-chapter";
+properties["anime"].findProgress = ".data.progress";
+properties["manga"].findProgress = ".data.chapter";
 properties["anime"].findAiring = "span.content-status:contains('Airing')";
 properties["manga"].findAiring = "span.content-status:contains('Publishing')";
+properties["anime"].ep = "Ep.";
+properties["manga"].ep = "Ch.";
 properties["anime"].editPageBox = "#add_anime_comments";
 properties["manga"].editPageBox = "#add_manga_comments";
 // contains all functions to execute on page load
@@ -233,7 +239,7 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				as.each(function(i, e) {
 					// title must match regexWhitelist, must not match regexBlacklist and href must not be in epsBlacklist to be considered a valid episode
 					if (kissanime.regexWhitelist.test(e.text) && !kissanime.regexBlacklist.test(e.text) && kissanime.epsBlacklist.indexOf(e.href) == -1) {
-						// get tite to split episode name and leave only "Episode xx"
+						// get title to split episode name and leave only "Episode xx"
 						let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 						let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 						// prepend new object to array
@@ -296,7 +302,7 @@ searchSite["kissanime"] = function(id, title) {
 	});
 }
 
-/* MAL animelist */
+/* MAL list */
 /*******************************************************************************************************************************************************************/
 pageLoad["list"] = function() {
 	// own list
@@ -326,7 +332,7 @@ pageLoad["list"] = function() {
 	// style
 	$(".data.stream").css("font-weight", "normal");
 	$(".data.stream").css("line-height", "1.5em");
-	$(".header-title.stream").css("min-width", "90px");
+	$(".header-title.stream").css("min-width", "120px");
 
 	// wait
 	setTimeout(function() {
@@ -366,7 +372,7 @@ pageLoad["list"] = function() {
 	});
 
 	// complete one episode
-	$(".icon-add-episode").on("click", function() {
+	$(properties.iconAdd).on("click", function() {
 		let dataStream = $(this).parents(".list-item").find(".data.stream");
 		updateList(dataStream, false, true);
 	});
@@ -403,7 +409,7 @@ function updateList_exists(dataStream) {
 	// listitem
 	let listitem = dataStream.parents(".list-item");
 	// get current episode number
-	let currEp = parseInt(listitem.find(".data.progress").find(".link").text());
+	let currEp = parseInt(listitem.find(properties.findProgress).find(".link").text());
 	if (isNaN(currEp)) currEp = 0;
 	// get episodes from data
 	let episodes = dataStream.data("episodeList");
@@ -418,7 +424,7 @@ function updateList_exists(dataStream) {
 		let t = episodes[currEp].text;
 
 		let a = $("<a></a>");
-		a.text(t.length > 13 ? t.substr(0, 12) + "&hellip;" : t);
+		a.text(t.length > 13 ? t.substr(0, 12) + "…" : t);
 		if (t.length > 13) a.attr("title", t);
 		a.attr("href", episodes[currEp].href);
 		a.attr("target", "_blank");
@@ -483,7 +489,7 @@ function updateList_doesntExist(dataStream) {
 			// add eplist to dataStream
 			if (dataStream.find(".eplist").length === 0) {
 				let eplistUrl = getEplistUrl[url[0]](url[1]);
-				dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>Ep. list</a>");
+				dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
 			}
 			// executes getEpisodes relative to url[0] passing dataStream and url[1]
 			getEpisodes[url[0]](dataStream, url[1]);
@@ -504,7 +510,7 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 	updateList(dataStream, false, false);
 }
 
-/* MAL edit anime */
+/* MAL edit */
 /*******************************************************************************************************************************************************************/
 pageLoad["edit"] = function() {
 	// get title
@@ -515,10 +521,16 @@ pageLoad["edit"] = function() {
 	let search = $("<div id='search'><b style='font-size: 110%; line-height: 180%;'>Search: </b></div>");
 	$(properties.editPageBox).after("<br>", titleBox, "<br>", search);
 	// add streamingServices
-	for (let i = 0 ; i < streamingServices.length; i++) {
+	let first = true;
+	for (let i = 0; i < streamingServices.length; i++) {
 		let ss = streamingServices[i];
 		if (ss.type != properties.mode) continue;
-		if (i !== 0) search.append(", ");
+		// don't append ", " before first ss
+		if (first) {
+			first = false;
+		} else {
+			search.append(", ");
+		}
 		// new anchor
 		let a = $("<a></a>");
 		a.text(ss.name);
@@ -574,7 +586,7 @@ let pages = [
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"      },
 	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list"      },
 	{ url: "https://myanimelist.net/ownlist/anime/", prop: "anime", load: "edit"      },
-	{ url: "https://myanimelist.net/ownlist/manga/", prop: "manga", load: "edit"      }
+	{ url: "https://myanimelist.net/ownlist/manga/", prop: "manga", load: "edit"      },
 ];
 
 (function($) {
