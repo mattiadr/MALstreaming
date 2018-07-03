@@ -265,7 +265,7 @@ searchSite["kissanime"] = function(id, title) {
 		onload: function(resp) {
 			if (resp.status == 503) {
 				// loading CF cookies
-				kissanime_loadCookies(search["kissanime"], title);
+				kissanime_loadCookies(search["kissanime"], id, title);
 			} else if (resp.status == 200) {
 				// OK
 				let results = [];
