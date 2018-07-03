@@ -43,7 +43,7 @@
 
 /* generic */
 /*******************************************************************************************************************************************************************/
-// contains properties related to MAL
+// contains variable properties for anime/manga modes
 let properties = {};
 properties["anime"] = {};
 properties["manga"] = {};
@@ -71,8 +71,10 @@ const getEplistUrl = {};
 const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
+	// anime
+	{ id: "nineanime", type: "anime", name: "9anime"    },
 	{ id: "kissanime", type: "anime", name: "Kissanime" },
-	{ id: "nineanime", type: "anime", name: "9anime"    }
+	// manga
 ];
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
@@ -90,7 +92,7 @@ const nineanime = {};
 nineanime.base = "https://www5.9anime.is/";
 nineanime.anime = nineanime.base + "watch/";
 nineanime.search = nineanime.base + "search?keyword=";
-nineanime.regexBlacklist = /preview|special/i;
+nineanime.regexBlacklist = /preview|special|trailer/i;
 
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
@@ -394,7 +396,7 @@ function updateList(dataStream, forceReload, canReload) {
 		updateList_doesntExist(dataStream);
 	} else {
 		// broken link
-		dataStream.prepend("<div class='error' color='red'>Broken link<br></div>");
+		dataStream.prepend($("<div class='error'>No Episodes<br></div>").css("color", "red"));
 	}
 }
 
