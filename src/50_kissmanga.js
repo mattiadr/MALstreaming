@@ -41,12 +41,14 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				let jqPage = $(resp.response);
 				let episodes = [];
 				// get anchors for the episodes
-				let as = jqPage.find(".listing").find("tr > td > a");
+				let trs = jqPage.find(".listing").find("tr");
+				// series title to split chapter title
+				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
-				as.each(function(i, e) {
-					// get chapter title without series title
-					let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
-					let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
+				trs.each(function(i, e) {
+					let a = $(e).find("td > a");
+					if (a.length === 0) return;
+					let t = a.text().split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 					// get all numbers in title
 					let ns = t.match(/\d+/g);
 					let n;
@@ -61,11 +63,24 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 					// add chapter to array
 					episodes[n] = {
 						text: t,
-						href: kissmanga.manga + e.href.split("/Manga/")[1]
+						href: kissmanga.manga + a.attr('href').split("/Manga/")[1],
+						date: $(e).find("td:nth-child(2)").text()
 					}
 				});
+				// estimate time before next chapter as min of last 5 chapters
+				let prev = null;
+				let min = undefined;
+				for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 6); i--) {
+					if (!episodes[i]) continue;
+					if (prev && episodes[i].date != prev) {
+						let diff = Date.parse(prev) - Date.parse(episodes[i].date);
+						if (!min || diff < min && diff > 0) min = diff;
+					}
+					prev = episodes[i].date;
+				}
+				let timeMillis = Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
 				// callback to insert episodes in list
-				putEpisodes(dataStream, episodes, undefined);
+				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}
 	});

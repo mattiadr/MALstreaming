@@ -117,12 +117,12 @@ function updateList_exists(dataStream) {
 	if (episodes.length > currEp) {
 		// there are episodes available
 		let isAiring = listitem.find(properties.findAiring).length !== 0;
-		let t = episodes[currEp].text;
+		let t = episodes[currEp] ? episodes[currEp].text : ("Missing #" + (currEp + 1));
 
 		let a = $("<a></a>");
 		a.text(t.length > 13 ? t.substr(0, 12) + "…" : t);
 		if (t.length > 13) a.attr("title", t);
-		a.attr("href", episodes[currEp].href);
+		a.attr("href", episodes[currEp] ? episodes[currEp].href : "#");
 		a.attr("target", "_blank");
 		a.attr("class", isAiring ? "airing" : "non-airing");
 		a.css("color", isAiring ? "#2db039" : "#ff730a");
@@ -134,7 +134,7 @@ function updateList_exists(dataStream) {
 		}
 	} else if (currEp > episodes.length) {
 		// user has watched too many episodes
-		nextep.append($("<div class='.epcount-error'>Ep. count Error</div>").css("color", "red"));
+		nextep.append($("<div class='.ep-error'>" + properties.latest + episodes.length + "</div>").css("color", "red"));
 	} else {
 		// there aren't episodes available, displaying timer
 		// add update-time event
@@ -143,7 +143,7 @@ function updateList_exists(dataStream) {
 			let timeMillis = dataStream.data("timeMillis");
 			let time;
 			if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
-				time = "Not Yet Aired";
+				time = properties.notAired;
 			} else {
 				const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
 				const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

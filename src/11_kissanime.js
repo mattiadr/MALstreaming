@@ -51,12 +51,12 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				let episodes = [];
 				// get anchors for the episodes
 				let as = jqPage.find(".listing").find("tr > td > a");
+				// get title to split episode name and leave only "Episode xx"
+				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
 				as.each(function(i, e) {
 					// title must match regexWhitelist, must not match regexBlacklist and href must not be in epsBlacklist to be considered a valid episode
 					if (kissanime.regexWhitelist.test(e.text) && !kissanime.regexBlacklist.test(e.text) && kissanime.epsBlacklist.indexOf(e.href) == -1) {
-						// get title to split episode name and leave only "Episode xx"
-						let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 						let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 						// prepend new object to array
 						episodes.unshift({

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.2
+// @version      5.3
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -61,6 +61,10 @@ properties["anime"].findProgress = ".data.progress";
 properties["manga"].findProgress = ".data.chapter";
 properties["anime"].findAiring = "span.content-status:contains('Airing')";
 properties["manga"].findAiring = "span.content-status:contains('Publishing')";
+properties["anime"].latest = "Latest ep is #";
+properties["manga"].latest = "Latest ch is #";
+properties["anime"].notAired = "Not Yet Aired";
+properties["manga"].notAired = "Not Yet Published";
 properties["anime"].ep = "Ep.";
 properties["manga"].ep = "Ch.";
 properties["anime"].editPageBox = "#add_anime_comments";
@@ -237,12 +241,12 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				let episodes = [];
 				// get anchors for the episodes
 				let as = jqPage.find(".listing").find("tr > td > a");
+				// get title to split episode name and leave only "Episode xx"
+				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
 				as.each(function(i, e) {
 					// title must match regexWhitelist, must not match regexBlacklist and href must not be in epsBlacklist to be considered a valid episode
 					if (kissanime.regexWhitelist.test(e.text) && !kissanime.regexBlacklist.test(e.text) && kissanime.epsBlacklist.indexOf(e.href) == -1) {
-						// get title to split episode name and leave only "Episode xx"
-						let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 						let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 						// prepend new object to array
 						episodes.unshift({
@@ -347,12 +351,14 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				let jqPage = $(resp.response);
 				let episodes = [];
 				// get anchors for the episodes
-				let as = jqPage.find(".listing").find("tr > td > a");
+				let trs = jqPage.find(".listing").find("tr");
+				// series title to split chapter title
+				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
-				as.each(function(i, e) {
-					// get chapter title without series title
-					let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
-					let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
+				trs.each(function(i, e) {
+					let a = $(e).find("td > a");
+					if (a.length === 0) return;
+					let t = a.text().split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 					// get all numbers in title
 					let ns = t.match(/\d+/g);
 					let n;
@@ -367,11 +373,24 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 					// add chapter to array
 					episodes[n] = {
 						text: t,
-						href: kissmanga.manga + e.href.split("/Manga/")[1]
+						href: kissmanga.manga + a.attr('href').split("/Manga/")[1],
+						date: $(e).find("td:nth-child(2)").text()
 					}
 				});
+				// estimate time before next chapter as min of last 5 chapters
+				let prev = null;
+				let min = undefined;
+				for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 6); i--) {
+					if (!episodes[i]) continue;
+					if (prev && episodes[i].date != prev) {
+						let diff = Date.parse(prev) - Date.parse(episodes[i].date);
+						if (!min || diff < min && diff > 0) min = diff;
+					}
+					prev = episodes[i].date;
+				}
+				let timeMillis = Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
 				// callback to insert episodes in list
-				putEpisodes(dataStream, episodes, undefined);
+				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}
 	});
@@ -540,12 +559,12 @@ function updateList_exists(dataStream) {
 	if (episodes.length > currEp) {
 		// there are episodes available
 		let isAiring = listitem.find(properties.findAiring).length !== 0;
-		let t = episodes[currEp].text;
+		let t = episodes[currEp] ? episodes[currEp].text : ("Missing #" + (currEp + 1));
 
 		let a = $("<a></a>");
 		a.text(t.length > 13 ? t.substr(0, 12) + "…" : t);
 		if (t.length > 13) a.attr("title", t);
-		a.attr("href", episodes[currEp].href);
+		a.attr("href", episodes[currEp] ? episodes[currEp].href : "#");
 		a.attr("target", "_blank");
 		a.attr("class", isAiring ? "airing" : "non-airing");
 		a.css("color", isAiring ? "#2db039" : "#ff730a");
@@ -557,7 +576,7 @@ function updateList_exists(dataStream) {
 		}
 	} else if (currEp > episodes.length) {
 		// user has watched too many episodes
-		nextep.append($("<div class='.epcount-error'>Ep. count Error</div>").css("color", "red"));
+		nextep.append($("<div class='.ep-error'>" + properties.latest + episodes.length + "</div>").css("color", "red"));
 	} else {
 		// there aren't episodes available, displaying timer
 		// add update-time event
@@ -566,7 +585,7 @@ function updateList_exists(dataStream) {
 			let timeMillis = dataStream.data("timeMillis");
 			let time;
 			if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
-				time = "Not Yet Aired";
+				time = properties.notAired;
 			} else {
 				const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
 				const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
