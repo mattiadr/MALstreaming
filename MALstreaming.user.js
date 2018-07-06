@@ -130,7 +130,8 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 						// push episode to array
 						episodes.push({
 							text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-							href: nineanime.base + $(this).attr("href").substr(1)
+							href: nineanime.base + $(this).attr("href").substr(1),
+							date: $(this).data("title").replace("-", "")
 						});
 					}
 				});
@@ -142,7 +143,7 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 					timeMillis = time.data("to") * 1000 - Date.now();
 				} else {
 					// timer is not present, estimating based on latest episode
-					let timeStr = as.last().data("title").replace("-", "");
+					let timeStr = episodes[episodes.length - 1].date;
 					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
 				}
 				// callback
