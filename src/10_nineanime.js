@@ -4,7 +4,7 @@ const nineanime = {};
 nineanime.base = "https://www5.9anime.is/";
 nineanime.anime = nineanime.base + "watch/";
 nineanime.search = nineanime.base + "search?keyword=";
-nineanime.regexBlacklist = /preview|special|trailer/i;
+nineanime.regexBlacklist = /preview|special|trailer|CAM/i;
 
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
