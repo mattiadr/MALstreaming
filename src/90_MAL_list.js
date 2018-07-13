@@ -89,7 +89,7 @@ function updateList(dataStream, forceReload, canReload) {
 	dataStream.off("update-time");
 	// get episode list from data
 	let episodeList = dataStream.data("episodeList");
-	if (episodeList && episodeList.length > 0 && !forceReload) {
+	if (Array.isArray(episodeList) && !forceReload) {
 		// episode list exists
 		updateList_exists(dataStream);
 	} else if (canReload) {
@@ -97,7 +97,7 @@ function updateList(dataStream, forceReload, canReload) {
 		updateList_doesntExist(dataStream);
 	} else {
 		// broken link
-		dataStream.prepend($("<div class='error'>No Episodes<br></div>").css("color", "red"));
+		dataStream.prepend($("<div class='error'>Broken link<br></div>").css("color", "red"));
 	}
 }
 

@@ -25,24 +25,26 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 						as = nas;
 					}
 				});
-				as.each(function() {
-					// ignore blacklisted episodes
-					if (!nineanime.regexBlacklist.test($(this).text())) {
-						// push episode to array
-						episodes.push({
-							text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-							href: nineanime.base + $(this).attr("href").substr(1),
-							date: $(this).data("title").replace("-", "")
-						});
-					}
-				});
+				if (as) {
+					as.each(function() {
+						// ignore blacklisted episodes
+						if (!nineanime.regexBlacklist.test($(this).text())) {
+							// push episode to array
+							episodes.push({
+								text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
+								href: nineanime.base + $(this).attr("href").substr(1),
+								date: $(this).data("title").replace("-", "")
+							});
+						}
+					});
+				}
 				// get time if available
 				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
 				let timeMillis;
 				if (time.length !== 0) {
 					// timer is present
 					timeMillis = time.data("to") * 1000 - Date.now();
-				} else {
+				} else if (episodes.length > 0) {
 					// timer is not present, estimating based on latest episode
 					let timeStr = episodes[episodes.length - 1].date;
 					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
