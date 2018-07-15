@@ -11,7 +11,7 @@ Supported anime websites:
 - [x] <a href='http://kissanime.ru/' target='_blank'>Kissanime</a>
 - [ ] <a href='https://www.masterani.me/' target='_blank'>Masterani.me</a>
 
-Supported manga websites (coming soon):
+Supported manga websites:
 - [x] <a href='http://kissmanga.com' target='_blank'>Kissmanga</a>
 - [ ] <a href='https://mangadex.org/' target='_blank'>MangaDex</a>
 
