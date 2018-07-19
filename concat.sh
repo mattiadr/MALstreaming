@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cat src/* > MALstreaming.user.js
+cat src/*.js > MALstreaming.user.js
