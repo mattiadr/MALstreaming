@@ -67,7 +67,7 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				});
 				// get time until next episode
 				let timeMillis = parseInt(kissanime.regexCountdown.exec(resp.responseText));
-				// callback to insert episodes in list
+				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}

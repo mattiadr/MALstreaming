@@ -13,7 +13,7 @@ Supported anime websites:
 
 Supported manga websites:
 - [x] <a href='http://kissmanga.com' target='_blank'>Kissmanga</a>
-- [ ] <a href='https://mangadex.org/' target='_blank'>MangaDex</a>
+- [x] <a href='https://mangadex.org/' target='_blank'>MangaDex</a>
 
 ## Usage
 The functionality is the same for both anime and manga.
@@ -33,6 +33,11 @@ To easily set the comment, in the edit page a search function is provided (shown
 <details><summary>Show/Hide Image</summary>
 <img src="images/edit_page.png" alt="Edit Page">
 </details>
+<br>
+
+MangaDex has a few issues:
+- you need to visit MangaDex and filter the language you want to be displayed or it will be random
+- the timer estimate is often inaccurate, especially if a chapter is "locked" for the next days
 
 ## How to Install
 1. Install <a href='https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo' target='_blank'>Tampermonkey (Chrome)</a> or <a href='https://addons.mozilla.org/firefox/addon/greasemonkey/' target='_blank'>Greasemonkey (Firefox)</a>

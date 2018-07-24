@@ -59,7 +59,9 @@ const streamingServices = [
 	{ id: "kissanime", type: "anime", name: "Kissanime" },
 	// manga
 	{ id: "kissmanga", type: "manga", name: "Kissmanga" },
+	{ id: "mangadex",  type: "manga", name: "MangaDex"  },
 ];
+
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
 	let c = comment.split(" ");
@@ -68,5 +70,20 @@ function getUrlFromComment(comment) {
 		if (streamingServices[i].id == c[0]) return c;
 	}
 	return false;
+}
+
+// estimate time before next chapter as min of last n chapters
+function estimateTimeMillis(episodes, n) {
+	let prev = null;
+	let min = undefined;
+	for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 1 - n); i--) {
+		if (!episodes[i]) continue;
+		if (prev && episodes[i].date != prev) {
+			let diff = Date.parse(prev) - Date.parse(episodes[i].date);
+			if (!min || diff < min && diff > 0) min = diff;
+		}
+		prev = episodes[i].date;
+	}
+	return Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
 }
 

@@ -40,7 +40,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				// OK
 				let jqPage = $(resp.response);
 				let episodes = [];
-				// get anchors for the episodes
+				// get table rows for the episodes
 				let trs = jqPage.find(".listing").find("tr");
 				// series title to split chapter title
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
@@ -67,19 +67,9 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 						date: $(e).find("td:nth-child(2)").text()
 					}
 				});
-				// estimate time before next chapter as min of last 5 chapters
-				let prev = null;
-				let min = undefined;
-				for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 6); i--) {
-					if (!episodes[i]) continue;
-					if (prev && episodes[i].date != prev) {
-						let diff = Date.parse(prev) - Date.parse(episodes[i].date);
-						if (!min || diff < min && diff > 0) min = diff;
-					}
-					prev = episodes[i].date;
-				}
-				let timeMillis = Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
-				// callback to insert episodes in list
+				// estimate timeMillis
+				let timeMillis = estimateTimeMillis(episodes, 5);
+				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.5
+// @version      5.6
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -86,7 +86,9 @@ const streamingServices = [
 	{ id: "kissanime", type: "anime", name: "Kissanime" },
 	// manga
 	{ id: "kissmanga", type: "manga", name: "Kissmanga" },
+	{ id: "mangadex",  type: "manga", name: "MangaDex"  },
 ];
+
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
 	let c = comment.split(" ");
@@ -95,6 +97,21 @@ function getUrlFromComment(comment) {
 		if (streamingServices[i].id == c[0]) return c;
 	}
 	return false;
+}
+
+// estimate time before next chapter as min of last n chapters
+function estimateTimeMillis(episodes, n) {
+	let prev = null;
+	let min = undefined;
+	for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 1 - n); i--) {
+		if (!episodes[i]) continue;
+		if (prev && episodes[i].date != prev) {
+			let diff = Date.parse(prev) - Date.parse(episodes[i].date);
+			if (!min || diff < min && diff > 0) min = diff;
+		}
+		prev = episodes[i].date;
+	}
+	return Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
 }
 
 /* 9anime */
@@ -260,7 +277,7 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				});
 				// get time until next episode
 				let timeMillis = parseInt(kissanime.regexCountdown.exec(resp.responseText));
-				// callback to insert episodes in list
+				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}
@@ -353,7 +370,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				// OK
 				let jqPage = $(resp.response);
 				let episodes = [];
-				// get anchors for the episodes
+				// get table rows for the episodes
 				let trs = jqPage.find(".listing").find("tr");
 				// series title to split chapter title
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
@@ -380,19 +397,9 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 						date: $(e).find("td:nth-child(2)").text()
 					}
 				});
-				// estimate time before next chapter as min of last 5 chapters
-				let prev = null;
-				let min = undefined;
-				for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 6); i--) {
-					if (!episodes[i]) continue;
-					if (prev && episodes[i].date != prev) {
-						let diff = Date.parse(prev) - Date.parse(episodes[i].date);
-						if (!min || diff < min && diff > 0) min = diff;
-					}
-					prev = episodes[i].date;
-				}
-				let timeMillis = Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
-				// callback to insert episodes in list
+				// estimate timeMillis
+				let timeMillis = estimateTimeMillis(episodes, 5);
+				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}
@@ -443,7 +450,98 @@ searchSite["kissmanga"] = function(id, title) {
 	});
 }
 
-/* MAL list */
+/* mangadex */
+/*******************************************************************************************************************************************************************/
+const mangadex = {};
+mangadex.base = "https://mangadex.org/";
+mangadex.manga = mangadex.base + "manga/";
+mangadex.chapter = mangadex.base + "chapter/";
+mangadex.search = mangadex.base + "quick_search/";
+// regex
+mangadex.regexVol = /(?<=vol).+?\d+/i;
+
+getEpisodes["mangadex"] = function(dataStream, url, episodes) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: mangadex.manga + url,
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				// if there are no episodes from previous calls, init as new array
+				if (!episodes) episodes = [];
+				// get table rows for the episodes
+				let trs = jqPage.find("#content > div.edit.tab-content > div > table > tbody > tr");
+				// filter and add to episodes array
+				trs.each(function(i, e) {
+					let a = $(e).find("td:nth-child(2) > a");
+					let t = a.text();
+					// get all numbers in title
+					let ns = t.match(/\d+/g);
+					let n;
+					// if vol is present then get second match else get first
+					if (mangadex.regexVol.test(t)) {
+						n = ns[1];
+					} else {
+						n = ns[0];
+					}
+					// chapter number - 1 is used as index
+					n = parseInt(n) - 1;
+					// add chapter to array
+					episodes[n] = {
+						text: t,
+						href: mangadex.chapter + a.attr('href').split("/chapter/")[1],
+						date: $(e).find("td:nth-child(8)").attr("title")
+					}
+				});
+
+				// check if it's the last page
+				let ul = jqPage.find("#content > div.edit.tab-content > nav > ul");
+				if (ul.length > 0 && ul.find("li.active + li.disabled").length == 0) {
+					// not last page
+					// slice at 7th char to remove /manga/ from the front
+					let nextUrl = ul.find("li.active + li > a").attr("href").slice(7);
+					// call getEpisodes on next page
+					getEpisodes["mangadex"](dataStream, nextUrl, episodes);
+				} else {
+					// last page
+					// estimate timeMillis
+					let timeMillis = estimateTimeMillis(episodes, 5);
+					// callback
+					putEpisodes(dataStream, episodes, timeMillis);
+				}
+			}
+		}
+	});
+}
+
+getEplistUrl["mangadex"] = function(partialUrl) {
+	return mangadex.manga + partialUrl;
+}
+
+searchSite["mangadex"] = function(id, title) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: mangadex.search + encodeURI(title),
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let results = [];
+				// get title anchors
+				let titles = $(resp.response).find("#search_manga").find("a.manga_title");
+				titles.each(function() {
+					results.push({
+						title:    this.title,
+						href:     this.pathname.split("/")[2],
+						fullhref: mangadex.manga + this.pathname.split("/")[2]
+					});
+				});
+				// callback
+				putResults(id, results);
+			}
+		}
+	});
+}/* MAL list */
 /*******************************************************************************************************************************************************************/
 pageLoad["list"] = function() {
 	// own list
