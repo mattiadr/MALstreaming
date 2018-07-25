@@ -1,5 +1,5 @@
 # MALstreaming
-Adds anime streaming links to the next available episode to your Currently Watching page on <a href='https://myanimelist.net' target='_blank'>MAL</a>.
+Adds anime streaming links to the next available episode to your Currently Watching page on [MAL](https://myanimelist.net/).
 
 Since version 5.0 it also adds next available manga chapter to your Currently Reading list.
 
@@ -7,14 +7,14 @@ Since version 5.0 it also adds next available manga chapter to your Currently Re
 ![Preview Image](images/preview.png)
 
 Supported anime websites:
-- [x] <a href='https://9anime.is/' target='_blank'>9anime</a>
-- [x] <a href='http://kissanime.ru/' target='_blank'>Kissanime</a>
-- [ ] <a href='https://www.masterani.me/' target='_blank'>Masterani.me</a>
+- [x] [9anime](https://9anime.is/)
+- [x] [Kissanime](http://kissanime.ru/)
+- [ ] [Masterani.me](https://www.masterani.me/)
 
 Supported manga websites:
-- [x] <a href='http://kissmanga.com' target='_blank'>Kissmanga</a>
-- [x] <a href='https://mangadex.org/' target='_blank'>MangaDex</a>
-- [ ] <a href='http://novelplanet.com/' target='_blank'>NovelPlanet</a>
+- [x] [Kissmanga](http://kissmanga.com/)
+- [x] [MangaDex](https://mangadex.org/)
+- [ ] [NovelPlanet](http://novelplanet.com/)
 
 ## Usage
 The functionality is the same for both anime and manga.
@@ -41,17 +41,17 @@ MangaDex has a few issues:
 - the timer estimate is often inaccurate, especially if a chapter is "locked" for the next days
 
 ## How to Install
-1. Install <a href='https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo' target='_blank'>Tampermonkey (Chrome)</a> or <a href='https://addons.mozilla.org/firefox/addon/greasemonkey/' target='_blank'>Greasemonkey (Firefox)</a>
-2. Click <a href='https://raw.githubusercontent.com/mattiadr/MALstreaming/master/MALstreaming.user.js'>here to install the script</a> or visit the <a href='https://greasyfork.org/en/scripts/369605-malstreaming'>GreasyFork page</a>
+1. Install [Tampermonkey (Chrome)](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey (Firefox)](https://addons.mozilla.org/firefox/addon/greasemonkey/)
+2. Click [here to install the script](https://raw.githubusercontent.com/mattiadr/MALstreaming/master/MALstreaming.user.js) or visit the [GreasyFork page](https://greasyfork.org/en/scripts/369605-malstreaming)
 
 ## Post Install
 Since this script adds another column to the list, an alternate css is recommended to make the list wider.
-You can get mine <a href='https://pastebin.com/NEnDujGY' target='_blank'>here</a>, the only things that have been modified are the width, added trasparency and a custom background image.
+You can get mine [here](https://pastebin.com/NEnDujGY), the only things that have been modified are the width, added trasparency and a custom background image.
 You change the background image just by substituting the default background-url on the top of the stylesheet with a custom one (you need to link the image directly).
 
 This script will work with most anime, but since there can be exceptions there might be some errors in the episode count.
 If you want to report a bug or request a feature you can:
-- <a href='https://github.com/mattiadr/MALstreaming/issues' target='_blank'>Submit an issue on github</a>
-- <a href='https://greasyfork.org/en/scripts/369605-malstreaming/feedback' target='_blank'>Start a discussion on GreasyFork</a>
-- Message me directly on <a href='https://www.reddit.com/user/mattiadr96/' target='_blank'>reddit</a> or <a href='https://myanimelist.net/profile/mattiadr' target='_blank'>MAL</a>
+- [Submit an issue on github](https://github.com/mattiadr/MALstreaming/issues)
+- [Start a discussion on GreasyFork](https://greasyfork.org/en/scripts/369605-malstreaming/feedback)
+- Message me directly on [reddit](https://www.reddit.com/user/mattiadr96/) or [MAL](https://myanimelist.net/profile/mattiadr)
 - Email me at <mattiadr96@gmail.com>
