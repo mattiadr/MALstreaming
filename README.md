@@ -14,6 +14,7 @@ Supported anime websites:
 Supported manga websites:
 - [x] <a href='http://kissmanga.com' target='_blank'>Kissmanga</a>
 - [x] <a href='https://mangadex.org/' target='_blank'>MangaDex</a>
+- [ ] <a href='http://novelplanet.com/' target='_blank'>NovelPlanet</a>
 
 ## Usage
 The functionality is the same for both anime and manga.
@@ -45,7 +46,7 @@ MangaDex has a few issues:
 
 ## Post Install
 Since this script adds another column to the list, an alternate css is recommended to make the list wider.
-You can get mine <a href='https://pastebin.com/A2WgHbYc' target='_blank'>here</a>, the only things that have been modified are the width, added trasparency and a custom background image.
+You can get mine <a href='https://pastebin.com/NEnDujGY' target='_blank'>here</a>, the only things that have been modified are the width, added trasparency and a custom background image.
 You change the background image just by substituting the default background-url on the top of the stylesheet with a custom one (you need to link the image directly).
 
 This script will work with most anime, but since there can be exceptions there might be some errors in the episode count.
