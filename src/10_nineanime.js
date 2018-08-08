@@ -1,22 +1,24 @@
 /* 9anime */
 /*******************************************************************************************************************************************************************/
 const nineanime = {};
-nineanime.base = "https://www5.9anime.is/";
+nineanime.base = "https://9anime.is/";
 nineanime.anime = nineanime.base + "watch/";
+nineanime.servers = nineanime.base + "ajax/film/servers/";
 nineanime.search = nineanime.base + "search?keyword=";
 nineanime.regexBlacklist = /preview|special|trailer|CAM/i;
 
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: nineanime.anime + url,
+		url: nineanime.servers + url.match(/(?<=\.)\w+$/)[0],
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
-				let jqPage = $(resp.response);
+				// response is a json with only html attribute, parse and turn into jQuery object
+				let jqPage = $(JSON.parse(resp.response).html);
 				let episodes = [];
 				// get servers
-				let servers = jqPage.find("#main > div > div.widget.servers > div.widget-body > .server");
+				let servers = jqPage.find("div.widget-body > .server");
 				let as = null;
 				// auto select server with the most videos
 				servers.each(function() {
@@ -33,12 +35,13 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 							episodes.push({
 								text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
 								href: nineanime.base + $(this).attr("href").substr(1),
-								date: $(this).data("title").replace("-", "")
+								// date: $(this).data("title").replace("-", "")
 							});
 						}
 					});
 				}
 				// get time if available
+				/*
 				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
 				let timeMillis;
 				if (time.length !== 0) {
@@ -49,8 +52,9 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 					let timeStr = episodes[episodes.length - 1].date;
 					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
 				}
+				*/
 				// callback
-				putEpisodes(dataStream, episodes, timeMillis);
+				putEpisodes(dataStream, episodes, undefined);
 			}
 		}
 	});
