@@ -139,11 +139,12 @@ function updateList_exists(dataStream) {
 		// there aren't episodes available, displaying timer
 		// add update-time event
 		dataStream.on("update-time", function() {
-			// get time from data
-			let timeMillis = dataStream.data("timeMillis");
+			// get time remaining from air timestamp
+			let timeMillis = dataStream.data("timeMillis") - Date.now();
 			let time;
 			if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 				time = properties.notAired;
+				dataStream.off("update-time");
 			} else {
 				const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
 				const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -151,12 +152,6 @@ function updateList_exists(dataStream) {
 				time = (h < 10 ? "0"+h : h) + "h:" + (m < 10 ? "0" + m : m) + "m";
 				if (d > 0) {
 					time = d + (d == 1 ? " day " : " days ") + time;
-				}
-				// subtract time
-				dataStream.data("timeMillis", timeMillis - 1000);
-				// if 0 is reached, stop it
-				if (timeMillis < 1000) {
-					dataStream.removeData("timeMillis");
 				}
 			}
 			// if timer doesn't exist create it, otherwise update it
@@ -201,8 +196,18 @@ function updateList_doesntExist(dataStream) {
 
 // save episodeList and timeMillis inside .data.stream of listitem
 function putEpisodes(dataStream, episodes, timeMillis) {
+	// add episodes to dataStream
 	dataStream.data("episodeList", episodes);
-	dataStream.data("timeMillis", timeMillis);
-	updateList(dataStream, false, false);
+	// add timeMillis to dataStream
+	if (timeMillis) {
+		// timeMillis is valid
+		dataStream.data("timeMillis", timeMillis);
+		updateList(dataStream, false, false);
+	} else if (properties.mode == "anime") {
+		// timeMillis doesn't exist, get time from anichart
+		anichart_setTimeMillis(dataStream, function() {
+			updateList(dataStream, false, false);
+		});
+	}
 }
 

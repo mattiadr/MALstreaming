@@ -6,7 +6,7 @@
 	  the function needs to callback to putEpisodes(dataStream, episodes, timeMillis)
 	  url is the url of the episode list provoded by getEplistUrl
 	  episodes needs to be an array of object with text and href attributes
-	  timeMillis can optionally be the time left until the next episode in milliseconds
+	  timeMillis can optionally be the unix timestamp of the next episode
 	- create a new function in search that will accept id and title
 	  the function needs to callback to putResults(id, results)
 	  results needs to be an array of object with title (display title), href (the url that will be put in the comments), fullhref (full url of page) attributes
@@ -84,6 +84,6 @@ function estimateTimeMillis(episodes, n) {
 		}
 		prev = episodes[i].date;
 	}
-	return Date.parse(episodes[episodes.length - 1].date) + min - Date.now();
+	return Date.parse(episodes[episodes.length - 1].date) + min;
 }
 

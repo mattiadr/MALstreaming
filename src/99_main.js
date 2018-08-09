@@ -4,6 +4,7 @@
 let pages = [
 	{ url: kissanime.base,                           prop: null,    load: "kissanime" },
 	{ url: kissmanga.base,                           prop: null,    load: "kissmanga" },
+	{ url: anichartUrl,                              prop: null,    load: "anichart"  },
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"      },
 	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list"      },
 	{ url: "https://myanimelist.net/ownlist/anime/", prop: "anime", load: "edit"      },

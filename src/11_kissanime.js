@@ -29,7 +29,7 @@ function kissanime_loadCookies(callback, arg1, arg2) {
 	}
 }
 
-// function to execute when scrip is run on kissanime
+// function to execute when script is run on kissanime
 pageLoad["kissanime"] = function() {
 	if (GM_getValue("KAloadcookies", false) && document.title != "Please wait 5 seconds...") {
 		GM_setValue("KAloadcookies", false);
@@ -66,7 +66,7 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 					}
 				});
 				// get time until next episode
-				let timeMillis = parseInt(kissanime.regexCountdown.exec(resp.responseText));
+				let timeMillis = Date.now() + parseInt(kissanime.regexCountdown.exec(resp.responseText));
 				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
 			}

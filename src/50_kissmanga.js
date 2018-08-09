@@ -20,7 +20,7 @@ function kissmanga_loadCookies(callback, arg1, arg2) {
 	}
 }
 
-// function to execute when scrip is run on kissmanga
+// function to execute when script is run on kissmanga
 pageLoad["kissmanga"] = function() {
 	if (GM_getValue("KMloadcookies", false) && document.title != "Please wait 5 seconds...") {
 		GM_setValue("KMloadcookies", false);
