@@ -41,20 +41,30 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 					});
 				}
 				// get time if available
-				/*
-				let time = jqPage.find("#main > div > div.alert.alert-primary > i");
-				let timeMillis;
-				if (time.length !== 0) {
-					// timer is present
-					timeMillis = time.data("to") * 1000 - Date.now();
-				} else if (episodes.length > 0) {
-					// timer is not present, estimating based on latest episode
-					let timeStr = episodes[episodes.length - 1].date;
-					timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7 - Date.now();
-				}
-				*/
-				// callback
-				putEpisodes(dataStream, episodes, undefined);
+				GM_xmlhttpRequest({
+					method: "GET",
+					url: nineanime.anime + url,
+					onload: function(resp) {
+						if (resp.status == 200) {
+							// OK
+							let time = $(resp.response).find("#main > div > div.alert.alert-primary > i");
+							let timeMillis = undefined;
+							if (time.length !== 0) {
+								// timer is present
+								timeMillis = time.data("to") * 1000;
+							}/* else if (episodes.length > 0) {
+								// timer is not present, estimating based on latest episode
+								let timeStr = episodes[episodes.length - 1].date;
+								timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7;
+							}*/
+							// callback
+							putEpisodes(dataStream, episodes, timeMillis);
+						} else {
+							// not OK, callback
+							putEpisodes(dataStream, episodes, undefined);
+						}
+					}
+				});
 			}
 		}
 	});
