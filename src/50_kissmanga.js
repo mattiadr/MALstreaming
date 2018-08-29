@@ -98,8 +98,7 @@ searchSite["kissmanga"] = function(id, title) {
 					// only one result
 					results.push({
 						title:    title,
-						href:     resp.finalUrl.split("/")[4],
-						fullhref: kissmanga.manga + resp.finalUrl.split("/")[4]
+						href:     resp.finalUrl.split("/")[4]
 					});
 				} else {
 					// multiple results
@@ -108,8 +107,7 @@ searchSite["kissmanga"] = function(id, title) {
 						let a = $(this).find("a")[0];
 						results.push({
 							title:    a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
-							href:     a.pathname.split("/")[2],
-							fullhref: kissmanga.manga + a.pathname.split("/")[2]
+							href:     a.pathname.split("/")[2]
 						});
 					})
 				}

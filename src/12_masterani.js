@@ -54,7 +54,6 @@ searchSite["masterani"] = function(id, title) {
 					results.push({
 						title:    r.title,
 						href:     r.slug,
-						fullhref: masterani.anime_info + r.slug,
 						episodes: r.episode_count
 					});
 				}

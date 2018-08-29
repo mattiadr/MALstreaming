@@ -57,7 +57,7 @@ function putResults(id, results) {
 				$(properties.editPageBox).val(id + " " + r.href);
 				return false;
 			});
-			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + r.fullhref + "'>" + r.title + "</a>");
+			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + getEplistUrl[id](r.href) + "'>" + r.title + "</a>");
 			if (r.episodes) {
 				siteDiv.append(" (" + r.episodes + ")");
 			}

@@ -9,7 +9,7 @@
 	  timeMillis can optionally be the unix timestamp of the next episode
 	- create a new function in search that will accept id and title
 	  the function needs to callback to putResults(id, results)
-	  results needs to be an array of object with title (display title), href (the url that will be put in the comments), fullhref (full url of page) attributes
+	  results needs to be an array of object with title (display title), href (the url that will be put in the comments) attributes
 	  and epsiodes (optional number of episodes)
 	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another object to the pages array
 */

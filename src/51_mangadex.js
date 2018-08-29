@@ -80,8 +80,7 @@ searchSite["mangadex"] = function(id, title) {
 				titles.each(function() {
 					results.push({
 						title:    this.title,
-						href:     this.pathname.split("/")[2],
-						fullhref: mangadex.manga + this.pathname.split("/")[2]
+						href:     this.pathname.split("/")[2]
 					});
 				});
 				// callback

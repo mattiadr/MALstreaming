@@ -95,7 +95,6 @@ searchSite["nineanime"] = function(id, title) {
 					results.push({
 						title:    a.text,
 						href:     a.href.split("/")[4],
-						fullhref: a.href,
 						episodes: ep ? (ep[0] + " eps") : "1 ep"
 					});
 				});

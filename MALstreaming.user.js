@@ -38,7 +38,7 @@
 	  timeMillis can optionally be the unix timestamp of the next episode
 	- create a new function in search that will accept id and title
 	  the function needs to callback to putResults(id, results)
-	  results needs to be an array of object with title (display title), href (the url that will be put in the comments), fullhref (full url of page) attributes
+	  results needs to be an array of object with title (display title), href (the url that will be put in the comments) attributes
 	  and epsiodes (optional number of episodes)
 	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another object to the pages array
 */
@@ -292,8 +292,7 @@ searchSite["kissanime"] = function(id, title) {
 					// only one result
 					results.push({
 						title:    title,
-						href:     resp.finalUrl.split("/")[4],
-						fullhref: kissanime.anime + resp.finalUrl.split("/")[4]
+						href:     resp.finalUrl.split("/")[4]
 					});
 				} else {
 					// multiple results
@@ -302,8 +301,7 @@ searchSite["kissanime"] = function(id, title) {
 						let a = $(this).find("a")[0];
 						results.push({
 							title:    a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
-							href:     a.pathname.split("/")[2],
-							fullhref: kissanime.anime + a.pathname.split("/")[2]
+							href:     a.pathname.split("/")[2]
 						});
 					})
 				}
@@ -411,7 +409,6 @@ searchSite["nineanime"] = function(id, title) {
 					results.push({
 						title:    a.text,
 						href:     a.href.split("/")[4],
-						fullhref: a.href,
 						episodes: ep ? (ep[0] + " eps") : "1 ep"
 					});
 				});
@@ -478,7 +475,6 @@ searchSite["masterani"] = function(id, title) {
 					results.push({
 						title:    r.title,
 						href:     r.slug,
-						fullhref: masterani.anime_info + r.slug,
 						episodes: r.episode_count
 					});
 				}
@@ -589,8 +585,7 @@ searchSite["kissmanga"] = function(id, title) {
 					// only one result
 					results.push({
 						title:    title,
-						href:     resp.finalUrl.split("/")[4],
-						fullhref: kissmanga.manga + resp.finalUrl.split("/")[4]
+						href:     resp.finalUrl.split("/")[4]
 					});
 				} else {
 					// multiple results
@@ -599,8 +594,7 @@ searchSite["kissmanga"] = function(id, title) {
 						let a = $(this).find("a")[0];
 						results.push({
 							title:    a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
-							href:     a.pathname.split("/")[2],
-							fullhref: kissmanga.manga + a.pathname.split("/")[2]
+							href:     a.pathname.split("/")[2]
 						});
 					})
 				}
@@ -693,8 +687,7 @@ searchSite["mangadex"] = function(id, title) {
 				titles.each(function() {
 					results.push({
 						title:    this.title,
-						href:     this.pathname.split("/")[2],
-						fullhref: mangadex.manga + this.pathname.split("/")[2]
+						href:     this.pathname.split("/")[2]
 					});
 				});
 				// callback
@@ -976,7 +969,7 @@ function putResults(id, results) {
 				$(properties.editPageBox).val(id + " " + r.href);
 				return false;
 			});
-			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + r.fullhref + "'>" + r.title + "</a>");
+			siteDiv.append("(").append(a).append(") ").append("<a target='_blank' href='" + getEplistUrl[id](r.href) + "'>" + r.title + "</a>");
 			if (r.episodes) {
 				siteDiv.append(" (" + r.episodes + ")");
 			}
