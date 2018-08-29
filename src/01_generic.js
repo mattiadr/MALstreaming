@@ -55,8 +55,8 @@ const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
 	// anime
-	{ id: "nineanime", type: "anime", name: "9anime"    },
 	{ id: "kissanime", type: "anime", name: "Kissanime" },
+	// { id: "nineanime", type: "anime", name: "9anime"    },
 	// manga
 	{ id: "kissmanga", type: "manga", name: "Kissmanga" },
 	{ id: "mangadex",  type: "manga", name: "MangaDex"  },

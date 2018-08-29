@@ -90,3 +90,4 @@ searchSite["mangadex"] = function(id, title) {
 		}
 	});
 }
+
