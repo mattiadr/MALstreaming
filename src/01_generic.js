@@ -55,11 +55,12 @@ const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
 	// anime
-	{ id: "kissanime", type: "anime", name: "Kissanime" },
-	// { id: "nineanime", type: "anime", name: "9anime"    },
+	{ id: "kissanime", type: "anime", name: "Kissanime"    },
+	// { id: "nineanime", type: "anime", name: "9anime"       },
+	{ id: "masterani", type: "anime", name: "Masterani.me" },
 	// manga
-	{ id: "kissmanga", type: "manga", name: "Kissmanga" },
-	{ id: "mangadex",  type: "manga", name: "MangaDex"  },
+	{ id: "kissmanga", type: "manga", name: "Kissmanga"    },
+	{ id: "mangadex",  type: "manga", name: "MangaDex"     },
 ];
 
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
