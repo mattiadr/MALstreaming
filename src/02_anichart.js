@@ -5,16 +5,15 @@ const anichartUrl = "http://anichart.net/airing";
 // puts timeMillis into dataStream, then calls back
 function anichart_setTimeMillis(dataStream, callback, canReload) {
 	let times = GM_getValue("anichartTimes", false);
-
 	// get anime id
-	let link = dataStream.parents(".list-item").find(".data.title > .link");
+	let id = dataStream.parents(".list-item").find(".data.title > .link").attr("href").split("/")[2];
 	// get next episode
 	let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
-	let t = times ? times[link.attr("href").split("/")[2]] : false;
+	let t = times ? times[id] : false;
 
 	if (times && (!t || Date.now() < t.timeMillis)) {
 		// time doesn't need to update
-		// set timeMillis
+		// set timeMillis, this is used to check if anichart timer is referring to next episode
 		dataStream.data("timeMillis", (t && t.ep == nextEp) ? t.timeMillis : undefined);
 		// callback
 		callback();
@@ -69,6 +68,7 @@ pageLoad["anichart"] = function() {
 				} else {
 					timeMillis += Date.now();
 				}
+				// set time, ep is episode the timer is referring to
 				times[id] = {
 					ep: ep,
 					timeMillis: timeMillis
