@@ -41,7 +41,7 @@ getEplistUrl["masterani"] = function(partialUrl) {
 searchSite["masterani"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: masterani.search + encodeURI(title) + masterani.search_suffix,
+		url: masterani.search + encodeURIComponent(title).slice(0, 60) + masterani.search_suffix, // maximum search length is 60 chars
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
