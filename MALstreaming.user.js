@@ -209,7 +209,7 @@ pageLoad["anichart"] = function() {
 const kissanime = {};
 kissanime.base = "http://kissanime.ru/";
 kissanime.anime = kissanime.base + "Anime/";
-kissanime.search = kissanime.base + "Search/Anime/";
+kissanime.search = kissanime.base + "Search/SearchSuggestx";
 kissanime.server = "&s=rapidvideo";
 // blacklisted urls
 kissanime.epsBlacklist = [
@@ -223,14 +223,14 @@ kissanime.regexBlacklist = /\b_[a-z]+|recap|\.5/i;
 kissanime.regexCountdown = /\d+(?=\), function)/;
 
 // loads kissanime cookies and then calls back
-function kissanime_loadCookies(callback, arg1, arg2) {
+function kissanime_loadCookies(callback) {
 	if (!GM_getValue("KAloadcookies", false)) {
 		GM_setValue("KAloadcookies", true);
 		GM_openInTab(kissanime.base, true);
 	}
 	if (callback) {
 		setTimeout(function() {
-			callback(arg1, arg2);
+			callback();
 		}, 6000);
 	}
 }
@@ -250,7 +250,9 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 		onload: function(resp) {
 			if (resp.status == 503) {
 				// loading CF cookies
-				kissanime_loadCookies(getEpisodes["kissanime"], dataStream, url);
+				kissanime_loadCookies(function() {
+					getEpisodes["kissanime"](dataStream, url);
+				});
 			} else if (resp.status == 200) {
 				// OK
 				let jqPage = $(resp.response);
@@ -287,34 +289,26 @@ getEplistUrl["kissanime"] = function(partialUrl) {
 searchSite["kissanime"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "POST",
-		data: "type=Anime" + "&keyword=" + title,
 		url: kissanime.search,
+		data: "type=Anime" + "&keyword=" + title,
 		headers: { "Content-Type": "application/x-www-form-urlencoded" },
 		onload: function(resp) {
 			if (resp.status == 503) {
 				// loading CF cookies
-				kissanime_loadCookies(search["kissanime"], id, title);
+				kissanime_loadCookies(function() {
+					searchSite["kissanime"](id, title);
+				});
 			} else if (resp.status == 200) {
 				// OK
 				let results = [];
-				// if there is only one result, kissanime redirects to the only result page
-				if (resp.finalUrl.indexOf(kissanime.search) == -1) {
-					// only one result
+				
+				let list = $(resp.responseText);
+				list.each(function() {
 					results.push({
-						title:    title,
-						href:     resp.finalUrl.split("/")[4]
+						title:    this.text,
+						href:     this.pathname.split("/")[2]
 					});
-				} else {
-					// multiple results
-					let list = $(resp.response).find("#leftside > div > div.barContent > div:nth-child(2) > table > tbody > tr").slice(2);
-					list.each(function() {
-						let a = $(this).find("a")[0];
-						results.push({
-							title:    a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
-							href:     a.pathname.split("/")[2]
-						});
-					})
-				}
+				});
 				// callback
 				putResults(id, results);
 			}
