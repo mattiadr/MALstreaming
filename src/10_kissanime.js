@@ -99,8 +99,8 @@ searchSite["kissanime"] = function(id, title) {
 				let list = $(resp.responseText);
 				list.each(function() {
 					results.push({
-						title:    this.text,
-						href:     this.pathname.split("/")[2]
+						title: this.text,
+						href:  this.pathname.split("/")[2]
 					});
 				});
 				// callback

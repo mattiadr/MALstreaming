@@ -79,8 +79,8 @@ searchSite["mangadex"] = function(id, title) {
 				let titles = $(resp.response).find("#search_manga").find("a.manga_title");
 				titles.each(function() {
 					results.push({
-						title:    this.title,
-						href:     this.pathname.split("/")[2]
+						title: this.title,
+						href:  this.pathname.split("/")[2]
 					});
 				});
 				// callback

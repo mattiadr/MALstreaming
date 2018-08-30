@@ -3,19 +3,19 @@
 const kissmanga = {};
 kissmanga.base = "http://kissmanga.com/";
 kissmanga.manga = kissmanga.base + "Manga/";
-kissmanga.search = kissmanga.base + "Search/Manga/";
+kissmanga.search = kissmanga.base + "Search/SearchSuggest";
 // regex
 kissmanga.regexVol = /(?<=vol).+?\d+/i;
 
 // loads kissmanga cookies and then calls back
-function kissmanga_loadCookies(callback, arg1, arg2) {
+function kissmanga_loadCookies(callback) {
 	if (!GM_getValue("KMloadcookies", false)) {
 		GM_setValue("KMloadcookies", true);
 		GM_openInTab(kissmanga.base, true);
 	}
 	if (callback) {
 		setTimeout(function() {
-			callback(arg1, arg2);
+			callback();
 		}, 6000);
 	}
 }
@@ -35,7 +35,9 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 		onload: function(resp) {
 			if (resp.status == 503) {
 				// loading CF cookies
-				kissmanga_loadCookies(getEpisodes["kissmanga"], dataStream, url);
+				kissmanga_loadCookies(function() {
+					getEpisodes["kissmanga"](dataStream, url);
+				});
 			} else if (resp.status == 200) {
 				// OK
 				let jqPage = $(resp.response);
@@ -83,34 +85,26 @@ getEplistUrl["kissmanga"] = function(partialUrl) {
 searchSite["kissmanga"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "POST",
-		data: "type=Manga" + "&keyword=" + title,
 		url: kissmanga.search,
+		data: "type=Manga" + "&keyword=" + title,
 		headers: { "Content-Type": "application/x-www-form-urlencoded" },
 		onload: function(resp) {
 			if (resp.status == 503) {
 				// loading CF cookies
-				kissmanga_loadCookies(search["kissmanga"], id, title);
+				kissmanga_loadCookies(function() {
+					searchSite["kissmanga"](id, title);
+				});
 			} else if (resp.status == 200) {
 				// OK
 				let results = [];
-				// if there is only one result, kissmanga redirects to the only result page
-				if (resp.finalUrl.indexOf(kissmanga.search) == -1) {
-					// only one result
+				
+				let list = $(resp.responseText);
+				list.each(function() {
 					results.push({
-						title:    title,
-						href:     resp.finalUrl.split("/")[4]
+						title: this.text,
+						href:  this.pathname.split("/")[2]
 					});
-				} else {
-					// multiple results
-					let list = $(resp.response).find("#leftside > div > div.barContent > div:nth-child(2) > table > tbody > tr").slice(2);
-					list.each(function() {
-						let a = $(this).find("a")[0];
-						results.push({
-							title:    a.text.replace(/\n\s+/, ""), // regex is used to remove leading whitespace
-							href:     a.pathname.split("/")[2]
-						});
-					})
-				}
+				});
 				// callback
 				putResults(id, results);
 			}
