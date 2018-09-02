@@ -207,7 +207,7 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 		// timeMillis doesn't exist, get time from anichart
 		anichart_setTimeMillis(dataStream, function() {
 			updateList(dataStream, false, false);
-		});
+		}, true);
 	}
 }
 

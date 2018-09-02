@@ -4,45 +4,41 @@ const anichartUrl = "http://anichart.net/airing";
 
 // puts timeMillis into dataStream, then calls back
 function anichart_setTimeMillis(dataStream, callback, canReload) {
+	let listitem = dataStream.parents(".list-item");
+
+	// anime is not airing, callback and exit
+	if (listitem.find(properties.findAiring).length == 0) {
+		callback();
+		return;
+	}
+
 	let times = GM_getValue("anichartTimes", false);
 	// get anime id
-	let id = dataStream.parents(".list-item").find(".data.title > .link").attr("href").split("/")[2];
+	let id = listitem.find(".data.title > .link").attr("href").split("/")[2];
 	// get next episode
-	let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
+	let nextEp = parseInt(listitem.find(properties.findProgress).find(".link").text()) + 1;
 	let t = times ? times[id] : false;
 
-	if (times && (!t || Date.now() < t.timeMillis)) {
+	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anichart timer is referring to next episode
-		dataStream.data("timeMillis", (t && t.ep == nextEp) ? t.timeMillis : undefined);
+		dataStream.data("timeMillis", t.ep == nextEp ? t.timeMillis : undefined);
 		// callback
 		callback();
-	} else if (!GM_getValue("anichartLoading", false)) {
-		// load times from anichart
+	} else {
 		// add value change listener
 		let listenerId = GM_addValueChangeListener("anichartTimes", function(name, old_value, new_value, remote) {
-			// set anichart.times
-			times = new_value;
-			// call back
-			if (canReload){
-				anichart_setTimeMillis(dataStream, callback, false);
-			}
+			// reload, avoid infinite loops
+			if (canReload) anichart_setTimeMillis(dataStream, callback, false);
 			// remove listener
 			GM_removeValueChangeListener(listenerId);
 		});
-		// set value then open anichart
-		GM_setValue("anichartLoading", true);
-		GM_openInTab(anichartUrl, true);
-	} else {
-		// anichart still loading, add value change listener
-		let listenerId = GM_addValueChangeListener("anichartTimes", function(name, old_value, new_value, remote) {
-			// call back
-			if (canReload) {
-				anichart_setTimeMillis(dataStream, callback, false);
-			}
-			// remove listener
-			GM_removeValueChangeListener(listenerId);
-		});
+		// load times from anichart
+		if (!GM_getValue("anichartLoading", false)) {
+			// set value then open anichart
+			GM_setValue("anichartLoading", true);
+			GM_openInTab(anichartUrl, true);
+		}
 	}
 }
 
