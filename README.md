@@ -36,6 +36,8 @@ To easily set the comment, in the edit page a search function is provided (shown
 </details>
 <br>
 
+Some anime services do not give an estimate for the time until next episode, so I use [anichart](http://anichart.net) to get the time remaining. For it to work correctly you need to visit anichart and change the setting "Outgoing Anime Links" to MyAnimeList instead of AniList. The script will automatically open, load and finally close the anichart tab whenever needed.
+
 MangaDex has a few issues:
 - you need to visit MangaDex and filter the language you want to be displayed or it will be random
 - the timer estimate is often inaccurate, especially if a chapter is "locked" for the next days
