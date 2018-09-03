@@ -22,7 +22,7 @@ function anichart_setTimeMillis(dataStream, callback, canReload) {
 	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anichart timer is referring to next episode
-		dataStream.data("timeMillis", t.ep == nextEp ? t.timeMillis : undefined);
+		dataStream.data("timeMillis", t.ep >= nextEp ? t.timeMillis : undefined);
 		// callback
 		callback();
 	} else {
