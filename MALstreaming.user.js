@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.15
+// @version      5.16
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -606,6 +606,11 @@ mangadex.base = "https://mangadex.org/";
 mangadex.manga = mangadex.base + "manga/";
 mangadex.chapter = mangadex.base + "chapter/";
 mangadex.search = mangadex.base + "quick_search/";
+// selectors
+mangadex.rowSelector = ".chapter-container > .row";
+mangadex.titleSelector = "div > div > div:nth-child(2) > a";
+mangadex.dateSelector = "div > div > div:nth-child(4)";
+mangadex.navSelector = ".chapter-container ~ nav > ul";
 // regex
 mangadex.regexVol = /(?<=vol).+?\d+/i;
 
@@ -620,19 +625,18 @@ getEpisodes["mangadex"] = function(dataStream, url, episodes) {
 				// if there are no episodes from previous calls, init as new array
 				if (!episodes) episodes = [];
 				// get table rows for the episodes
-				let trs = jqPage.find("#content > div.edit.tab-content > div > table > tbody > tr");
+				let rows = jqPage.find(mangadex.rowSelector).slice(1);
 				// filter and add to episodes array
-				trs.each(function(i, e) {
-					let a = $(e).find("td:nth-child(2) > a");
+				rows.each(function() {
+					let a = $(this).find(mangadex.titleSelector);
 					let t = a.text();
 					// get all numbers in title
-					let ns = t.match(/\d+/g);
-					let n;
+					let n = t.match(/\d+/g);
 					// if vol is present then get second match else get first
 					if (mangadex.regexVol.test(t)) {
-						n = ns[1];
+						n = n[1];
 					} else {
-						n = ns[0];
+						n = n[0];
 					}
 					// chapter number - 1 is used as index
 					n = parseInt(n) - 1;
@@ -640,12 +644,12 @@ getEpisodes["mangadex"] = function(dataStream, url, episodes) {
 					episodes[n] = {
 						text: t,
 						href: mangadex.chapter + a.attr('href').split("/chapter/")[1],
-						date: $(e).find("td:nth-child(8)").attr("title")
+						date: $(this).find(mangadex.dateSelector).attr("title")
 					}
 				});
 
 				// check if it's the last page
-				let ul = jqPage.find("#content > div.edit.tab-content > nav > ul");
+				let ul = jqPage.find(mangadex.navSelector);
 				if (ul.length > 0 && ul.find("li.active + li.disabled").length == 0) {
 					// not last page
 					// slice at 7th char to remove /manga/ from the front

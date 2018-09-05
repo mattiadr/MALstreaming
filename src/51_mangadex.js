@@ -5,6 +5,11 @@ mangadex.base = "https://mangadex.org/";
 mangadex.manga = mangadex.base + "manga/";
 mangadex.chapter = mangadex.base + "chapter/";
 mangadex.search = mangadex.base + "quick_search/";
+// selectors
+mangadex.rowSelector = ".chapter-container > .row";
+mangadex.titleSelector = "div > div > div:nth-child(2) > a";
+mangadex.dateSelector = "div > div > div:nth-child(4)";
+mangadex.navSelector = ".chapter-container ~ nav > ul";
 // regex
 mangadex.regexVol = /(?<=vol).+?\d+/i;
 
@@ -19,19 +24,18 @@ getEpisodes["mangadex"] = function(dataStream, url, episodes) {
 				// if there are no episodes from previous calls, init as new array
 				if (!episodes) episodes = [];
 				// get table rows for the episodes
-				let trs = jqPage.find("#content > div.edit.tab-content > div > table > tbody > tr");
+				let rows = jqPage.find(mangadex.rowSelector).slice(1);
 				// filter and add to episodes array
-				trs.each(function(i, e) {
-					let a = $(e).find("td:nth-child(2) > a");
+				rows.each(function() {
+					let a = $(this).find(mangadex.titleSelector);
 					let t = a.text();
 					// get all numbers in title
-					let ns = t.match(/\d+/g);
-					let n;
+					let n = t.match(/\d+/g);
 					// if vol is present then get second match else get first
 					if (mangadex.regexVol.test(t)) {
-						n = ns[1];
+						n = n[1];
 					} else {
-						n = ns[0];
+						n = n[0];
 					}
 					// chapter number - 1 is used as index
 					n = parseInt(n) - 1;
@@ -39,12 +43,12 @@ getEpisodes["mangadex"] = function(dataStream, url, episodes) {
 					episodes[n] = {
 						text: t,
 						href: mangadex.chapter + a.attr('href').split("/chapter/")[1],
-						date: $(e).find("td:nth-child(8)").attr("title")
+						date: $(this).find(mangadex.dateSelector).attr("title")
 					}
 				});
 
 				// check if it's the last page
-				let ul = jqPage.find("#content > div.edit.tab-content > nav > ul");
+				let ul = jqPage.find(mangadex.navSelector);
 				if (ul.length > 0 && ul.find("li.active + li.disabled").length == 0) {
 					// not last page
 					// slice at 7th char to remove /manga/ from the front
