@@ -48,7 +48,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
 				trs.each(function(i, e) {
-					let a = $(e).find("td > a");
+					let a = $(this).find("td > a");
 					if (a.length === 0) return;
 					let t = a.text().split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 					// get all numbers in title
@@ -66,7 +66,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 					episodes[n] = {
 						text: t,
 						href: kissmanga.manga + a.attr('href').split("/Manga/")[1],
-						date: $(e).find("td:nth-child(2)").text()
+						date: $(this).find("td:nth-child(2)").text()
 					}
 				});
 				// estimate timeMillis

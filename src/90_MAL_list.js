@@ -73,6 +73,35 @@ pageLoad["list"] = function() {
 		updateList(dataStream, false, true);
 	});
 
+	// timer event
+	$(".data.stream").on("update-time", function() {
+		let dataStream = $(this);
+		// get time remaining from air timestamp
+		let timeMillis = dataStream.data("timeMillis") - Date.now();
+		let time;
+		if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
+			time = properties.notAired;
+		} else {
+			const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
+			const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+			const m = Math.floor((timeMillis % (1000 * 60 * 60)) / (1000 * 60));
+			time = (h < 10 ? "0"+h : h) + "h:" + (m < 10 ? "0" + m : m) + "m";
+			if (d > 0) {
+				time = d + (d == 1 ? " day " : " days ") + time;
+			}
+		}
+		if (dataStream.find(".nextep, .loading, .error").length > 0) {
+			// do nothing if timer is not needed
+			return;
+		} else if (dataStream.find(".timer").length === 0) {
+			// if timer doesn't exist create it
+			dataStream.prepend("<div class='timer'>" + time + "<div>");
+		} else {
+			// update timer
+			dataStream.find(".timer").html(time);
+		}
+	});
+
 	// update timer
 	setInterval(function() {
 		$(".data.stream").trigger("update-time");
@@ -86,7 +115,6 @@ function updateList(dataStream, forceReload, canReload) {
 	dataStream.find(".nextep").remove();
 	dataStream.find(".loading").remove();
 	dataStream.find(".timer").remove();
-	dataStream.off("update-time");
 	// get episode list from data
 	let episodeList = dataStream.data("episodeList");
 	if (Array.isArray(episodeList) && !forceReload) {
@@ -111,8 +139,6 @@ function updateList_exists(dataStream) {
 	let episodes = dataStream.data("episodeList");
 	// create new nextep
 	let nextep = $("<div class='nextep'></div>");
-	// add new nextep
-	dataStream.prepend(nextep);
 
 	if (episodes.length > currEp) {
 		// there are episodes available
@@ -132,36 +158,15 @@ function updateList_exists(dataStream) {
 			// if there is more than 1 new ep then put the amount in parenthesis
 			nextep.append(" (" + (episodes.length - currEp) + ")");
 		}
+		// add new nextep
+		dataStream.prepend(nextep);
 	} else if (currEp > episodes.length) {
 		// user has watched too many episodes
 		nextep.append($("<div class='.ep-error'>" + properties.latest + episodes.length + "</div>").css("color", "red"));
+		// add new nextep
+		dataStream.prepend(nextep);
 	} else {
-		// there aren't episodes available, displaying timer
-		// add update-time event
-		dataStream.on("update-time", function() {
-			// get time remaining from air timestamp
-			let timeMillis = dataStream.data("timeMillis") - Date.now();
-			let time;
-			if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
-				time = properties.notAired;
-				dataStream.off("update-time");
-			} else {
-				const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
-				const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-				const m = Math.floor((timeMillis % (1000 * 60 * 60)) / (1000 * 60));
-				time = (h < 10 ? "0"+h : h) + "h:" + (m < 10 ? "0" + m : m) + "m";
-				if (d > 0) {
-					time = d + (d == 1 ? " day " : " days ") + time;
-				}
-			}
-			// if timer doesn't exist create it, otherwise update it
-			if (dataStream.find(".timer").length === 0) {
-				dataStream.prepend("<div class='timer'>" + time + "<div>");
-			} else {
-				dataStream.find(".timer").html(time);
-			}
-		});
-
+		// there aren't episodes available, trigger timer
 		dataStream.trigger("update-time");
 	}
 }
@@ -206,8 +211,9 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 	} else if (properties.mode == "anime") {
 		// timeMillis doesn't exist, get time from anichart
 		anichart_setTimeMillis(dataStream, function() {
-			updateList(dataStream, false, false);
+			//updateList(dataStream, false, false);
 		}, true);
+		updateList(dataStream, false, false);
 	}
 }
 

@@ -22,7 +22,7 @@ function anichart_setTimeMillis(dataStream, callback, canReload) {
 	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anichart timer is referring to next episode
-		dataStream.data("timeMillis", t.ep >= nextEp ? t.timeMillis : undefined);
+		dataStream.data("timeMillis", t.ep == nextEp ? t.timeMillis : undefined);
 		// callback
 		callback();
 	} else {
@@ -53,10 +53,10 @@ pageLoad["anichart"] = function() {
 			// check if using MAL urls
 			items.each(function(i, e) {
 				// get id from url
-				let id = $(e).find(".title > a").attr("href").match(/\d+$/)[0];
-				let ep = $(e).find(".airing > span:first-child").text().match(/\d+/)[0];
+				let id = $(this).find(".title > a").attr("href").match(/\d+$/)[0];
+				let ep = $(this).find(".airing > span:first-child").text().match(/\d+/)[0];
 				// get time array days, hours, mins
-				let time = $(e).find("timer").text().match(/\d+/g);
+				let time = $(this).find("timer").text().match(/\d+/g);
 				let timeMillis = ((parseInt(time[0]) * 24 + parseInt(time[1])) * 60 + parseInt(time[2])) * 60 * 1000;
 				// edge case 0d 0h 0m
 				if (timeMillis == 0) {
