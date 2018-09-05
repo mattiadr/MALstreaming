@@ -76,8 +76,18 @@ pageLoad["list"] = function() {
 	// timer event
 	$(".data.stream").on("update-time", function() {
 		let dataStream = $(this);
-		// get time remaining from air timestamp
-		let timeMillis = dataStream.data("timeMillis") - Date.now();
+		// get time object from dataStream
+		let t = dataStream.data("timeMillis");
+		// get next episode number
+		let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
+		let timeMillis;
+		// if t.ep is set then it needs to be equal to nextEp, else we set timeMillis to false to display Not Yet Aired
+		if (t && (t.ep ? t.ep == nextEp : true)) {
+			timeMillis = t.timeMillis - Date.now();
+		} else {
+			timeMillis = false;
+		}
+
 		let time;
 		if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 			time = properties.notAired;
@@ -206,7 +216,7 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 	// add timeMillis to dataStream
 	if (timeMillis) {
 		// timeMillis is valid
-		dataStream.data("timeMillis", timeMillis);
+		dataStream.data("timeMillis", { timeMillis: timeMillis });
 		updateList(dataStream, false, false);
 	} else if (properties.mode == "anime") {
 		// timeMillis doesn't exist, get time from anichart

@@ -15,14 +15,12 @@ function anichart_setTimeMillis(dataStream, callback, canReload) {
 	let times = GM_getValue("anichartTimes", false);
 	// get anime id
 	let id = listitem.find(".data.title > .link").attr("href").split("/")[2];
-	// get next episode
-	let nextEp = parseInt(listitem.find(properties.findProgress).find(".link").text()) + 1;
 	let t = times ? times[id] : false;
 
 	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anichart timer is referring to next episode
-		dataStream.data("timeMillis", t.ep == nextEp ? t.timeMillis : undefined);
+		dataStream.data("timeMillis", t);
 		// callback
 		callback();
 	} else {
