@@ -220,9 +220,7 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 		updateList(dataStream, false, false);
 	} else if (properties.mode == "anime") {
 		// timeMillis doesn't exist, get time from anichart
-		anichart_setTimeMillis(dataStream, function() {
-			//updateList(dataStream, false, false);
-		}, true);
+		anichart_setTimeMillis(dataStream, true);
 		updateList(dataStream, false, false);
 	}
 }

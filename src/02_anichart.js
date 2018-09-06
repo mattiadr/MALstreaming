@@ -3,14 +3,11 @@
 const anichartUrl = "http://anichart.net/airing";
 
 // puts timeMillis into dataStream, then calls back
-function anichart_setTimeMillis(dataStream, callback, canReload) {
+function anichart_setTimeMillis(dataStream, canReload) {
 	let listitem = dataStream.parents(".list-item");
 
-	// anime is not airing, callback and exit
-	if (listitem.find(properties.findAiring).length == 0) {
-		callback();
-		return;
-	}
+	// anime is not airing, exit
+	if (listitem.find(properties.findAiring).length == 0) return;
 
 	let times = GM_getValue("anichartTimes", false);
 	// get anime id
@@ -21,13 +18,11 @@ function anichart_setTimeMillis(dataStream, callback, canReload) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anichart timer is referring to next episode
 		dataStream.data("timeMillis", t);
-		// callback
-		callback();
 	} else {
 		// add value change listener
 		let listenerId = GM_addValueChangeListener("anichartTimes", function(name, old_value, new_value, remote) {
 			// reload, avoid infinite loops
-			if (canReload) anichart_setTimeMillis(dataStream, callback, false);
+			if (canReload) anichart_setTimeMillis(dataStream, false);
 			// remove listener
 			GM_removeValueChangeListener(listenerId);
 		});
