@@ -248,17 +248,16 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				let episodes = [];
 				// get anchors for the episodes
 				let as = jqPage.find(".listing").find("tr > td > a");
-				// get title to split episode name and leave only "Episode xx"
+				// get series title to remove it from episode name
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
-				as.each(function(i, e) {
+				as.each(function() {
 					// title must match regexWhitelist, must not match regexBlacklist and href must not be in epsBlacklist to be considered a valid episode
-					if (kissanime.regexWhitelist.test(e.text) && !kissanime.regexBlacklist.test(e.text) && kissanime.epsBlacklist.indexOf(e.href) == -1) {
-						let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
+					if (kissanime.regexWhitelist.test(this.text) && !kissanime.regexBlacklist.test(this.text) && kissanime.epsBlacklist.indexOf(this.href) == -1) {
 						// prepend new object to array
 						episodes.unshift({
-							text: t,
-							href: kissanime.anime + e.href.split("/Anime/")[1] + kissanime.server
+							text: this.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " "),
+							href: kissanime.anime + this.href.split("/Anime/")[1] + kissanime.server
 						});
 					}
 				});
@@ -296,113 +295,6 @@ searchSite["kissanime"] = function(id, title) {
 					results.push({
 						title: this.text,
 						href:  this.pathname.split("/")[2]
-					});
-				});
-				// callback
-				putResults(id, results);
-			}
-		}
-	});
-}
-
-/* 9anime */
-/*******************************************************************************************************************************************************************/
-const nineanime = {};
-nineanime.base = "https://9anime.is/";
-nineanime.anime = nineanime.base + "watch/";
-nineanime.servers = nineanime.base + "ajax/film/servers/";
-nineanime.search = nineanime.base + "search?keyword=";
-nineanime.regexBlacklist = /preview|special|trailer|CAM/i;
-
-getEpisodes["nineanime"] = function(dataStream, url) {
-	GM_xmlhttpRequest({
-		method: "GET",
-		url: nineanime.servers + url.match(/(?<=\.)\w+$/)[0],
-		onload: function(resp) {
-			if (resp.status == 200) {
-				// OK
-				// response is a json with only html attribute, parse and turn into jQuery object
-				let jqPage = $(JSON.parse(resp.response).html);
-				let episodes = [];
-				// get servers
-				let servers = jqPage.find("div.widget-body > .server");
-				let as = null;
-				// auto select server with the most videos
-				servers.each(function() {
-					let nas = $(this).find("li > a");
-					if (!as || nas.length > as.length) {
-						as = nas;
-					}
-				});
-				if (as) {
-					as.each(function() {
-						// ignore blacklisted episodes
-						if (!nineanime.regexBlacklist.test($(this).text())) {
-							// push episode to array
-							episodes.push({
-								text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-								href: nineanime.base + $(this).attr("href").substr(1),
-								// date: $(this).data("title").replace("-", "")
-							});
-						}
-					});
-				}
-				// get time if available
-				GM_xmlhttpRequest({
-					method: "GET",
-					url: nineanime.anime + url,
-					onload: function(resp) {
-						if (resp.status == 200) {
-							// OK
-							let time = $(resp.response).find("#main > div > div.alert.alert-primary > i");
-							let timeMillis = undefined;
-							if (time.length !== 0) {
-								// timer is present
-								timeMillis = time.data("to") * 1000;
-							}/* else if (episodes.length > 0) {
-								// timer is not present, estimating based on latest episode
-								let timeStr = episodes[episodes.length - 1].date;
-								timeMillis = Date.parse(timeStr) + 1000 * 60 * 60 * 24 * 7;
-							}*/
-							// callback
-							putEpisodes(dataStream, episodes, timeMillis);
-						} else {
-							// not OK, callback
-							putEpisodes(dataStream, episodes, undefined);
-						}
-					}
-				});
-			}
-		}
-	});
-}
-
-getEplistUrl["nineanime"] = function(partialUrl) {
-	return nineanime.anime + partialUrl;
-}
-
-searchSite["nineanime"] = function(id, title) {
-	GM_xmlhttpRequest({
-		method: "GET",
-		url: nineanime.search + encodeURI(title),
-		onload: function(resp) {
-			if (resp.status == 200) {
-				// OK
-				let jqPage = $(resp.response);
-				let results = [];
-				// get results from response
-				let list = jqPage.find("#main > div > div:nth-child(1) > div.widget-body > div.film-list > .item");
-				list = list.slice(0, 10);
-				// add to results
-				list.each(function() {
-					// get anchor for text and href
-					let a = $(this).find("a")[1];
-					// get episode count
-					let ep = $(this).find(".status > .ep").text().match(/(?<=\/)\d+/);
-					results.push({
-						title:    a.text,
-						href:     a.href.split("/")[4],
-						episodes: ep ? (ep[0] + " eps") : "1 ep"
 					});
 				});
 				// callback
@@ -524,22 +416,17 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				let episodes = [];
 				// get table rows for the episodes
 				let trs = jqPage.find(".listing").find("tr");
-				// series title to split chapter title
+				// get series title to remove it from chapter name
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
-				trs.each(function(i, e) {
+				trs.each(function() {
 					let a = $(this).find("td > a");
 					if (a.length === 0) return;
 					let t = a.text().split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 					// get all numbers in title
-					let ns = t.match(/\d+/g);
-					let n;
+					let n = t.match(/\d+/g);
 					// if vol is present then get second match else get first
-					if (kissmanga.regexVol.test(t)) {
-						n = ns[1];
-					} else {
-						n = ns[0];
-					}
+					n = kissmanga.regexVol.test(t) ? n[1] : n[0];
 					// chapter number - 1 is used as index
 					n = parseInt(n) - 1;
 					// add chapter to array
@@ -626,11 +513,7 @@ getEpisodes["mangadex"] = function(dataStream, url, episodes) {
 					// get all numbers in title
 					let n = t.match(/\d+/g);
 					// if vol is present then get second match else get first
-					if (mangadex.regexVol.test(t)) {
-						n = n[1];
-					} else {
-						n = n[0];
-					}
+					n = mangadex.regexVol.test(t) ? n[1] : n[0];
 					// chapter number - 1 is used as index
 					n = parseInt(n) - 1;
 					// add chapter to array
@@ -705,15 +588,14 @@ pageLoad["list"] = function() {
 	document.body.appendChild(styleSheet);
 
 	// expand more-info
-	$(".more > a").each(function(i, e) {
-		e.click();
+	$(".more > a").each(function() {
+		this.click();
 	});
+	// $(".more > a").click(); doesn't work for some reason
 
 	// add col to table
 	$("#list-container").find("th.header-title.title").after(properties.colHeader);
-	$(".list-item").each(function() {
-		$(this).find(".data.title").after("<td class='data stream'></td>");
-	});
+	$(".list-item .data.title").after("<td class='data stream'></td>");
 
 	// style
 	$(".data.stream").css("font-weight", "normal");
@@ -747,9 +629,7 @@ pageLoad["list"] = function() {
 	// event listeners
 	// column header
 	$(".header-title.stream").on("click", function() {
-		$(".data.stream").each(function() {
-			$(this).trigger("click");
-		});
+		$(".data.stream").trigger("click");
 	});
 
 	// table cell
@@ -927,9 +807,8 @@ pageLoad["edit"] = function() {
 	$(properties.editPageBox).after("<br>", titleBox, "<br>", search);
 	// add streamingServices
 	let first = true;
-	for (let i = 0; i < streamingServices.length; i++) {
-		let ss = streamingServices[i];
-		if (ss.type != properties.mode) continue;
+	streamingServices.forEach(function(ss) {
+		if (ss.type != properties.mode) return;
 		// don't append ", " before first ss
 		if (first) {
 			first = false;
@@ -952,7 +831,7 @@ pageLoad["edit"] = function() {
 			return false;
 		});
 		search.append(a);
-	}
+	});
 	search.append("<br>");
 }
 

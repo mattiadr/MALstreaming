@@ -10,9 +10,8 @@ pageLoad["edit"] = function() {
 	$(properties.editPageBox).after("<br>", titleBox, "<br>", search);
 	// add streamingServices
 	let first = true;
-	for (let i = 0; i < streamingServices.length; i++) {
-		let ss = streamingServices[i];
-		if (ss.type != properties.mode) continue;
+	streamingServices.forEach(function(ss) {
+		if (ss.type != properties.mode) return;
 		// don't append ", " before first ss
 		if (first) {
 			first = false;
@@ -35,7 +34,7 @@ pageLoad["edit"] = function() {
 			return false;
 		});
 		search.append(a);
-	}
+	});
 	search.append("<br>");
 }
 

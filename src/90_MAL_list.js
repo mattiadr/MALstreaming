@@ -15,15 +15,14 @@ pageLoad["list"] = function() {
 	document.body.appendChild(styleSheet);
 
 	// expand more-info
-	$(".more > a").each(function(i, e) {
-		e.click();
+	$(".more > a").each(function() {
+		this.click();
 	});
+	// $(".more > a").click(); doesn't work for some reason
 
 	// add col to table
 	$("#list-container").find("th.header-title.title").after(properties.colHeader);
-	$(".list-item").each(function() {
-		$(this).find(".data.title").after("<td class='data stream'></td>");
-	});
+	$(".list-item .data.title").after("<td class='data stream'></td>");
 
 	// style
 	$(".data.stream").css("font-weight", "normal");
@@ -57,9 +56,7 @@ pageLoad["list"] = function() {
 	// event listeners
 	// column header
 	$(".header-title.stream").on("click", function() {
-		$(".data.stream").each(function() {
-			$(this).trigger("click");
-		});
+		$(".data.stream").trigger("click");
 	});
 
 	// table cell

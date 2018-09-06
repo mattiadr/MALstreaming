@@ -32,11 +32,7 @@ getEpisodes["mangadex"] = function(dataStream, url, episodes) {
 					// get all numbers in title
 					let n = t.match(/\d+/g);
 					// if vol is present then get second match else get first
-					if (mangadex.regexVol.test(t)) {
-						n = n[1];
-					} else {
-						n = n[0];
-					}
+					n = mangadex.regexVol.test(t) ? n[1] : n[0];
 					// chapter number - 1 is used as index
 					n = parseInt(n) - 1;
 					// add chapter to array

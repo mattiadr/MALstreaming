@@ -44,22 +44,17 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				let episodes = [];
 				// get table rows for the episodes
 				let trs = jqPage.find(".listing").find("tr");
-				// series title to split chapter title
+				// get series title to remove it from chapter name
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
-				trs.each(function(i, e) {
+				trs.each(function() {
 					let a = $(this).find("td > a");
 					if (a.length === 0) return;
 					let t = a.text().split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
 					// get all numbers in title
-					let ns = t.match(/\d+/g);
-					let n;
+					let n = t.match(/\d+/g);
 					// if vol is present then get second match else get first
-					if (kissmanga.regexVol.test(t)) {
-						n = ns[1];
-					} else {
-						n = ns[0];
-					}
+					n = kissmanga.regexVol.test(t) ? n[1] : n[0];
 					// chapter number - 1 is used as index
 					n = parseInt(n) - 1;
 					// add chapter to array

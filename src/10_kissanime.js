@@ -53,17 +53,16 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				let episodes = [];
 				// get anchors for the episodes
 				let as = jqPage.find(".listing").find("tr > td > a");
-				// get title to split episode name and leave only "Episode xx"
+				// get series title to remove it from episode name
 				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
 				// filter and add to episodes array
-				as.each(function(i, e) {
+				as.each(function() {
 					// title must match regexWhitelist, must not match regexBlacklist and href must not be in epsBlacklist to be considered a valid episode
-					if (kissanime.regexWhitelist.test(e.text) && !kissanime.regexBlacklist.test(e.text) && kissanime.epsBlacklist.indexOf(e.href) == -1) {
-						let t = e.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
+					if (kissanime.regexWhitelist.test(this.text) && !kissanime.regexBlacklist.test(this.text) && kissanime.epsBlacklist.indexOf(this.href) == -1) {
 						// prepend new object to array
 						episodes.unshift({
-							text: t,
-							href: kissanime.anime + e.href.split("/Anime/")[1] + kissanime.server
+							text: this.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " "),
+							href: kissanime.anime + this.href.split("/Anime/")[1] + kissanime.server
 						});
 					}
 				});
