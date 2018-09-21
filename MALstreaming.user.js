@@ -47,30 +47,32 @@
 /*******************************************************************************************************************************************************************/
 // contains variable properties for anime/manga modes
 let properties = {};
-properties["anime"] = {};
-properties["manga"] = {};
-properties["anime"].mode = "anime";
-properties["manga"].mode = "manga";
-properties["anime"].watching = ".list-unit.watching";
-properties["manga"].watching = ".list-unit.reading";
-properties["anime"].colHeader = "<th class='header-title stream'>Watch</th>";
-properties["manga"].colHeader = "<th class='header-title stream'>Read</th>";
-properties["anime"].commentsRegex = /Comments: ([\S ]+)(?=&nbsp;)/g;
-properties["manga"].commentsRegex = /Comments: ([\S ]+)(?=\n)/g;
-properties["anime"].iconAdd = ".icon-add-episode";
-properties["manga"].iconAdd = ".icon-add-chapter";
-properties["anime"].findProgress = ".data.progress";
-properties["manga"].findProgress = ".data.chapter";
-properties["anime"].findAiring = "span.content-status:contains('Airing')";
-properties["manga"].findAiring = "span.content-status:contains('Publishing')";
-properties["anime"].latest = "Latest ep is #";
-properties["manga"].latest = "Latest ch is #";
-properties["anime"].notAired = "Not Yet Aired";
-properties["manga"].notAired = "Not Yet Published";
-properties["anime"].ep = "Ep.";
-properties["manga"].ep = "Ch.";
-properties["anime"].editPageBox = "#add_anime_comments";
-properties["manga"].editPageBox = "#add_manga_comments";
+properties.anime = {
+	mode:          "anime",
+	watching:      ".list-unit.watching",
+	colHeader:     "<th class='header-title stream'>Watch</th>",
+	commentsRegex: /Comments: ([\S ]+)(?=&nbsp;)/g,
+	iconAdd:       ".icon-add-episode",
+	findProgress:  ".data.progress",
+	findAiring:    "span.content-status:contains('Airing')",
+	latest:        "Latest ep is #",
+	notAired:      "Not Yet Aired",
+	ep:            "Ep.",
+	editPageBox:   "#add_anime_comments",
+};
+properties.manga = {
+	mode:          "manga",
+	watching:      ".list-unit.reading",
+	colHeader:     "<th class='header-title stream'>Read</th>",
+	commentsRegex: /Comments: ([\S ]+)(?=\n)/g,
+	iconAdd:       ".icon-add-chapter",
+	findProgress:  ".data.chapter",
+	findAiring:    "span.content-status:contains('Publishing')",
+	latest:        "Latest ch is #",
+	notAired:      "Not Yet Published",
+	ep:            "Ch.",
+	editPageBox:   "#add_manga_comments",
+};
 // contains all functions to execute on page load
 const pageLoad = {};
 // contains all functions to get the episodes list from the streaming services
