@@ -59,9 +59,9 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 					n = parseInt(n) - 1;
 					// add chapter to array
 					episodes[n] = {
-						text: t,
-						href: kissmanga.manga + a.attr('href').split("/Manga/")[1],
-						date: $(this).find("td:nth-child(2)").text()
+						text:      t,
+						href:      kissmanga.manga + a.attr('href').split("/Manga/")[1],
+						timestamp: Date.parse($(this).find("td:nth-child(2)").text()),
 					}
 				});
 				// estimate timeMillis

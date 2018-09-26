@@ -81,12 +81,12 @@ function estimateTimeMillis(episodes, n) {
 	let min = undefined;
 	for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 1 - n); i--) {
 		if (!episodes[i]) continue;
-		if (prev && episodes[i].date != prev) {
-			let diff = Date.parse(prev) - Date.parse(episodes[i].date);
+		if (prev && episodes[i].timestamp != prev) {
+			let diff = prev - episodes[i].timestamp;
 			if (!min || diff < min && diff > 0) min = diff;
 		}
-		prev = episodes[i].date;
+		prev = episodes[i].timestamp;
 	}
-	return Date.parse(episodes[episodes.length - 1].date) + min;
+	return episodes[episodes.length - 1].timestamp + min;
 }
 

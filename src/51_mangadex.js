@@ -3,61 +3,38 @@
 const mangadex = {};
 mangadex.base = "https://mangadex.org/";
 mangadex.manga = mangadex.base + "manga/";
+mangadex.manga_api = mangadex.base + "api/manga/";
 mangadex.chapter = mangadex.base + "chapter/";
+mangadex.lang_code = "gb";
 mangadex.search = mangadex.base + "quick_search/";
-// selectors
-mangadex.rowSelector = ".chapter-container > .row";
-mangadex.titleSelector = "div > div > div:nth-child(2) > a";
-mangadex.dateSelector = "div > div > div:nth-child(4)";
-mangadex.navSelector = ".chapter-container ~ nav > ul";
-// regex
-mangadex.regexVol = /(?<=vol).+?\d+/i;
 
-getEpisodes["mangadex"] = function(dataStream, url, episodes) {
+getEpisodes["mangadex"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: mangadex.manga + url,
+		url: mangadex.manga_api + url,
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
-				let jqPage = $(resp.response);
-				// if there are no episodes from previous calls, init as new array
-				if (!episodes) episodes = [];
-				// get table rows for the episodes
-				let rows = jqPage.find(mangadex.rowSelector).slice(1);
-				// filter and add to episodes array
-				rows.each(function() {
-					let a = $(this).find(mangadex.titleSelector);
-					let t = a.text();
-					// get all numbers in title
-					let n = t.match(/\d+/g);
-					// if vol is present then get second match else get first
-					n = mangadex.regexVol.test(t) ? n[1] : n[0];
-					// chapter number - 1 is used as index
-					n = parseInt(n) - 1;
-					// add chapter to array
-					episodes[n] = {
-						text: t,
-						href: mangadex.chapter + a.attr('href').split("/chapter/")[1],
-						date: $(this).find(mangadex.dateSelector).attr("title")
+				let res_ch = JSON.parse(resp.response).chapter;
+				let episodes = [];
+				// parse json
+				for (let key in res_ch) {
+					if (res_ch.hasOwnProperty(key)) {
+						let ch = res_ch[key];
+						// skip wrong language
+						if (ch.lang_code != mangadex.lang_code) continue;
+						// put into episodes array
+						episodes[ch.chapter - 1] = {
+							text:      `Vol. ${ch.volume} Ch. ${ch.chapter}`,
+							href:      mangadex.chapter + key,
+							timestamp: ch.timestamp,
+						}
 					}
-				});
-
-				// check if it's the last page
-				let ul = jqPage.find(mangadex.navSelector);
-				if (ul.length > 0 && ul.find("li.active + li.disabled").length == 0) {
-					// not last page
-					// slice at 7th char to remove /manga/ from the front
-					let nextUrl = ul.find("li.active + li > a").attr("href").slice(7);
-					// call getEpisodes on next page
-					getEpisodes["mangadex"](dataStream, nextUrl, episodes);
-				} else {
-					// last page
-					// estimate timeMillis
-					let timeMillis = estimateTimeMillis(episodes, 5);
-					// callback
-					putEpisodes(dataStream, episodes, timeMillis);
 				}
+				// estimate timeMillis
+				let timeMillis = estimateTimeMillis(episodes, 5);
+				// callback
+				putEpisodes(dataStream, episodes, timeMillis);
 			}
 		}
 	});
