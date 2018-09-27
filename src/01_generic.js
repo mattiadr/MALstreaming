@@ -57,12 +57,12 @@ const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
 	// anime
-	{ id: "kissanime", type: "anime", name: "Kissanime"    },
-	// { id: "nineanime", type: "anime", name: "9anime"       },
-	{ id: "masterani", type: "anime", name: "Masterani.me" },
+	{ id: "kissanime", type: "anime", name: "Kissanime",    domain: "kissanime.ru"     },
+	// { id: "nineanime", type: "anime", name: "9anime",       domain: "www8.9anime.is"   },
+	{ id: "masterani", type: "anime", name: "Masterani.me", domain: "www.masterani.me" },
 	// manga
-	{ id: "kissmanga", type: "manga", name: "Kissmanga"    },
-	{ id: "mangadex",  type: "manga", name: "MangaDex"     },
+	{ id: "kissmanga", type: "manga", name: "Kissmanga",    domain: "kissmanga.com"    },
+	{ id: "mangadex",  type: "manga", name: "MangaDex",     domain: "mangadex.org"     },
 ];
 
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
@@ -88,5 +88,15 @@ function estimateTimeMillis(episodes, n) {
 		prev = episodes[i].timestamp;
 	}
 	return episodes[episodes.length - 1].timestamp + min;
+}
+
+// returns the domain for the streaming service or false if ss doesn't exist
+function getDomainById(id) {
+	for (let i = 0; i < streamingServices.length; i++) {
+		if (streamingServices[i].id == id) {
+			return streamingServices[i].domain;
+		}
+	}
+	return false;
 }
 

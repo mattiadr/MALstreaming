@@ -189,10 +189,17 @@ function updateList_doesntExist(dataStream) {
 			// comment valid
 			// add loading
 			dataStream.prepend("<div class='loading'>Loading...</div>");
-			// add eplist to dataStream
+			// add eplist and favicon to dataStream
 			if (dataStream.find(".eplist").length === 0) {
+				// add eplist
 				let eplistUrl = getEplistUrl[url[0]](url[1]);
 				dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
+				// add favicon
+				let domain = getDomainById(url[0]);
+				if (domain) {
+					let src = "https://www.google.com/s2/favicons?domain=" + domain;
+					dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
+				}
 			}
 			// executes getEpisodes relative to url[0] passing dataStream and url[1]
 			getEpisodes[url[0]](dataStream, url[1]);
