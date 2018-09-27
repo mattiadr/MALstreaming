@@ -58,7 +58,7 @@ const searchSite = {};
 const streamingServices = [
 	// anime
 	{ id: "kissanime", type: "anime", name: "Kissanime",    domain: "kissanime.ru"     },
-	// { id: "nineanime", type: "anime", name: "9anime",       domain: "www8.9anime.is"   },
+	{ id: "nineanime", type: "anime", name: "9anime",       domain: "www8.9anime.is"   },
 	{ id: "masterani", type: "anime", name: "Masterani.me", domain: "www.masterani.me" },
 	// manga
 	{ id: "kissmanga", type: "manga", name: "Kissmanga",    domain: "kissmanga.com"    },
