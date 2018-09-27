@@ -25,7 +25,7 @@ getEpisodes["mangadex"] = function(dataStream, url) {
 						if (ch.lang_code != mangadex.lang_code) continue;
 						// put into episodes array
 						episodes[ch.chapter - 1] = {
-							text:      `Vol. ${ch.volume} Ch. ${ch.chapter}`,
+							text:      (ch.volume && `Vol. ${ch.volume}`) + `Ch. ${ch.chapter}`,
 							href:      mangadex.chapter + key,
 							timestamp: ch.timestamp,
 						}
