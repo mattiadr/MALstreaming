@@ -4,7 +4,7 @@ Adds anime streaming links to the next available episode to your Currently Watch
 Since version 5.0 it also adds next available manga chapter to your Currently Reading list.
 
 ## Preview
-![Preview Image](images/preview.png)
+![Preview Image](images/list_page.png)
 
 Supported anime websites:
 - [x] [Kissanime](http://kissanime.ru/)
