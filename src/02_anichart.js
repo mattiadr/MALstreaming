@@ -27,9 +27,9 @@ function anichart_setTimeMillis(dataStream, canReload) {
 			GM_removeValueChangeListener(listenerId);
 		});
 		// load times from anichart
-		if (!GM_getValue("anichartLoading", false)) {
+		if (GM_getValue("anichartLoading", false) + 30*1000 < Date.now()) {
 			// set value then open anichart
-			GM_setValue("anichartLoading", true);
+			GM_setValue("anichartLoading", Date.now());
 			GM_openInTab(anichartUrl, true);
 		}
 	}

@@ -18,8 +18,8 @@ kissanime.regexCountdown = /\d+(?=\), function)/;
 
 // loads kissanime cookies and then calls back
 function kissanime_loadCookies(callback) {
-	if (!GM_getValue("KAloadcookies", false)) {
-		GM_setValue("KAloadcookies", true);
+	if (GM_getValue("KAloadcookies", false) + 30*1000 < Date.now()) {
+		GM_setValue("KAloadcookies", Date.now());
 		GM_openInTab(kissanime.base, true);
 	}
 	if (callback) {

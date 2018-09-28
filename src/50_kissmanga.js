@@ -9,8 +9,8 @@ kissmanga.regexVol = /(?<=vol).+?\d+/i;
 
 // loads kissmanga cookies and then calls back
 function kissmanga_loadCookies(callback) {
-	if (!GM_getValue("KMloadcookies", false)) {
-		GM_setValue("KMloadcookies", true);
+	if (GM_getValue("KMloadcookies", false) + 30*1000 < Date.now()) {
+		GM_setValue("KMloadcookies", Date.now());
 		GM_openInTab(kissmanga.base, true);
 	}
 	if (callback) {
