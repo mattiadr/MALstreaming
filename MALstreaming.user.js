@@ -466,16 +466,18 @@ searchSite["masterani"] = function(id, title) {
 			if (resp.status == 200) {
 				// OK
 				let list = JSON.parse(resp.response).data;
-				list = list.slice(0, 10);
 				let results = [];
-				// add to results
-				for (let i = 0; i < list.length; i++) {
-					let r = list[i];
-					results.push({
-						title:    r.title,
-						href:     r.slug,
-						episodes: r.episode_count
-					});
+				if (list) {
+					list = list.slice(0, 10);
+					// add to results
+					for (let i = 0; i < list.length; i++) {
+						let r = list[i];
+						results.push({
+							title:    r.title,
+							href:     r.slug,
+							episodes: r.episode_count
+						});
+					}
 				}
 				// callback
 				putResults(id, results);
