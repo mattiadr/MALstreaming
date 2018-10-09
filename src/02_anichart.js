@@ -37,40 +37,43 @@ function anichart_setTimeMillis(dataStream, canReload) {
 
 // function to execute when script is run on anichart
 pageLoad["anichart"] = function() {
-	// wait all items
-	setTimeout(function() {
-		// get items or cards
-		let items = $(".item, .card");
-		let times = {};
-		if ($(items[0]).find(".title > a").attr("href").indexOf("myanimelist.net") != -1) {
-			// check if using MAL urls
-			items.each(function(i, e) {
-				// get id from url
-				let id = $(this).find(".title > a").attr("href").match(/\d+$/)[0];
-				let ep = $(this).find(".airing > span:first-child").text().match(/\d+/)[0];
-				// get time array days, hours, mins
-				let time = $(this).find("timer").text().match(/\d+/g);
-				let timeMillis = ((parseInt(time[0]) * 24 + parseInt(time[1])) * 60 + parseInt(time[2])) * 60 * 1000;
-				// edge case 0d 0h 0m
-				if (timeMillis == 0) {
-					timeMillis = undefined;
-				} else {
-					timeMillis += Date.now();
+	// get xsrf token from cookies
+	let xsrf_tok = document.cookie.match(/(?<=XSRF-TOKEN=)\w+/)[0];
+	// request data
+	GM_xmlhttpRequest({
+		method:  "GET",
+		url:     "http://anichart.net/api/airing",
+		headers: { "X-CSRF-TOKEN": xsrf_tok },
+		onload:  function(resp) {
+			// parse response
+			let res = JSON.parse(resp.response);
+			let times = {};
+			// iterate over day of week
+			for (let day in res) {
+				if (res.hasOwnProperty(day)) {
+					// iterate over array
+					for (let i = 0; i < res[day].length; i++) {
+						let entry = res[day][i];
+						// get id from mal_link
+						let id = entry.mal_link.match(/\d+$/)[0];
+						let ep = entry.airing.next_episode;
+						let timeMillis = entry.airing.time * 1000;
+						// set time, ep is episode the timer is referring to
+						times[id] = {
+							ep: ep,
+							timeMillis: timeMillis
+						}
+					}
 				}
-				// set time, ep is episode the timer is referring to
-				times[id] = {
-					ep: ep,
-					timeMillis: timeMillis
-				}
-			});
+			}
+			// put times in GM value
+			GM_setValue("anichartTimes", times);
+			// finished loading, close only if opened by script
+			if (GM_getValue("anichartLoading", false)) {
+				GM_setValue("anichartLoading", false);
+				window.close();
+			}
 		}
-		// put times in GM value
-		GM_setValue("anichartTimes", times);
-		// finished loading, close only if opened by script
-		if (GM_getValue("anichartLoading", false)) {
-			GM_setValue("anichartLoading", false);
-			window.close();
-		}
-	}, 500);
+	});
 }
 

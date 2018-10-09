@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.22
+// @version      5.23
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -168,41 +168,44 @@ function anichart_setTimeMillis(dataStream, canReload) {
 
 // function to execute when script is run on anichart
 pageLoad["anichart"] = function() {
-	// wait all items
-	setTimeout(function() {
-		// get items or cards
-		let items = $(".item, .card");
-		let times = {};
-		if ($(items[0]).find(".title > a").attr("href").indexOf("myanimelist.net") != -1) {
-			// check if using MAL urls
-			items.each(function(i, e) {
-				// get id from url
-				let id = $(this).find(".title > a").attr("href").match(/\d+$/)[0];
-				let ep = $(this).find(".airing > span:first-child").text().match(/\d+/)[0];
-				// get time array days, hours, mins
-				let time = $(this).find("timer").text().match(/\d+/g);
-				let timeMillis = ((parseInt(time[0]) * 24 + parseInt(time[1])) * 60 + parseInt(time[2])) * 60 * 1000;
-				// edge case 0d 0h 0m
-				if (timeMillis == 0) {
-					timeMillis = undefined;
-				} else {
-					timeMillis += Date.now();
+	// get xsrf token from cookies
+	let xsrf_tok = document.cookie.match(/(?<=XSRF-TOKEN=)\w+/)[0];
+	// request data
+	GM_xmlhttpRequest({
+		method:  "GET",
+		url:     "http://anichart.net/api/airing",
+		headers: { "X-CSRF-TOKEN": xsrf_tok },
+		onload:  function(resp) {
+			// parse response
+			let res = JSON.parse(resp.response);
+			let times = {};
+			// iterate over day of week
+			for (let day in res) {
+				if (res.hasOwnProperty(day)) {
+					// iterate over array
+					for (let i = 0; i < res[day].length; i++) {
+						let entry = res[day][i];
+						// get id from mal_link
+						let id = entry.mal_link.match(/\d+$/)[0];
+						let ep = entry.airing.next_episode;
+						let timeMillis = entry.airing.time * 1000;
+						// set time, ep is episode the timer is referring to
+						times[id] = {
+							ep: ep,
+							timeMillis: timeMillis
+						}
+					}
 				}
-				// set time, ep is episode the timer is referring to
-				times[id] = {
-					ep: ep,
-					timeMillis: timeMillis
-				}
-			});
+			}
+			// put times in GM value
+			GM_setValue("anichartTimes", times);
+			// finished loading, close only if opened by script
+			if (GM_getValue("anichartLoading", false)) {
+				GM_setValue("anichartLoading", false);
+				window.close();
+			}
 		}
-		// put times in GM value
-		GM_setValue("anichartTimes", times);
-		// finished loading, close only if opened by script
-		if (GM_getValue("anichartLoading", false)) {
-			GM_setValue("anichartLoading", false);
-			window.close();
-		}
-	}, 500);
+	});
 }
 
 /* kissanime */
