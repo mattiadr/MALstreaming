@@ -1,7 +1,7 @@
 /* 9anime */
 /*******************************************************************************************************************************************************************/
 const nineanime = {};
-nineanime.base = "https://9anime.is/";
+nineanime.base = "https://9anime.to/";
 nineanime.anime = nineanime.base + "watch/";
 nineanime.servers = nineanime.base + "ajax/film/servers/";
 nineanime.search = nineanime.base + "search?keyword=";
