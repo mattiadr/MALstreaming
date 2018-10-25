@@ -205,7 +205,7 @@ function updateList_doesntExist(dataStream) {
 			getEpisodes[url[0]](dataStream, url[1]);
 		} else {
 			// comment invalid
-			dataStream.append("<div class='error'>Invalid Link</div>")
+			dataStream.append("<div class='error'>Invalid Link</div>");
 		}
 	} else {
 		// comment doesn't extst

@@ -52,10 +52,11 @@ searchSite["masterani"] = function(id, title) {
 					// add to results
 					for (let i = 0; i < list.length; i++) {
 						let r = list[i];
+						let eps = r.episode_count;
 						results.push({
 							title:    r.title,
 							href:     r.slug,
-							episodes: r.episode_count
+							episodes: eps + ((eps > 1) ? " eps" : " ep"),
 						});
 					}
 				}
