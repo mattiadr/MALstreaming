@@ -30,15 +30,17 @@ pageLoad["list"] = function() {
 	$(".header-title.stream").css("min-width", "120px");
 
 	// wait
-	setTimeout(function() {
-		// collapse more-info
-		$(".more-info").css("display", "none");
-		// remove sheet
-		document.body.removeChild(styleSheet);
-
+	let interval = setInterval(function() {
+		let done = true;
 		// put comment into data("comment")
 		$(".list-item").each(function() {
-			let comment = $(this).find(".td1.borderRBL").html().match(properties.commentsRegex);
+			let td = $(this).find(".td1.borderRBL");
+			// if not loaded yet then check later
+			if (td.length == 0) {
+				done = false;
+				return
+			}
+			let comment = td.html().match(properties.commentsRegex);
 			if (comment) {
 				// revome the first 10 characters to remove "Comments: " since js doesn't support lookbehinds
 				comment = comment.toString().substring(10);
@@ -49,9 +51,17 @@ pageLoad["list"] = function() {
 			$(this).find(".data.stream").data("comment", comment);
 		});
 
-		// load links
-		$(".header-title.stream").trigger("click");
-	}, 1000);
+		if (done) {
+			// collapse more-info
+			$(".more-info").css("display", "none");
+			// remove sheet
+			document.body.removeChild(styleSheet);
+			// load links
+			$(".header-title.stream").trigger("click");
+			// stop interval
+			clearInterval(interval);
+		}
+	}, 100);
 
 	// event listeners
 	// column header
