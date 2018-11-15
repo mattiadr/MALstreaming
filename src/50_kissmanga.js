@@ -1,7 +1,7 @@
 /* kissmanga */
 /*******************************************************************************************************************************************************************/
 const kissmanga = {};
-kissmanga.base = "http://kissmanga.com/";
+kissmanga.base = "https://kissmanga.com/";
 kissmanga.manga = kissmanga.base + "Manga/";
 kissmanga.search = kissmanga.base + "Search/SearchSuggest";
 // regex

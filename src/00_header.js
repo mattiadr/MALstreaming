@@ -17,7 +17,7 @@
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
 // @match        http://anichart.net/airing
 // @match        http://kissanime.ru/
-// @match        http://kissmanga.com/
+// @match        https://kissmanga.com/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @grant        GM_xmlhttpRequest
 // @grant        GM_openInTab
