@@ -57,12 +57,12 @@ const searchSite = {};
 // is an array of valid streaming services names
 const streamingServices = [
 	// anime
-	{ id: "kissanime", type: "anime", name: "Kissanime",    domain: "kissanime.ru"     },
-	{ id: "nineanime", type: "anime", name: "9anime",       domain: "www8.9anime.is"   },
-	{ id: "masterani", type: "anime", name: "Masterani.me", domain: "www.masterani.me" },
+	{ id: "kissanime", type: "anime", name: "Kissanime",    domain: "http://kissanime.ru/"      },
+	{ id: "nineanime", type: "anime", name: "9anime",       domain: "https://www1.9anime.to/"   },
+	{ id: "masterani", type: "anime", name: "Masterani.me", domain: "https://www.masterani.me/" },
 	// manga
-	{ id: "kissmanga", type: "manga", name: "Kissmanga",    domain: "kissmanga.com"    },
-	{ id: "mangadex",  type: "manga", name: "MangaDex",     domain: "mangadex.org"     },
+	{ id: "kissmanga", type: "manga", name: "Kissmanga",    domain: "https://kissmanga.com/"    },
+	{ id: "mangadex",  type: "manga", name: "MangaDex",     domain: "https://mangadex.org/"     },
 ];
 
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
