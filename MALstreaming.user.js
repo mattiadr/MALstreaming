@@ -508,10 +508,15 @@ searchSite["masterani"] = function(id, title) {
 					for (let i = 0; i < list.length; i++) {
 						let r = list[i];
 						let eps = r.episode_count;
+						if (!eps) {
+							eps = "? eps"
+						} else {
+							eps += ((eps > 1) ? " eps" : " ep")
+						}
 						results.push({
 							title:    r.title,
 							href:     r.slug,
-							episodes: eps + ((eps > 1) ? " eps" : " ep"),
+							episodes: eps,
 						});
 					}
 				}
