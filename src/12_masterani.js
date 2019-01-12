@@ -67,7 +67,7 @@ getEplistUrl["masterani"] = function(partialUrl) {
 searchSite["masterani"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: masterani.search + encodeURIComponent(title).slice(0, 60) + masterani.search_suffix, // maximum search length is 60 chars
+		url: masterani.search + encodeURIComponent(title).slice(0, 32) + masterani.search_suffix, // maximum search length is 32 chars
 		onload: function(resp) {
 			if (resp.status == 503) {
 				// loading CF cookies
@@ -76,7 +76,12 @@ searchSite["masterani"] = function(id, title) {
 				});
 			} else if (resp.status == 200) {
 				// OK
-				let list = JSON.parse(resp.response).data;
+				let list;
+				try {
+					list = JSON.parse(resp.response).data;
+				} catch (e) {
+					// error parsing JSON
+				}
 				let results = [];
 				if (list) {
 					list = list.slice(0, 10);
