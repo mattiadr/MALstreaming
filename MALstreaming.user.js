@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.27
+// @version      5.28
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -15,7 +15,6 @@
 // @match        https://myanimelist.net/mangalist/*
 // @match        https://myanimelist.net/ownlist/manga/*/edit*
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
-// @match        http://anichart.net/airing
 // @match        http://kissanime.ru/
 // @match        https://kissmanga.com/
 // @match        https://www.masterani.me/
@@ -130,83 +129,80 @@ function getDomainById(id) {
 	return false;
 }
 
-/* anichart */
+/* anilist */
 /*******************************************************************************************************************************************************************/
-const anichartUrl = "http://anichart.net/airing";
+const anilist = {};
+anilist.api = "https://graphql.anilist.co";
+anilist.query = `\
+query ($idMal: Int) {
+	Media(type: ANIME, idMal: $idMal) {
+		airingSchedule(notYetAired: true, perPage: 1) {
+			nodes {
+				episode
+				airingAt
+			}
+		}
+	}
+}`;
+
+// request time until next episode for the specified anime id
+function requestTime(id) {
+	// prepare data
+	let data = {
+		query: anilist.query,
+		variables: { idMal: id }
+	};
+	// do request
+	GM_xmlhttpRequest({
+		method:  "POST",
+		url:     anilist.api,
+		headers: { "Content-Type": "application/json" },
+		data:    JSON.stringify(data),
+		onload:  function(resp) {
+			let res = JSON.parse(resp.response);
+			let times = GM_getValue("anilistTimes", {});
+			// get data from response
+			let sched = res.data.Media.airingSchedule.nodes[0];
+			let ep = sched.episode;
+			let timeMillis = sched.airingAt * 1000;
+			// set time, ep is episode the timer is referring to
+			times[id] = {
+				ep: ep,
+				timeMillis: timeMillis
+			};
+			// put times in GM value
+			GM_setValue("anilistTimes", times);
+		}
+	});
+}
 
 // puts timeMillis into dataStream, then calls back
-function anichart_setTimeMillis(dataStream, canReload) {
+function anilist_setTimeMillis(dataStream, canReload) {
 	let listitem = dataStream.parents(".list-item");
 
 	// anime is not airing, exit
 	if (listitem.find(properties.findAiring).length == 0) return;
 
-	let times = GM_getValue("anichartTimes", false);
+	let times = GM_getValue("anilistTimes", false);
 	// get anime id
 	let id = listitem.find(".data.title > .link").attr("href").split("/")[2];
 	let t = times ? times[id] : false;
 
 	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
-		// set timeMillis, this is used to check if anichart timer is referring to next episode
+		// set timeMillis, this is used to check if anilist timer is referring to next episode
 		dataStream.data("timeMillis", t);
 	} else {
 		// add value change listener
-		let listenerId = GM_addValueChangeListener("anichartTimes", function(name, old_value, new_value, remote) {
+		let listenerId = GM_addValueChangeListener("anilistTimes", function(name, old_value, new_value, remote) {
 			// reload, avoid infinite loops
-			if (canReload) anichart_setTimeMillis(dataStream, false);
+			if (canReload) anilist_setTimeMillis(dataStream, false);
 			// remove listener
 			GM_removeValueChangeListener(listenerId);
 		});
-		// load times from anichart
-		if (GM_getValue("anichartLoading", false) + 30*1000 < Date.now()) {
-			// set value then open anichart
-			GM_setValue("anichartLoading", Date.now());
-			GM_openInTab(anichartUrl, true);
-		}
+		// api request to anilist
+		requestTime(id);
 	}
-}
-
-// function to execute when script is run on anichart
-pageLoad["anichart"] = function() {
-	// get xsrf token from cookies
-	let xsrf_tok = document.cookie.match(/(?<=XSRF-TOKEN=)\w+/)[0];
-	// request data
-	GM_xmlhttpRequest({
-		method:  "GET",
-		url:     "http://anichart.net/api/airing",
-		headers: { "X-CSRF-TOKEN": xsrf_tok },
-		onload:  function(resp) {
-			// parse response
-			let res = JSON.parse(resp.response);
-			let times = {};
-			// iterate over day of week
-			for (let day in res) {
-				if (res.hasOwnProperty(day)) {
-					// iterate over array
-					for (let i = 0; i < res[day].length; i++) {
-						let entry = res[day][i];
-						// get id from mal_link
-						let id = entry.mal_link.match(/\d+$/)[0];
-						let ep = entry.airing.next_episode;
-						let timeMillis = entry.airing.time * 1000;
-						// set time, ep is episode the timer is referring to
-						times[id] = {
-							ep: ep,
-							timeMillis: timeMillis
-						}
-					}
-				}
-			}
-			// put times in GM value
-			GM_setValue("anichartTimes", times);
-			// finished loading, close only if opened by script
-			if (GM_getValue("anichartLoading", false)) {
-				GM_setValue("anichartLoading", false);
-				window.close();
-			}
-		}
-	});
 }
 
 /* kissanime */
@@ -944,8 +940,8 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 		// timeMillis is valid
 		dataStream.data("timeMillis", { timeMillis: timeMillis });
 	} else if (properties.mode == "anime") {
-		// timeMillis doesn't exist, get time from anichart
-		anichart_setTimeMillis(dataStream, true);
+		// timeMillis doesn't exist, get time from anilist
+		anilist_setTimeMillis(dataStream, true);
 	}
 	updateList(dataStream, false, false);
 }
@@ -1024,7 +1020,6 @@ let pages = [
 	{ url: kissanime.base,                           prop: null,    load: "kissanime" },
 	{ url: kissmanga.base,                           prop: null,    load: "kissmanga" },
 	{ url: masterani.base,                           prop: null,    load: "masterani" },
-	{ url: anichartUrl,                              prop: null,    load: "anichart"  },
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"      },
 	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list"      },
 	{ url: "https://myanimelist.net/ownlist/anime/", prop: "anime", load: "edit"      },

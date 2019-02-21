@@ -232,8 +232,8 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 		// timeMillis is valid
 		dataStream.data("timeMillis", { timeMillis: timeMillis });
 	} else if (properties.mode == "anime") {
-		// timeMillis doesn't exist, get time from anichart
-		anichart_setTimeMillis(dataStream, true);
+		// timeMillis doesn't exist, get time from anilist
+		anilist_setTimeMillis(dataStream, true);
 	}
 	updateList(dataStream, false, false);
 }
