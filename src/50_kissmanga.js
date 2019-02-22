@@ -62,7 +62,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 						text:      t,
 						href:      kissmanga.manga + a.attr('href').split("/Manga/")[1],
 						timestamp: Date.parse($(this).find("td:nth-child(2)").text()),
-					}
+					};
 				});
 				// estimate timeMillis
 				let timeMillis = estimateTimeMillis(episodes, 5);
@@ -97,7 +97,7 @@ searchSite["kissmanga"] = function(id, title) {
 				list.each(function() {
 					results.push({
 						title: this.text,
-						href:  this.pathname.split("/")[2]
+						href:  this.pathname.split("/")[2],
 					});
 				});
 				// callback

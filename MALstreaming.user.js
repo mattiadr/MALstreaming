@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.28
+// @version      5.29
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -25,26 +25,22 @@
 // @grant        GM_getValue
 // @grant        GM_addValueChangeListener
 // @grant        window.close
+// @connect      *
 // ==/UserScript==
-
-/*
-	HOW TO ADD A NEW STREAMING SERVICE:
-	- add a new object to the streamingServices array with attributes id (unique id, must be a valid identifier) and name (display name)
-	- create a new function in getEplistUrl that will simply return the full url from the partial url (saved in comments)
-	- create a new function in getEpisodes that will accept dataStream and url,
-	  the function needs to callback to putEpisodes(dataStream, episodes, timeMillis)
-	  url is the url of the episode list provoded by getEplistUrl
-	  episodes needs to be an array of object with text and href attributes
-	  timeMillis can optionally be the unix timestamp of the next episode
-	- create a new function in search that will accept id and title
-	  the function needs to callback to putResults(id, results)
-	  results needs to be an array of object with title (display title), href (the url that will be put in the comments) attributes
-	  and epsiodes (optional number of episodes)
-	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another object to the pages array
-*/
 
 /* generic */
 /*******************************************************************************************************************************************************************/
+// array of all streaming services
+const streamingServices = [
+	// anime
+	{ id: "kissanime",   type: "anime", name: "Kissanime",     domain: "http://kissanime.ru/"      },
+	{ id: "nineanime",   type: "anime", name: "9anime",        domain: "https://www1.9anime.to/"   },
+	{ id: "masterani",   type: "anime", name: "Masterani.me",  domain: "https://www.masterani.me/" },
+	// manga
+	{ id: "kissmanga",   type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"    },
+	{ id: "mangadex",    type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"     },
+	{ id: "jaiminisbox", type: "manga", name: "Jaimini's Box", domain: "https://jaiminisbox.com/"  },
+];
 // contains variable properties for anime/manga modes
 let properties = {};
 properties.anime = {
@@ -83,16 +79,6 @@ const getEplistUrl = {};
 // contains all functions to execute the search on the streaming services
 // must callback to putResults(results)
 const searchSite = {};
-// is an array of valid streaming services names
-const streamingServices = [
-	// anime
-	{ id: "kissanime", type: "anime", name: "Kissanime",    domain: "http://kissanime.ru/"      },
-	{ id: "nineanime", type: "anime", name: "9anime",       domain: "https://www1.9anime.to/"   },
-	{ id: "masterani", type: "anime", name: "Masterani.me", domain: "https://www.masterani.me/" },
-	// manga
-	{ id: "kissmanga", type: "manga", name: "Kissmanga",    domain: "https://kissmanga.com/"    },
-	{ id: "mangadex",  type: "manga", name: "MangaDex",     domain: "https://mangadex.org/"     },
-];
 
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
@@ -592,7 +578,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 						text:      t,
 						href:      kissmanga.manga + a.attr('href').split("/Manga/")[1],
 						timestamp: Date.parse($(this).find("td:nth-child(2)").text()),
-					}
+					};
 				});
 				// estimate timeMillis
 				let timeMillis = estimateTimeMillis(episodes, 5);
@@ -627,7 +613,7 @@ searchSite["kissmanga"] = function(id, title) {
 				list.each(function() {
 					results.push({
 						title: this.text,
-						href:  this.pathname.split("/")[2]
+						href:  this.pathname.split("/")[2],
 					});
 				});
 				// callback
@@ -697,6 +683,93 @@ searchSite["mangadex"] = function(id, title) {
 					results.push({
 						title: this.title,
 						href:  this.pathname.split("/")[2]
+					});
+				});
+				// callback
+				putResults(id, results);
+			}
+		}
+	});
+}
+
+/* kissmanga */
+/*******************************************************************************************************************************************************************/
+const jbox = {};
+jbox.base = "https://jaiminisbox.com/";
+jbox.manga = jbox.base + "reader/series/";
+jbox.search = jbox.base + "reader/search/";
+// regex
+jbox.dateRegex = /(\w+|[\d\.]+)(?= $)/;
+
+getEpisodes["jaiminisbox"] = function(dataStream, url) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: jbox.manga + url,
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let episodes = [];
+				// get chapter divs
+				let divs = jqPage.find("#content > .panel > .list > .group > .element");
+
+				divs.each(function() {
+					// get title, href and chapter number
+					let a = $(this).find(".title > a");
+					let t = a.text();
+					// chapter number - 1 is used as index
+					let n = parseInt(t.match(/\d+/)[0]) - 1;
+					// get date
+					let date = $(this).find(".meta_r").text().match(jbox.dateRegex)[0];
+					if (date == "Today" || date == "Yesterday") {
+						let d = new Date();
+						d.setHours(0);
+						d.setMinutes(0);
+						d.setSeconds(0);
+						d.setMilliseconds(0);
+						date = +d;
+						// remove 24h if yesterday
+						if (date == "Yesterday") date -= 24*60*60*1000;
+					} else {
+						date = Date.parse(date);
+					}
+					// add chapter to array
+					episodes[n] = {
+						text:      t,
+						href:      a.attr("href"),
+						timestamp: date,
+					};
+				});
+				// estimate timeMillis
+				let timeMillis = estimateTimeMillis(episodes, 5);
+				// callback
+				putEpisodes(dataStream, episodes, timeMillis);
+			}
+		}
+	});
+}
+
+getEplistUrl["jaiminisbox"] = function(partialUrl) {
+	return jbox.manga + partialUrl;
+}
+
+searchSite["jaiminisbox"] = function(id, title) {
+	GM_xmlhttpRequest({
+		method:  "POST",
+		url:     jbox.search,
+		data:    "search=" + encodeURIComponent(title),
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let results = [];
+
+				let as = jqPage.find("#content > .panel > .list > .group > .title > a");
+				as.each(function() {
+					results.push({
+						title: this.text,
+						href:  this.href.split("/")[5],
 					});
 				});
 				// callback

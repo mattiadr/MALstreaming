@@ -14,7 +14,7 @@ Supported anime websites:
 Supported manga websites:
 - [x] [Kissmanga](http://kissmanga.com/)
 - [x] [MangaDex](https://mangadex.org/)
-- [ ] [Jaimini's Box](https://jaiminisbox.com/)
+- [x] [Jaimini's Box](https://jaiminisbox.com/)
 - [ ] [NovelPlanet](http://novelplanet.com/)
 
 ## Usage

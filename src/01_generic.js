@@ -1,21 +1,16 @@
-/*
-	HOW TO ADD A NEW STREAMING SERVICE:
-	- add a new object to the streamingServices array with attributes id (unique id, must be a valid identifier) and name (display name)
-	- create a new function in getEplistUrl that will simply return the full url from the partial url (saved in comments)
-	- create a new function in getEpisodes that will accept dataStream and url,
-	  the function needs to callback to putEpisodes(dataStream, episodes, timeMillis)
-	  url is the url of the episode list provoded by getEplistUrl
-	  episodes needs to be an array of object with text and href attributes
-	  timeMillis can optionally be the unix timestamp of the next episode
-	- create a new function in search that will accept id and title
-	  the function needs to callback to putResults(id, results)
-	  results needs to be an array of object with title (display title), href (the url that will be put in the comments) attributes
-	  and epsiodes (optional number of episodes)
-	- if other utility is needed, add it in the service section and if you need to run a script on specific pages add another object to the pages array
-*/
-
 /* generic */
 /*******************************************************************************************************************************************************************/
+// array of all streaming services
+const streamingServices = [
+	// anime
+	{ id: "kissanime",   type: "anime", name: "Kissanime",     domain: "http://kissanime.ru/"      },
+	{ id: "nineanime",   type: "anime", name: "9anime",        domain: "https://www1.9anime.to/"   },
+	{ id: "masterani",   type: "anime", name: "Masterani.me",  domain: "https://www.masterani.me/" },
+	// manga
+	{ id: "kissmanga",   type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"    },
+	{ id: "mangadex",    type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"     },
+	{ id: "jaiminisbox", type: "manga", name: "Jaimini's Box", domain: "https://jaiminisbox.com/"  },
+];
 // contains variable properties for anime/manga modes
 let properties = {};
 properties.anime = {
@@ -54,16 +49,6 @@ const getEplistUrl = {};
 // contains all functions to execute the search on the streaming services
 // must callback to putResults(results)
 const searchSite = {};
-// is an array of valid streaming services names
-const streamingServices = [
-	// anime
-	{ id: "kissanime", type: "anime", name: "Kissanime",    domain: "http://kissanime.ru/"      },
-	{ id: "nineanime", type: "anime", name: "9anime",       domain: "https://www1.9anime.to/"   },
-	{ id: "masterani", type: "anime", name: "Masterani.me", domain: "https://www.masterani.me/" },
-	// manga
-	{ id: "kissmanga", type: "manga", name: "Kissmanga",    domain: "https://kissmanga.com/"    },
-	{ id: "mangadex",  type: "manga", name: "MangaDex",     domain: "https://mangadex.org/"     },
-];
 
 // return an array that contains the streaming service and url relative to that service or false if comment is not valid
 function getUrlFromComment(comment) {
