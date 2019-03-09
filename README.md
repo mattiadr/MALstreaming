@@ -9,7 +9,8 @@ Since version 5.0 it also adds next available manga chapter to your Currently Re
 Supported anime websites:
 - [x] [Kissanime](http://kissanime.ru/)
 - [x] [9anime](https://9anime.is/)
-- [x] [Masterani](https://www.masterani.me/)
+- [x] ~~[Masterani](https://www.masterani.me/)~~
+- [x] [Anime Twist](https://twist.moe/)
 
 Supported manga websites:
 - [x] [Kissmanga](http://kissmanga.com/)

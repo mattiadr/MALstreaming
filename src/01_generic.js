@@ -5,6 +5,7 @@ const streamingServices = [
 	// anime
 	{ id: "kissanime",   type: "anime", name: "Kissanime",     domain: "http://kissanime.ru/"      },
 	{ id: "nineanime",   type: "anime", name: "9anime",        domain: "https://www1.9anime.to/"   },
+	{ id: "animetwist",  type: "anime", name: "Anime Twist",   domain: "https://twist.moe/"        },
 	// manga
 	{ id: "kissmanga",   type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"    },
 	{ id: "mangadex",    type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"     },
