@@ -22,7 +22,7 @@ function kissmanga_loadCookies(callback) {
 
 // function to execute when script is run on kissmanga
 pageLoad["kissmanga"] = function() {
-	if (GM_getValue("KMloadcookies", false) && document.title != "Please wait 5 seconds...") {
+	if (GM_getValue("KMloadcookies", false) && document.title != "Just a moment...") {
 		GM_setValue("KMloadcookies", false);
 		window.close();
 	}
@@ -92,7 +92,7 @@ searchSite["kissmanga"] = function(id, title) {
 			} else if (resp.status == 200) {
 				// OK
 				let results = [];
-				
+
 				let list = $(resp.responseText);
 				list.each(function() {
 					results.push({

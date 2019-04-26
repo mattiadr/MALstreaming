@@ -31,7 +31,7 @@ function kissanime_loadCookies(callback) {
 
 // function to execute when script is run on kissanime
 pageLoad["kissanime"] = function() {
-	if (GM_getValue("KAloadcookies", false) && document.title != "Please wait 5 seconds...") {
+	if (GM_getValue("KAloadcookies", false) && document.title != "Just a moment...") {
 		GM_setValue("KAloadcookies", false);
 		window.close();
 	}
@@ -94,7 +94,7 @@ searchSite["kissanime"] = function(id, title) {
 			} else if (resp.status == 200) {
 				// OK
 				let results = [];
-				
+
 				let list = $(resp.responseText);
 				list.each(function() {
 					results.push({
