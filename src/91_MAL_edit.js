@@ -36,6 +36,31 @@ pageLoad["edit"] = function() {
 		search.append(a);
 	});
 	search.append("<br>");
+
+	// offset textarea
+	let offsetBox = $("<input type='text' size='1' style='font-size: 11px; padding: 3px; margin-left: 8px;'>");
+	let o = $(properties.editPageBox).val().split(" ")[2];
+	if (o) offsetBox.val(o);
+	// Set Offset button
+	let a = $("<a>Set Offset</a>");
+	a.attr("href", "#");
+	a.on("click", function() {
+		// get offset from offsetBox
+		let o = parseInt(offsetBox.val());
+		// replace or append to commentBox
+		let val = $(properties.editPageBox).val().split(" ");
+		if (!o || o == 0) {
+			val[2] = undefined;
+		} else {
+			val[2] = o;
+		}
+		$(properties.editPageBox).val(val.join(" "));
+		return false;
+	});
+	// offset div
+	let offset = $("<div id='offset'>");
+	offset.append(a, offsetBox);
+	search.after(offset);
 }
 
 function putResults(id, results) {

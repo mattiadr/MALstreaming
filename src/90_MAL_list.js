@@ -152,6 +152,8 @@ function updateList_exists(dataStream) {
 	// get current episode number
 	let currEp = parseInt(listitem.find(properties.findProgress).find(".link").text());
 	if (isNaN(currEp)) currEp = 0;
+	// add offset to currEp
+	currEp += parseInt(dataStream.data("offset"));
 	// get episodes from data
 	let episodes = dataStream.data("episodeList");
 	// create new nextep
@@ -211,6 +213,8 @@ function updateList_doesntExist(dataStream) {
 					dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
 				}
 			}
+			// set offset data
+			dataStream.data("offset", url[2] ? url[2] : 0);
 			// executes getEpisodes relative to url[0] passing dataStream and url[1]
 			getEpisodes[url[0]](dataStream, url[1]);
 		} else {
