@@ -1,11 +1,28 @@
 /* 9anime */
 /*******************************************************************************************************************************************************************/
 const nineanime = {};
-nineanime.base = "https://9anime.to/";
+nineanime.base = "https://www1.9anime.nl/";
 nineanime.anime = nineanime.base + "watch/";
 nineanime.servers = nineanime.base + "ajax/film/servers/";
 nineanime.search = nineanime.base + "search?keyword=";
 nineanime.regexBlacklist = /preview|special|trailer|CAM/i;
+
+// open captcha page
+function nineanime_openCaptcha() {
+	if (GM_getValue("NAcaptcha", false) + 30*1000 < Date.now()) {
+		GM_setValue("NAcaptcha", Date.now());
+		GM_openInTab(nineanime.base, false);
+	}
+}
+
+// function to execute when script is run on nineanime
+pageLoad["nineanime"] = function() {
+	// close window if opended by script
+	if (GM_getValue("NAcaptcha", false) && document.title != "WAF") {
+		GM_setValue("NAcaptcha", false);
+		window.close();
+	}
+}
 
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
@@ -13,9 +30,18 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 		url: nineanime.servers + url.match(/(?<=\.)\w+$/)[0],
 		onload: function(resp) {
 			if (resp.status == 200) {
+				// successful response is a json with only html attribute, parse it
+				let json = null;
+				try {
+					json = JSON.parse(resp.response);
+				} catch (e) {
+					// solving captcha
+					nineanime_openCaptcha();
+					return;
+				}
+
 				// OK
-				// response is a json with only html attribute, parse and turn into jQuery object
-				let jqPage = $(JSON.parse(resp.response).html);
+				let jqPage = $(json.html);
 				let episodes = [];
 				// get servers
 				let servers = jqPage.find("div.widget-body > .server");
