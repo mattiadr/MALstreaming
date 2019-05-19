@@ -6,12 +6,41 @@ animetwist.anime = animetwist.base + "a/";
 animetwist.anime_suffix = "/last";
 animetwist.dataRegex = /(?<=<script>window\.__NUXT__=).*(?=;<\/script>)/;
 
+// loads animetwist cookies and then calls back
+function animetwist_loadCookies(callback) {
+	if (GM_getValue("ATloadcookies", false) + 30*1000 < Date.now()) {
+		GM_setValue("ATloadcookies", Date.now());
+		GM_openInTab(animetwist.base, true);
+	}
+	if (callback) {
+		setTimeout(function() {
+			callback();
+		}, 1000);
+	}
+}
+
+// function to execute when script is run on animetwist
+pageLoad["animetwist"] = function() {
+	if (GM_getValue("ATloadcookies", false)) {
+		GM_setValue("ATloadcookies", false);
+		window.close();
+	}
+}
+
 getEpisodes["animetwist"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
 		url: animetwist.anime + url + animetwist.anime_suffix,
 		onload: function(resp) {
 			if (resp.status == 200) {
+				// need to opend and close animetwist page to get last episode
+				if (resp.finalUrl.indexOf(animetwist.anime_suffix) != -1) {
+					animetwist_loadCookies(function() {
+						getEpisodes["animetwist"](dataStream, url);
+					});
+					return;
+				}
+
 				// OK
 				let episodes = [];
 				// get last episode number
