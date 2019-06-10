@@ -43,7 +43,7 @@ To easily set the comment, the script provides a search functionality in the edi
 - This script will work with most anime, but since there can be exceptions there might be some errors in the episode count. Please report them.
 
 ## How to Install
-1. Install [Tampermonkey (Chrome)](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey (Firefox)](https://addons.mozilla.org/firefox/addon/greasemonkey/)
+1. Install Tampermonkey for [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/) or [other browsers](http://www.tampermonkey.net/)
 2. Click [here to install the script](https://raw.githubusercontent.com/mattiadr/MALstreaming/master/MALstreaming.user.js) or visit the [GreasyFork page](https://greasyfork.org/en/scripts/369605-malstreaming)
 
 ## Post Install
