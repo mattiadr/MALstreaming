@@ -5,7 +5,7 @@ kissmanga.base = "https://kissmanga.com/";
 kissmanga.manga = kissmanga.base + "Manga/";
 kissmanga.search = kissmanga.base + "Search/SearchSuggest";
 // regex
-kissmanga.regexVol = /(?<=vol).+?\d+/i;
+kissmanga.regexVol = /vol.+?\d+/i;
 
 // loads kissmanga cookies and then calls back
 function kissmanga_loadCookies(callback) {

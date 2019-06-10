@@ -27,7 +27,7 @@ pageLoad["nineanime"] = function() {
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: nineanime.servers + url.match(/(?<=\.)\w+$/)[0],
+		url: nineanime.servers + url.match(/\.(\w+)$/)[1],
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// successful response is a json with only html attribute, parse it
@@ -112,11 +112,11 @@ searchSite["nineanime"] = function(id, title) {
 					// get anchor for text and href
 					let a = $(this).find("a")[1];
 					// get episode count
-					let ep = $(this).find(".status > .ep").text().match(/(?<=\/)\d+/);
+					let ep = $(this).find(".status > .ep").text().match(/\/(\d+)/);
 					results.push({
 						title:    a.text,
 						href:     a.href.split("/")[4],
-						episodes: ep ? (ep[0] + " eps") : "1 ep"
+						episodes: ep ? (ep[1] + " eps") : "1 ep"
 					});
 				});
 				// callback

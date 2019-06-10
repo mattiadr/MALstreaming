@@ -4,7 +4,7 @@ const animetwist = {};
 animetwist.base = "https://twist.moe/";
 animetwist.anime = animetwist.base + "a/";
 animetwist.anime_suffix = "/last";
-animetwist.dataRegex = /(?<=<script>window\.__NUXT__=).*(?=;<\/script>)/;
+animetwist.dataRegex = /<script>window\.__NUXT__=(.*(?=;<\/script>))/;
 
 // loads animetwist cookies and then calls back
 function animetwist_loadCookies(callback) {
@@ -72,7 +72,7 @@ searchSite["animetwist"] = function(id, title) {
 				// OK
 				let list;
 				try {
-					list = JSON.parse(resp.response.match(animetwist.dataRegex)).state.anime.all;
+					list = JSON.parse(resp.response.match(animetwist.dataRegex)[1]).state.anime.all;
 				} catch (e) {
 					// error parsing JSON
 				}
