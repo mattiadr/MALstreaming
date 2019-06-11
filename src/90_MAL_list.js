@@ -5,35 +5,80 @@ pageLoad["list"] = function() {
 	if ($(".header-menu.other").length !== 0) return;
 	if ($(properties.watching).length !== 1) return;
 
-	// force hide more-info
-	const styleSheet = document.createElement("style");
-	styleSheet.innerHTML =`
-		.list-table .more-info {
-			display: none!important;
+	// add col header to table
+	$("#list-container").find("th.header-title.title").after(properties.colHeader);
+	$(".header-title.stream").css("min-width", "120px");
+
+	// column header listener
+	$(".header-title.stream").on("click", function() {
+		$(".data.stream").trigger("click");
+	});
+
+	// load first 25 rows, start from 1 to remove header
+	loadRows(1, 26);
+
+	// update timer
+	setInterval(function() {
+		$(".data.stream").trigger("update-time");
+	}, 15000);
+
+	// check when an element comes into view
+	$(window).scroll(function() {
+		// get viewport
+		let top = $(window).scrollTop();
+		let bottom = top + $(window).height();
+		// iterate scroll event queue
+		let i = onScrollQ.length;
+		while (i--) {
+			if (top < onScrollQ[i].offset().top && bottom > onScrollQ[i].offset().top) {
+				onScrollQ[i].trigger("intoView");
+				// remove element
+				onScrollQ.splice(i, 1);
+			}
 		}
-	`;
-	document.body.appendChild(styleSheet);
+	});
+}
+
+// force hide more-info
+const hideInfoSheet = document.createElement("style");
+hideInfoSheet.innerHTML =`
+	.list-table .more-info {
+		display: none!important;
+	}
+`;
+
+let onScrollQ = [];
+
+// loads more-info and saves comment in dataStream
+function loadRows(start, end) {
+	// get rows
+	let rows = $(`#list-container > div.list-block > div > table > tbody`).slice(start, end);
+	if (rows.length == 0) {
+		return;
+	}
+
+	// pre-hide more-info
+	document.body.appendChild(hideInfoSheet);
 
 	// expand more-info
-	$(".more > a").each(function() {
+	rows.find(".more > a").each(function() {
 		this.click();
 	});
-	// $(".more > a").click(); doesn't work for some reason
 
-	// add col to table
-	$("#list-container").find("th.header-title.title").after(properties.colHeader);
-	$(".list-item .data.title").after("<td class='data stream'></td>");
+	// add cells to column
+	rows.find(".list-table-data > .data.title").after("<td class='data stream'></td>");
 
-	// style
-	$(".data.stream").css("font-weight", "normal");
-	$(".data.stream").css("line-height", "1.5em");
-	$(".header-title.stream").css("min-width", "120px");
+	let dataStreams = rows.find(".data.stream");
+
+	// style dataStreams
+	dataStreams.css("font-weight", "normal");
+	dataStreams.css("line-height", "1.5em");
 
 	// wait
 	let interval = setInterval(function() {
 		let done = true;
 		// put comment into data("comment")
-		$(".list-item").each(function() {
+		rows.each(function() {
 			let td = $(this).find(".td1.borderRBL");
 			// if not loaded yet then check later
 			if (td.length == 0) {
@@ -53,9 +98,9 @@ pageLoad["list"] = function() {
 
 		if (done) {
 			// collapse more-info
-			$(".more-info").css("display", "none");
+			rows.find(".more-info").css("display", "none");
 			// remove sheet
-			document.body.removeChild(styleSheet);
+			document.body.removeChild(hideInfoSheet);
 			// load links
 			$(".header-title.stream").trigger("click");
 			// stop interval
@@ -63,25 +108,19 @@ pageLoad["list"] = function() {
 		}
 	}, 100);
 
-	// event listeners
-	// column header
-	$(".header-title.stream").on("click", function() {
-		$(".data.stream").trigger("click");
-	});
-
-	// table cell
-	$(".data.stream").on("click", function() {
+	// table cell listener
+	dataStreams.on("click", function() {
 		updateList($(this), true, true);
 	});
 
-	// complete one episode
-	$(properties.iconAdd).on("click", function() {
+	// complete one episode listener
+	rows.find(properties.iconAdd).on("click", function() {
 		let dataStream = $(this).parents(".list-item").find(".data.stream");
 		updateList(dataStream, false, true);
 	});
 
 	// timer event
-	$(".data.stream").on("update-time", function() {
+	dataStreams.on("update-time", function() {
 		let dataStream = $(this);
 		// get time object from dataStream
 		let t = dataStream.data("timeMillis");
@@ -119,10 +158,12 @@ pageLoad["list"] = function() {
 		}
 	});
 
-	// update timer
-	setInterval(function() {
-		$(".data.stream").trigger("update-time");
-	}, 1000);
+	// add last element to scroll event queue
+	let last = rows.last();
+	last.on("intoView", function() {
+		loadRows(end, end + 25);
+	});
+	onScrollQ.push(last);
 }
 
 // updates dataStream cell
