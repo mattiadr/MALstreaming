@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.37
+// @version      5.38
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -48,7 +48,7 @@ properties.anime = {
 	mode:          "anime",
 	watching:      ".list-unit.watching",
 	colHeader:     "<th class='header-title stream'>Watch</th>",
-	commentsRegex: /Comments: ([\S ]+)(?=&nbsp;)/g,
+	commentsRegex: /Comments: ([\S ]+)&nbsp;/,
 	iconAdd:       ".icon-add-episode",
 	findProgress:  ".data.progress",
 	findAiring:    "span.content-status:contains('Airing')",
@@ -61,7 +61,7 @@ properties.manga = {
 	mode:          "manga",
 	watching:      ".list-unit.reading",
 	colHeader:     "<th class='header-title stream'>Read</th>",
-	commentsRegex: /Comments: ([\S ]+)(?=\n)/g,
+	commentsRegex: /Comments: ([\S ]+)\n/,
 	iconAdd:       ".icon-add-chapter",
 	findProgress:  ".data.chapter",
 	findAiring:    "span.content-status:contains('Publishing')",
@@ -799,6 +799,11 @@ searchSite["jaiminisbox"] = function(id, title) {
 
 /* MAL list */
 /*******************************************************************************************************************************************************************/
+const mal = {};
+mal.timerRate = 15000;
+mal.loadRows = 25;
+mal.maxRequests = 15;
+
 pageLoad["list"] = function() {
 	// own list
 	if ($(".header-menu.other").length !== 0) return;
@@ -810,16 +815,38 @@ pageLoad["list"] = function() {
 
 	// column header listener
 	$(".header-title.stream").on("click", function() {
-		$(".data.stream").trigger("click");
+		// number of requests sent for streaming service
+		let triggered = {};
+		$(".data.stream").each(function() {
+			// get streaming service name
+			let comment = $(this).data("comment")
+			if (!comment) {
+				// if no comment update
+				$(this).click();
+				return;
+			}
+			let url = getUrlFromComment(comment);
+			if (!url) {
+				// if url is invalid update
+				$(this).click();
+				return;
+			}
+			let name = url[0];
+			// stop if reached max number of requests
+			triggered[name] = (triggered[name] || 0) + 1;
+			if (triggered[name] > mal.maxRequests) return;
+			// update cell
+			$(this).click();
+		});
 	});
 
 	// load first 25 rows, start from 1 to remove header
-	loadRows(1, 26);
+	loadRows(1, mal.loadRows + 1);
 
 	// update timer
 	setInterval(function() {
 		$(".data.stream").trigger("update-time");
-	}, 15000);
+	}, mal.timerRate);
 
 	// check when an element comes into view
 	$(window).scroll(function() {
@@ -827,12 +854,12 @@ pageLoad["list"] = function() {
 		let top = $(window).scrollTop();
 		let bottom = top + $(window).height();
 		// iterate scroll event queue
-		let i = onScrollQ.length;
+		let i = onScrollQueue.length;
 		while (i--) {
-			if (top < onScrollQ[i].offset().top && bottom > onScrollQ[i].offset().top) {
-				onScrollQ[i].trigger("intoView");
+			if (top < onScrollQueue[i].offset().top && bottom > onScrollQueue[i].offset().top) {
+				onScrollQueue[i].trigger("intoView");
 				// remove element
-				onScrollQ.splice(i, 1);
+				onScrollQueue.splice(i, 1);
 			}
 		}
 	});
@@ -846,12 +873,12 @@ hideInfoSheet.innerHTML =`
 	}
 `;
 
-let onScrollQ = [];
+let onScrollQueue = [];
 
 // loads more-info and saves comment in dataStream
 function loadRows(start, end) {
 	// get rows
-	let rows = $(`#list-container > div.list-block > div > table > tbody`).slice(start, end);
+	let rows = $("#list-container > div.list-block > div > table > tbody").slice(start, end);
 	if (rows.length == 0) {
 		return;
 	}
@@ -886,13 +913,31 @@ function loadRows(start, end) {
 			}
 			let comment = td.html().match(properties.commentsRegex);
 			if (comment) {
-				// revome the first 10 characters to remove "Comments: " since js doesn't support lookbehinds
-				comment = comment.toString().substring(10);
+				// match the first capturing group
+				comment = comment[1];
 			} else {
 				comment = null;
 			}
 
-			$(this).find(".data.stream").data("comment", comment);
+			let dataStream = $(this).find(".data.stream");
+			dataStream.data("comment", comment);
+
+			// check if need to add eplist
+			if (dataStream.find(".eplist").length !== 0) return;
+			if (!comment) return;
+			let url = getUrlFromComment(comment);
+			if (!url) return;
+			// add click to update message
+			dataStream.prepend("<div class='error'><b>Click to update</b></div>");
+			// add eplist
+			let eplistUrl = getEplistUrl[url[0]](url[1]);
+			dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
+			// add favicon
+			let domain = getDomainById(url[0]);
+			if (domain) {
+				let src = "https://www.google.com/s2/favicons?domain=" + domain;
+				dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
+			}
 		});
 
 		if (done) {
@@ -921,6 +966,10 @@ function loadRows(start, end) {
 	// timer event
 	dataStreams.on("update-time", function() {
 		let dataStream = $(this);
+		if (dataStream.find(".nextep, .loading, .error").length > 0) {
+			// do nothing if timer is not needed
+			return;
+		}
 		// get time object from dataStream
 		let t = dataStream.data("timeMillis");
 		// get next episode number
@@ -945,10 +994,7 @@ function loadRows(start, end) {
 				time = d + (d == 1 ? " day " : " days ") + time;
 			}
 		}
-		if (dataStream.find(".nextep, .loading, .error").length > 0) {
-			// do nothing if timer is not needed
-			return;
-		} else if (dataStream.find(".timer").length === 0) {
+		if (dataStream.find(".timer").length === 0) {
 			// if timer doesn't exist create it
 			dataStream.prepend("<div class='timer'>" + time + "<div>");
 		} else {
@@ -960,9 +1006,9 @@ function loadRows(start, end) {
 	// add last element to scroll event queue
 	let last = rows.last();
 	last.on("intoView", function() {
-		loadRows(end, end + 25);
+		loadRows(end, end + mal.loadRows);
 	});
-	onScrollQ.push(last);
+	onScrollQueue.push(last);
 }
 
 // updates dataStream cell
@@ -1041,18 +1087,6 @@ function updateList_doesntExist(dataStream) {
 			// comment valid
 			// add loading
 			dataStream.prepend("<div class='loading'>Loading...</div>");
-			// add eplist and favicon to dataStream
-			if (dataStream.find(".eplist").length === 0) {
-				// add eplist
-				let eplistUrl = getEplistUrl[url[0]](url[1]);
-				dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
-				// add favicon
-				let domain = getDomainById(url[0]);
-				if (domain) {
-					let src = "https://www.google.com/s2/favicons?domain=" + domain;
-					dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
-				}
-			}
 			// set offset data
 			dataStream.data("offset", url[2] ? url[2] : 0);
 			// executes getEpisodes relative to url[0] passing dataStream and url[1]
