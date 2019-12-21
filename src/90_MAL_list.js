@@ -14,35 +14,38 @@ pageLoad["list"] = function() {
 	$("#list-container").find("th.header-title.title").after(properties.colHeader);
 	$(".header-title.stream").css("min-width", "120px");
 
-	// column header listener
-	$(".header-title.stream").on("click", function() {
-		// number of requests sent for streaming service
-		let triggered = {};
-		$(".data.stream").each(function() {
-			// get streaming service name
-			let comment = $(this).data("comment")
-			if (!comment) {
-				// if no comment update
+	// doesn't work without the delay for some reason
+	setTimeout(function() {
+		// column header listener
+		$(".header-title.stream").on("click", function() {
+			// number of requests sent for streaming service
+			let triggered = {};
+			$(".data.stream").each(function() {
+				// get streaming service name
+				let comment = $(this).data("comment")
+				if (!comment) {
+					// if no comment update
+					$(this).click();
+					return;
+				}
+				let url = getUrlFromComment(comment);
+				if (!url) {
+					// if url is invalid update
+					$(this).click();
+					return;
+				}
+				let name = url[0];
+				// stop if reached max number of requests
+				triggered[name] = (triggered[name] || 0) + 1;
+				if (triggered[name] > mal.maxRequests) return;
+				// update cell
 				$(this).click();
-				return;
-			}
-			let url = getUrlFromComment(comment);
-			if (!url) {
-				// if url is invalid update
-				$(this).click();
-				return;
-			}
-			let name = url[0];
-			// stop if reached max number of requests
-			triggered[name] = (triggered[name] || 0) + 1;
-			if (triggered[name] > mal.maxRequests) return;
-			// update cell
-			$(this).click();
+			});
 		});
-	});
 
-	// load first 25 rows, start from 1 to remove header
-	loadRows(1, mal.loadRows + 1);
+		// load first 25 rows, start from 1 to remove header
+		loadRows(1, mal.loadRows + 1);
+	}, 10);
 
 	// update timer
 	setInterval(function() {
