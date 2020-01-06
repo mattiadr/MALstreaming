@@ -1,7 +1,7 @@
 /* 9anime */
 /*******************************************************************************************************************************************************************/
 const nineanime = {};
-nineanime.base = "https://www1.9anime.nl/";
+nineanime.base = "https://9anime.to/";
 nineanime.anime = nineanime.base + "watch/";
 nineanime.servers = nineanime.base + "ajax/film/servers/";
 nineanime.search = nineanime.base + "search?keyword=";
@@ -105,7 +105,7 @@ searchSite["nineanime"] = function(id, title) {
 				let jqPage = $(resp.response);
 				let results = [];
 				// get results from response
-				let list = jqPage.find("#main > div > div:nth-child(1) > div.widget-body > div.film-list > .item");
+				let list = jqPage.find("#main > div > div:nth-child(3) > div.widget-body > div.film-list > .item");
 				list = list.slice(0, 10);
 				// add to results
 				list.each(function() {

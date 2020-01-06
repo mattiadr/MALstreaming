@@ -1,7 +1,7 @@
 /* kissanime */
 /*******************************************************************************************************************************************************************/
 const kissanime = {};
-kissanime.base = "http://kissanime.ru/";
+kissanime.base = "https://kissanime.ru/";
 kissanime.anime = kissanime.base + "Anime/";
 kissanime.search = kissanime.base + "Search/SearchSuggestx";
 kissanime.server = "&s=rapidvideo";
