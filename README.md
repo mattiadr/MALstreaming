@@ -11,6 +11,7 @@ Supported anime websites:
 - [x] [9anime](https://9anime.is/)
 - [x] ~~[Masterani](https://www.masterani.me/)~~
 - [x] [Anime Twist](https://twist.moe/)
+- [x] [HorribleSubs](https://horriblesubs.info/)
 
 Supported manga websites:
 - [x] [Kissmanga](http://kissmanga.com/)
