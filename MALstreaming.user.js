@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.42
+// @version      5.43
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -34,13 +34,14 @@
 // array of all streaming services
 const streamingServices = [
 	// anime
-	{ id: "kissanime",   type: "anime", name: "Kissanime",     domain: "https://kissanime.ru/"     },
-	{ id: "nineanime",   type: "anime", name: "9anime",        domain: "https://9anime.to/"        },
-	{ id: "animetwist",  type: "anime", name: "Anime Twist",   domain: "https://twist.moe/"        },
+	{ id: "kissanime",    type: "anime", name: "Kissanime",     domain: "https://kissanime.ru/"      },
+	{ id: "nineanime",    type: "anime", name: "9anime",        domain: "https://9anime.to/"         },
+	{ id: "animetwist",   type: "anime", name: "Anime Twist",   domain: "https://twist.moe/"         },
+	{ id: "horriblesubs", type: "anime", name: "HorribleSubs",  domain: "https://horriblesubs.info/" },
 	// manga
-	{ id: "kissmanga",   type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"    },
-	{ id: "mangadex",    type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"     },
-	{ id: "jaiminisbox", type: "manga", name: "Jaimini's Box", domain: "https://jaiminisbox.com/"  },
+	{ id: "kissmanga",    type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"     },
+	{ id: "mangadex",     type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"      },
+	{ id: "jaiminisbox",  type: "manga", name: "Jaimini's Box", domain: "https://jaiminisbox.com/"   },
 ];
 // contains variable properties for anime/manga modes
 let properties = {};
@@ -525,6 +526,119 @@ searchSite["animetwist"] = function(id, title) {
 						}
 					}
 				}
+				// callback
+				putResults(id, results);
+			}
+		}
+	});
+}
+
+/* horriblesubs */
+/*******************************************************************************************************************************************************************/
+const horriblesubs = {};
+horriblesubs.base = "https://horriblesubs.info/";
+horriblesubs.anime = horriblesubs.base + "shows/"
+horriblesubs.api = horriblesubs.base + "api.php?method=getshows&type=show&showid="
+horriblesubs.nextid = "&nextid=";
+
+horriblesubs.regexID = /(?<=hs_showid = )\d+/;
+horriblesubs.resultsPerPage = 12;
+horriblesubs.loadPage = 2;
+
+function parseEpisodes(jqPage, episodes) {
+	jqPage.each(function() {
+		let ep = parseInt(this.id);
+		let div = $(this).find(".rls-link").last();
+		let res = div.attr("id").split("-")[1];
+		let href = div.find(".hs-magnet-link > a").attr("href");
+		episodes[ep - 1] = {
+			text: `Ep ${ep} (${res})`,
+			href: href,
+		}
+	});
+}
+
+getEpisodes["horriblesubs"] = function(dataStream, url) {
+	// request id
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: horriblesubs.anime + url,
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let showid = resp.responseText.match(horriblesubs.regexID);
+
+				// request first page of results
+				GM_xmlhttpRequest({
+					method: "GET",
+					url: horriblesubs.api + showid,
+					onload: function(resp) {
+						if (resp.status == 200) {
+							// OK
+							let jqPage = $(resp.responseText);
+							let episodes = [];
+							// parse first page of episodes
+							parseEpisodes(jqPage, episodes);
+							// put episodes, may be overridden by next requests
+							putEpisodes(dataStream, episodes, undefined);
+							// check if you need to download another page
+							let latestEp = parseInt(jqPage.find(".rls-info-container:first-child()").attr("id"));
+							let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
+
+							let reqPage = Math.floor((latestEp - nextEp) / horriblesubs.resultsPerPage);
+
+							// request n pages (avoids multiple requests to page 0)
+							for (let i = 0; i < horriblesubs.loadPage && reqPage > 0; i++) {
+								GM_xmlhttpRequest({
+									method: "GET",
+									url: horriblesubs.api + showid + nextid + reqPage,
+									onload: function(resp) {
+										if (resp.status == 200) {
+											// OK
+											parseEpisodes($(resp.responseText), episodes);
+											// put episodes
+											putEpisodes(dataStream, episodes, undefined);
+										}
+									}
+								});
+								// next page
+								reqPage--;
+							}
+						}
+					}
+				});
+			}
+		}
+	});
+}
+
+getEplistUrl["horriblesubs"] = function(partialUrl) {
+	return horriblesubs.anime + partialUrl;
+}
+
+searchSite["horriblesubs"] = function(id, title) {
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: horriblesubs.anime,
+		onload: function(resp) {
+			if (resp.status == 200) {
+				// OK
+				let jqPage = $(resp.response);
+				let results = [];
+
+				let split = title.split(/\W+/g);
+				let shows = jqPage.find(".ind-show > a");
+				shows.each(function() {
+					for (let i = 0; i < split.length; i++) {
+						if (!this.text.includes(split[i])) {
+							return;
+						}
+					}
+					results.push({
+						title: this.text,
+						href:  this.pathname.split("/")[2],
+					});
+				});
 				// callback
 				putResults(id, results);
 			}
