@@ -45,7 +45,7 @@ pageLoad["list"] = function() {
 
 		// load first 25 rows, start from 1 to remove header
 		loadRows(1, mal.loadRows + 1);
-	}, 10);
+	}, 100);
 
 	// update timer
 	setInterval(function() {

@@ -2,8 +2,9 @@
 /*******************************************************************************************************************************************************************/
 pageLoad["edit"] = function() {
 	// get title
-	const title = $("#main-form > table:nth-child(1) > tbody > tr:nth-child(1) > td:nth-child(2) > strong > a")[0].text;
+	let title = $("#main-form > table:nth-child(1) > tbody > tr:nth-child(1) > td:nth-child(2) > strong > a")[0].text;
 	// add titleBox with default title
+	title = title.replace(/'/g, "&apos;");
 	let titleBox = $("<input type='text' value='" + title + "' size='36' style='font-size: 11px; padding: 3px;'>");
 	// add #search div
 	let search = $("<div id='search'><b style='font-size: 110%; line-height: 180%;'>Search: </b></div>");
