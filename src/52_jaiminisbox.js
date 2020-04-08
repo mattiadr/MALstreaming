@@ -23,8 +23,11 @@ getEpisodes["jaiminisbox"] = function(dataStream, url) {
 					// get title, href and chapter number
 					let a = $(this).find(".title > a");
 					let t = a.text();
+					let m = t.match(/\d+/);
+					// skip if no chapter number found
+					if (!m) return;
 					// chapter number - 1 is used as index
-					let n = parseInt(t.match(/\d+/)[0]) - 1;
+					let n = parseInt(m[0]) - 1;
 					// get date
 					let date = $(this).find(".meta_r").text().match(jbox.dateRegex)[0];
 					if (date == "Today" || date == "Yesterday") {
