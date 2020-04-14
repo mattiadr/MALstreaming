@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.46
+// @version      5.47
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -76,6 +76,13 @@ const pageLoad = {};
 // contains all functions to get the episodes list from the streaming services
 // must callback to putEpisodes(dataStream, episodes, timeMillis)
 const getEpisodes = {};
+// contains queue settings for queuing requests to services (optional)
+// must contain `maxRequests` and `timout`
+const queueSettings = {};
+queueSettings["default"] = {
+	maxRequests: 2,
+	timeout:     1000,
+}
 // contains all functions to get the episode list url from the partial url
 const getEplistUrl = {};
 // contains all functions to execute the search on the streaming services
@@ -908,8 +915,10 @@ searchSite["jaiminisbox"] = function(id, title) {
 const mal = {};
 mal.timerRate = 15000;
 mal.loadRows = 25;
-mal.maxRequests = 15;
 mal.genericErrorMsg = "Error while performing request";
+
+let onScrollQueue = [];
+let requestsQueues = {};
 
 pageLoad["list"] = function() {
 	// own list
@@ -924,32 +933,13 @@ pageLoad["list"] = function() {
 	setTimeout(function() {
 		// column header listener
 		$(".header-title.stream").on("click", function() {
-			// number of requests sent for streaming service
-			let triggered = {};
 			$(".data.stream").each(function() {
-				// get streaming service name
-				let comment = $(this).data("comment")
-				if (!comment) {
-					// if no comment update
-					$(this).click();
-					return;
-				}
-				let url = getUrlFromComment(comment);
-				if (!url) {
-					// if url is invalid update
-					$(this).click();
-					return;
-				}
-				let name = url[0];
-				// stop if reached max number of requests
-				triggered[name] = (triggered[name] || 0) + 1;
-				if (triggered[name] > mal.maxRequests) return;
-				// update cell
-				$(this).click();
+				// update dataStream without skipping queue
+				updateList($(this), true, false);
 			});
 		});
 
-		// load first 25 rows, start from 1 to remove header
+		// load first n rows, start from 1 to remove header
 		loadRows(1, mal.loadRows + 1);
 	}, 100);
 
@@ -982,8 +972,6 @@ hideInfoSheet.innerHTML =`
 		display: none!important;
 	}
 `;
-
-let onScrollQueue = [];
 
 // loads more-info and saves comment in dataStream
 function loadRows(start, end) {
@@ -1070,7 +1058,7 @@ function loadRows(start, end) {
 	// complete one episode listener
 	rows.find(properties.iconAdd).on("click", function() {
 		let dataStream = $(this).parents(".list-item").find(".data.stream");
-		updateList(dataStream, false, true);
+		updateList(dataStream, false, false);
 	});
 
 	// timer event
@@ -1122,7 +1110,7 @@ function loadRows(start, end) {
 }
 
 // updates dataStream cell
-function updateList(dataStream, forceReload, canReload) {
+function updateList(dataStream, forceReload, skipQueue) {
 	// remove old divs
 	dataStream.find(".error").remove();
 	dataStream.find(".nextep").remove();
@@ -1133,12 +1121,9 @@ function updateList(dataStream, forceReload, canReload) {
 	if (Array.isArray(episodeList) && !forceReload) {
 		// episode list exists
 		updateList_exists(dataStream);
-	} else if (canReload) {
-		// episode list doesn't exist or needs to be reloaded
-		updateList_doesntExist(dataStream);
 	} else {
-		// broken link
-		dataStream.prepend($("<div class='error'>Broken link<br></div>").css("color", "red"));
+		// episode list doesn't exist or needs to be reloaded
+		updateList_doesntExist(dataStream, skipQueue);
 	}
 }
 
@@ -1186,7 +1171,50 @@ function updateList_exists(dataStream) {
 	}
 }
 
-function updateList_doesntExist(dataStream) {
+function queueGetEpisodes(dataStream, service, url) {
+	// get queue for specified service or create it
+	let queue = requestsQueues[service];
+	if (!queue) {
+		queue = [];
+		queue.timers = 0;
+		queue.maxRequests = (queueSettings[service] || queueSettings["default"]).maxRequests;
+		queue.timeout = (queueSettings[service] || queueSettings["default"]).timeout;
+		requestsQueues[service] = queue;
+	}
+
+	if (queue.timers < queue.maxRequests) {
+		// if there are no active timers, set timer and do request
+		queue.timers++
+		getEpisodes[service](dataStream, url);
+		setTimeout(function() {
+			dequeueGetEpisodes(service);
+		}, queue.timeout);
+	} else {
+		// queue full, append to end
+		queue.push({
+			dataStream: dataStream,
+			url:        url,
+		});
+	}
+}
+
+function dequeueGetEpisodes(service) {
+	let queue = requestsQueues[service];
+
+	if (queue.length > 0) {
+		// if there are elements in queue, request the first and restart the timer
+		let req = queue.shift();
+		getEpisodes[service](req.dataStream, req.url);
+		setTimeout(function() {
+			dequeueGetEpisodes(service);
+		}, queue.timeout);
+	} else {
+		// queue empty, terminate timer
+		queue.timers--;
+	}
+}
+
+function updateList_doesntExist(dataStream, skipQueue) {
 	// check if comment exists and is correct
 	let comment = dataStream.data("comment");
 	if (comment) {
@@ -1199,8 +1227,12 @@ function updateList_doesntExist(dataStream) {
 			dataStream.prepend("<div class='loading'>Loading...</div>");
 			// set offset data
 			dataStream.data("offset", url[2] ? url[2] : 0);
-			// executes getEpisodes relative to url[0] passing dataStream and url[1]
-			getEpisodes[url[0]](dataStream, url[1]);
+			// queue getEpisode if needed
+			if (!skipQueue) {
+				queueGetEpisodes(dataStream, url[0], url[1]);
+			} else {
+				getEpisodes[url[0]](dataStream, url[1]);
+			}
 		} else {
 			// comment invalid
 			dataStream.append("<div class='error'>Invalid Link</div>");

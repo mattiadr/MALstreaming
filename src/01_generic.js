@@ -45,6 +45,13 @@ const pageLoad = {};
 // contains all functions to get the episodes list from the streaming services
 // must callback to putEpisodes(dataStream, episodes, timeMillis)
 const getEpisodes = {};
+// contains queue settings for queuing requests to services (optional)
+// must contain `maxRequests` and `timout`
+const queueSettings = {};
+queueSettings["default"] = {
+	maxRequests: 2,
+	timeout:     1000,
+}
 // contains all functions to get the episode list url from the partial url
 const getEplistUrl = {};
 // contains all functions to execute the search on the streaming services

@@ -3,8 +3,10 @@
 const mal = {};
 mal.timerRate = 15000;
 mal.loadRows = 25;
-mal.maxRequests = 15;
 mal.genericErrorMsg = "Error while performing request";
+
+let onScrollQueue = [];
+let requestsQueues = {};
 
 pageLoad["list"] = function() {
 	// own list
@@ -19,32 +21,13 @@ pageLoad["list"] = function() {
 	setTimeout(function() {
 		// column header listener
 		$(".header-title.stream").on("click", function() {
-			// number of requests sent for streaming service
-			let triggered = {};
 			$(".data.stream").each(function() {
-				// get streaming service name
-				let comment = $(this).data("comment")
-				if (!comment) {
-					// if no comment update
-					$(this).click();
-					return;
-				}
-				let url = getUrlFromComment(comment);
-				if (!url) {
-					// if url is invalid update
-					$(this).click();
-					return;
-				}
-				let name = url[0];
-				// stop if reached max number of requests
-				triggered[name] = (triggered[name] || 0) + 1;
-				if (triggered[name] > mal.maxRequests) return;
-				// update cell
-				$(this).click();
+				// update dataStream without skipping queue
+				updateList($(this), true, false);
 			});
 		});
 
-		// load first 25 rows, start from 1 to remove header
+		// load first n rows, start from 1 to remove header
 		loadRows(1, mal.loadRows + 1);
 	}, 100);
 
@@ -77,8 +60,6 @@ hideInfoSheet.innerHTML =`
 		display: none!important;
 	}
 `;
-
-let onScrollQueue = [];
 
 // loads more-info and saves comment in dataStream
 function loadRows(start, end) {
@@ -165,7 +146,7 @@ function loadRows(start, end) {
 	// complete one episode listener
 	rows.find(properties.iconAdd).on("click", function() {
 		let dataStream = $(this).parents(".list-item").find(".data.stream");
-		updateList(dataStream, false, true);
+		updateList(dataStream, false, false);
 	});
 
 	// timer event
@@ -217,7 +198,7 @@ function loadRows(start, end) {
 }
 
 // updates dataStream cell
-function updateList(dataStream, forceReload, canReload) {
+function updateList(dataStream, forceReload, skipQueue) {
 	// remove old divs
 	dataStream.find(".error").remove();
 	dataStream.find(".nextep").remove();
@@ -228,12 +209,9 @@ function updateList(dataStream, forceReload, canReload) {
 	if (Array.isArray(episodeList) && !forceReload) {
 		// episode list exists
 		updateList_exists(dataStream);
-	} else if (canReload) {
-		// episode list doesn't exist or needs to be reloaded
-		updateList_doesntExist(dataStream);
 	} else {
-		// broken link
-		dataStream.prepend($("<div class='error'>Broken link<br></div>").css("color", "red"));
+		// episode list doesn't exist or needs to be reloaded
+		updateList_doesntExist(dataStream, skipQueue);
 	}
 }
 
@@ -281,7 +259,50 @@ function updateList_exists(dataStream) {
 	}
 }
 
-function updateList_doesntExist(dataStream) {
+function queueGetEpisodes(dataStream, service, url) {
+	// get queue for specified service or create it
+	let queue = requestsQueues[service];
+	if (!queue) {
+		queue = [];
+		queue.timers = 0;
+		queue.maxRequests = (queueSettings[service] || queueSettings["default"]).maxRequests;
+		queue.timeout = (queueSettings[service] || queueSettings["default"]).timeout;
+		requestsQueues[service] = queue;
+	}
+
+	if (queue.timers < queue.maxRequests) {
+		// if there are no active timers, set timer and do request
+		queue.timers++
+		getEpisodes[service](dataStream, url);
+		setTimeout(function() {
+			dequeueGetEpisodes(service);
+		}, queue.timeout);
+	} else {
+		// queue full, append to end
+		queue.push({
+			dataStream: dataStream,
+			url:        url,
+		});
+	}
+}
+
+function dequeueGetEpisodes(service) {
+	let queue = requestsQueues[service];
+
+	if (queue.length > 0) {
+		// if there are elements in queue, request the first and restart the timer
+		let req = queue.shift();
+		getEpisodes[service](req.dataStream, req.url);
+		setTimeout(function() {
+			dequeueGetEpisodes(service);
+		}, queue.timeout);
+	} else {
+		// queue empty, terminate timer
+		queue.timers--;
+	}
+}
+
+function updateList_doesntExist(dataStream, skipQueue) {
 	// check if comment exists and is correct
 	let comment = dataStream.data("comment");
 	if (comment) {
@@ -294,8 +315,12 @@ function updateList_doesntExist(dataStream) {
 			dataStream.prepend("<div class='loading'>Loading...</div>");
 			// set offset data
 			dataStream.data("offset", url[2] ? url[2] : 0);
-			// executes getEpisodes relative to url[0] passing dataStream and url[1]
-			getEpisodes[url[0]](dataStream, url[1]);
+			// queue getEpisode if needed
+			if (!skipQueue) {
+				queueGetEpisodes(dataStream, url[0], url[1]);
+			} else {
+				getEpisodes[url[0]](dataStream, url[1]);
+			}
 		} else {
 			// comment invalid
 			dataStream.append("<div class='error'>Invalid Link</div>");
