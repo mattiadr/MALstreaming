@@ -4,6 +4,7 @@ const mal = {};
 mal.timerRate = 15000;
 mal.loadRows = 25;
 mal.maxRequests = 15;
+mal.genericErrorMsg = "Error while performing request";
 
 pageLoad["list"] = function() {
 	// own list
@@ -271,7 +272,7 @@ function updateList_exists(dataStream) {
 		dataStream.prepend(nextep);
 	} else if (currEp > episodes.length) {
 		// user has watched too many episodes
-		nextep.append($("<div class='.ep-error'>" + properties.latest + episodes.length + "</div>").css("color", "red"));
+		nextep.append($("<div class='ep-error'>" + properties.latest + episodes.length + "</div>").css("color", "red"));
 		// add new nextep
 		dataStream.prepend(nextep);
 	} else {
@@ -318,5 +319,16 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 		anilist_setTimeMillis(dataStream, true);
 	}
 	updateList(dataStream, false, false);
+}
+
+// set error to dataStream
+function putError(dataStream, error) {
+	// remove old divs
+	dataStream.find(".error").remove();
+	dataStream.find(".nextep").remove();
+	dataStream.find(".loading").remove();
+	dataStream.find(".timer").remove();
+	// create error div
+	dataStream.prepend($(`<div class='error'>${error || mal.genericErrorMsg}</div>`).css("color", "red"));
 }
 

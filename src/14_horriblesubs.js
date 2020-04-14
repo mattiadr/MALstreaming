@@ -72,6 +72,9 @@ getEpisodes["horriblesubs"] = function(dataStream, url) {
 						}
 					}
 				});
+			} else {
+				// error
+				putError(dataStream, "HorribleSubs: " + resp.status);
 			}
 		}
 	});

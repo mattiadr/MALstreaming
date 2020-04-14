@@ -26,6 +26,9 @@ getEpisodes["animetwist"] = function(dataStream, url) {
 				}
 				// callback
 				putEpisodes(dataStream, episodes, undefined);
+			} else {
+				// error
+				putError(dataStream, "Anime Twist: " + resp.status);
 			}
 		}
 	});

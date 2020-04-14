@@ -70,6 +70,9 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				let timeMillis = Date.now() + parseInt(kissanime.regexCountdown.exec(resp.responseText));
 				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
+			} else {
+				// error
+				putError(dataStream, "Kissanime: " + resp.status);
 			}
 		}
 	});

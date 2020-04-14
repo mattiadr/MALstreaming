@@ -53,6 +53,9 @@ getEpisodes["jaiminisbox"] = function(dataStream, url) {
 				let timeMillis = estimateTimeMillis(episodes, 5);
 				// callback
 				putEpisodes(dataStream, episodes, timeMillis);
+			} else {
+				// error
+				putError(dataStream, "Jaimini's Box: " + resp.status);
 			}
 		}
 	});

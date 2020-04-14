@@ -86,6 +86,9 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 						}
 					}
 				});
+			} else {
+				// error
+				putError(dataStream, "9anime: " + resp.status);
 			}
 		}
 	});
