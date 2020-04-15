@@ -92,21 +92,17 @@ searchSite["horriblesubs"] = function(id, title) {
 			if (resp.status == 200) {
 				// OK
 				let jqPage = $(resp.response);
-				let results = [];
+				let list = [];
 
-				let split = title.split(/\W+/g);
 				let shows = jqPage.find(".ind-show > a");
 				shows.each(function() {
-					for (let i = 0; i < split.length; i++) {
-						if (!this.text.includes(split[i])) {
-							return;
-						}
-					}
-					results.push({
+					list.push({
 						title: this.text,
 						href:  this.pathname.split("/")[2],
 					});
 				});
+				// filter results
+				let results = list.filter(item => matchResult(item, title));
 				// callback
 				putResults(id, results);
 			}
