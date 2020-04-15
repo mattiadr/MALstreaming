@@ -17,6 +17,7 @@ Supported manga websites:
 - [x] [Kissmanga](http://kissmanga.com/)
 - [x] [MangaDex](https://mangadex.org/)
 - [x] [Jaimini's Box](https://jaiminisbox.com/)
+- [x] [MANGA Plus](https://mangaplus.shueisha.co.jp/)
 - [ ] [NovelPlanet](http://novelplanet.com/)
 
 ## Usage
@@ -56,4 +57,4 @@ If you want to report a bug or request a feature you can:
 - [Submit an issue on github](https://github.com/mattiadr/MALstreaming/issues)
 - [Start a discussion on GreasyFork](https://greasyfork.org/en/scripts/369605-malstreaming/feedback)
 - Message me directly on [reddit](https://www.reddit.com/user/mattiadr96/) or [MAL](https://myanimelist.net/profile/mattiadr)
-- Email me at <mattiadr96@gmail.com>
+- Email me at `mattiadr96 (at) gmail (dot) com`
