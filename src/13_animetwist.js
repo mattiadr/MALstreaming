@@ -47,22 +47,15 @@ searchSite["animetwist"] = function(id, title) {
 			if (resp.status == 200) {
 				// OK
 				let list = JSON.parse(resp.response);
-				let results = [];
-				// turn title into regex to filter results
-				let titleRegex = new RegExp(title.replace(/\W+/, ".*"), "i");
-
-				if (list) {
-					for (let i = 0; i < list.length; i++) {
-						let r = list[i];
-						// filter only matching titles
-						if (titleRegex.test(r.title)) {
-							results.push({
-								title: r.title,
-								href:  r.slug.slug,
-							})
-						}
-					}
+				if (!list) {
+					// error
+					return;
 				}
+				// map and filter list to results
+				let results = list.map(item => ({
+					title: item.title,
+					href:  item.slug.slug,
+				})).filter(item => matchResult(item, title));
 				// callback
 				putResults(id, results);
 			}
