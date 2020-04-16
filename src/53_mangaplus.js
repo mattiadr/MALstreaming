@@ -176,7 +176,7 @@ getEpisodes["mangaplus"] = function(dataStream, url) {
 				let episodes = [];
 				let titleDetailView = respJSON.success.titleDetailView;
 				// insert episodes into list
-				for (let i = 0; i < titleDetailView.firstChapterList.length; i++) {
+				for (let i = 0; i < (titleDetailView.firstChapterList || []).length; i++) {
 					let ch = titleDetailView.firstChapterList[i];
 					let n = parseInt(ch.name.slice(1) - 1);
 					episodes[n] = {
@@ -185,7 +185,7 @@ getEpisodes["mangaplus"] = function(dataStream, url) {
 						timestamp: ch.startTimeStamp * 1000,
 					};
 				}
-				for (let i = 0; i < titleDetailView.lastChapterList.length; i++) {
+				for (let i = 0; i < (titleDetailView.lastChapterList || []).length; i++) {
 					let ch = titleDetailView.lastChapterList[i];
 					let n = parseInt(ch.name.slice(1) - 1);
 					episodes[n] = {
