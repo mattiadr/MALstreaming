@@ -55,7 +55,7 @@ getEpisodes["jaiminisbox"] = function(dataStream, url) {
 				putEpisodes(dataStream, episodes, timeMillis);
 			} else {
 				// error
-				putError(dataStream, "Jaimini's Box: " + resp.status);
+				errorEpisodes(dataStream, "Jaimini's Box: " + resp.status);
 			}
 		}
 	});
@@ -86,6 +86,9 @@ searchSite["jaiminisbox"] = function(id, title) {
 				});
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "Jaimini's Box: " + resp.status);
 			}
 		}
 	});

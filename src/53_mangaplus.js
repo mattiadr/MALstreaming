@@ -169,7 +169,7 @@ getEpisodes["mangaplus"] = function(dataStream, url) {
 				// check if response is valid
 				if (!respJSON || !respJSON.success || !respJSON.success.titleDetailView) {
 					// error
-					putError(dataStream, "MANGA Plus: Bad Response");
+					errorEpisodes(dataStream, "MANGA Plus: Bad Response");
 					return;
 				}
 
@@ -200,7 +200,7 @@ getEpisodes["mangaplus"] = function(dataStream, url) {
 				putEpisodes(dataStream, episodes, time);
 			} else {
 				// error
-				putError(dataStream, "MANGA Plus: " + resp.status);
+				errorEpisodes(dataStream, "MANGA Plus: " + resp.status);
 			}
 		}
 	});
@@ -242,6 +242,9 @@ searchSite["mangaplus"] = function(id, title) {
 				let results = list.filter(item => matchResult(item, title));
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "MANGA Plus: " + resp.status);
 			}
 		}
 	});

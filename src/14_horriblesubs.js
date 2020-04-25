@@ -74,7 +74,7 @@ getEpisodes["horriblesubs"] = function(dataStream, url) {
 				});
 			} else {
 				// error
-				putError(dataStream, "HorribleSubs: " + resp.status);
+				errorEpisodes(dataStream, "HorribleSubs: " + resp.status);
 			}
 		}
 	});
@@ -105,6 +105,9 @@ searchSite["horriblesubs"] = function(id, title) {
 				let results = list.filter(item => matchResult(item, title));
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "HorribleSubs: " + resp.status);
 			}
 		}
 	});

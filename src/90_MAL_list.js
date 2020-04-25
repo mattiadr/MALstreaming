@@ -3,7 +3,7 @@
 const mal = {};
 mal.timerRate = 15000;
 mal.loadRows = 25;
-mal.genericErrorMsg = "Error while performing request";
+mal.genericErrorRequest = "Error while performing request";
 
 let onScrollQueue = [];
 let requestsQueues = {};
@@ -347,13 +347,13 @@ function putEpisodes(dataStream, episodes, timeMillis) {
 }
 
 // set error to dataStream
-function putError(dataStream, error) {
+function errorEpisodes(dataStream, error) {
 	// remove old divs
 	dataStream.find(".error").remove();
 	dataStream.find(".nextep").remove();
 	dataStream.find(".loading").remove();
 	dataStream.find(".timer").remove();
 	// create error div
-	dataStream.prepend($(`<div class='error'>${error || mal.genericErrorMsg}</div>`).css("color", "red"));
+	dataStream.prepend($(`<div class='error'>${error || mal.genericErrorRequest}</div>`).css("color", "red"));
 }
 

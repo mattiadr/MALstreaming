@@ -72,7 +72,7 @@ getEpisodes["kissanime"] = function(dataStream, url) {
 				putEpisodes(dataStream, episodes, timeMillis);
 			} else {
 				// error
-				putError(dataStream, "Kissanime: " + resp.status);
+				errorEpisodes(dataStream, "Kissanime: " + resp.status);
 			}
 		}
 	});
@@ -107,6 +107,9 @@ searchSite["kissanime"] = function(id, title) {
 				});
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "Kissanime: " + resp.status);
 			}
 		}
 	});

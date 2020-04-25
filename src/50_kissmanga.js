@@ -70,7 +70,7 @@ getEpisodes["kissmanga"] = function(dataStream, url) {
 				putEpisodes(dataStream, episodes, timeMillis);
 			} else {
 				// error
-				putError(dataStream, "Kissmanga: " + resp.status);
+				errorEpisodes(dataStream, "Kissmanga: " + resp.status);
 			}
 		}
 	});
@@ -105,6 +105,9 @@ searchSite["kissmanga"] = function(id, title) {
 				});
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "Kissmanga: " + resp.status);
 			}
 		}
 	});

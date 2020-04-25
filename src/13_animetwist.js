@@ -28,7 +28,7 @@ getEpisodes["animetwist"] = function(dataStream, url) {
 				putEpisodes(dataStream, episodes, undefined);
 			} else {
 				// error
-				putError(dataStream, "Anime Twist: " + resp.status);
+				errorEpisodes(dataStream, "Anime Twist: " + resp.status);
 			}
 		}
 	});
@@ -58,6 +58,9 @@ searchSite["animetwist"] = function(id, title) {
 				})).filter(item => matchResult(item, title));
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "Anime Twist: " + resp.status);
 			}
 		}
 	});

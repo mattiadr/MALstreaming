@@ -91,3 +91,12 @@ function putResults(id, results) {
 	}
 }
 
+function errorResults(id, error) {
+	let siteDiv = $("#search").find("." + id);
+	// if div with current id cant be found then don't add error
+	if (siteDiv.length !== 0) {
+		siteDiv.find("#searching").remove();
+		siteDiv.append(error || mal.genericErrorRequest);
+	}
+}
+

@@ -37,7 +37,7 @@ getEpisodes["mangadex"] = function(dataStream, url) {
 				putEpisodes(dataStream, episodes, timeMillis);
 			} else {
 				// error
-				putError(dataStream, "MangaDex: " + resp.status);
+				errorEpisodes(dataStream, "MangaDex: " + resp.status);
 			}
 		}
 	});
@@ -65,6 +65,9 @@ searchSite["mangadex"] = function(id, title) {
 				});
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "MangaDex: " + resp.status);
 			}
 		}
 	});

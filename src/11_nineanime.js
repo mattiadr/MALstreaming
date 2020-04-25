@@ -88,7 +88,7 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				});
 			} else {
 				// error
-				putError(dataStream, "9anime: " + resp.status);
+				errorEpisodes(dataStream, "9anime: " + resp.status);
 			}
 		}
 	});
@@ -124,6 +124,9 @@ searchSite["nineanime"] = function(id, title) {
 				});
 				// callback
 				putResults(id, results);
+			} else {
+				// error
+				errorResults(id, "9anime: " + resp.status);
 			}
 		}
 	});
