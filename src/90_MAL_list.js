@@ -146,7 +146,10 @@ function loadRows(start, end) {
 	// complete one episode listener
 	rows.find(properties.iconAdd).on("click", function() {
 		let dataStream = $(this).parents(".list-item").find(".data.stream");
-		updateList(dataStream, false, false);
+		// this timeout is needed, otherwise updateList could be called before the current episode number is updated
+		setTimeout(function() {
+			updateList(dataStream, false, false);
+		}, 0);
 	});
 
 	// timer event
