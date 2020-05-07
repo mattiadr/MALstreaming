@@ -18,7 +18,7 @@ let properties = {};
 properties.anime = {
 	mode:          "anime",
 	watching:      ".list-unit.watching",
-	colHeader:     "<th class='header-title stream'>Watch</th>",
+	colHeaderText: "Watch",
 	commentsRegex: /Comments: ([\S ]+)&nbsp;/,
 	iconAdd:       ".icon-add-episode",
 	findProgress:  ".data.progress",
@@ -31,7 +31,7 @@ properties.anime = {
 properties.manga = {
 	mode:          "manga",
 	watching:      ".list-unit.reading",
-	colHeader:     "<th class='header-title stream'>Read</th>",
+	colHeaderText: "Read",
 	commentsRegex: /Comments: ([\S ]+)\n/,
 	iconAdd:       ".icon-add-chapter",
 	findProgress:  ".data.chapter",

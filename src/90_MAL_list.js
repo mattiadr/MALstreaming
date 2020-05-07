@@ -4,6 +4,8 @@ const mal = {};
 mal.timerRate = 15000;
 mal.loadRows = 25;
 mal.genericErrorRequest = "Error while performing request";
+mal.userId = null;
+mal.CSRFToken = null;
 
 let onScrollQueue = [];
 let requestsQueues = {};
@@ -14,22 +16,24 @@ pageLoad["list"] = function() {
 	if ($(properties.watching).length !== 1) return;
 
 	// add col header to table
-	$("#list-container").find("th.header-title.title").after(properties.colHeader);
-	$(".header-title.stream").css("min-width", "120px");
+	let colHeader = $(`<th class='header-title stream'>${properties.colHeaderText}</th>`);
+	$("#list-container").find("th.header-title.title").after(colHeader);
+	colHeader.css("min-width", "120px");
 
-	// doesn't work without the delay for some reason
-	setTimeout(function() {
-		// column header listener
-		$(".header-title.stream").on("click", function() {
-			$(".data.stream").each(function() {
-				// update dataStream without skipping queue
-				updateList($(this), true, false);
-			});
+	// column header listener
+	colHeader.on("click", function() {
+		$(".data.stream").each(function() {
+			// update dataStream without skipping queue
+			updateList($(this), true, false);
 		});
+	});
 
-		// load first n rows, start from 1 to remove header
-		loadRows(1, mal.loadRows + 1);
-	}, 100);
+	// set id and token for more-info requests
+	mal.userId = $(document.body).attr("data-owner-id");
+	mal.CSRFToken = $("meta[name=csrf_token]").attr("content");
+
+	// load first n rows, start from 1 to remove header
+	loadRows(1, mal.loadRows + 1);
 
 	// update timer
 	setInterval(function() {
@@ -53,14 +57,6 @@ pageLoad["list"] = function() {
 	});
 }
 
-// force hide more-info
-const hideInfoSheet = document.createElement("style");
-hideInfoSheet.innerHTML =`
-	.list-table .more-info {
-		display: none!important;
-	}
-`;
-
 // loads more-info and saves comment in dataStream
 function loadRows(start, end) {
 	// get rows
@@ -69,78 +65,31 @@ function loadRows(start, end) {
 		return;
 	}
 
-	// pre-hide more-info
-	document.body.appendChild(hideInfoSheet);
-
-	// expand more-info
-	rows.find(".more > a").each(function() {
-		this.click();
-	});
-
 	// add cells to column
-	rows.find(".list-table-data > .data.title").after("<td class='data stream'></td>");
-
-	let dataStreams = rows.find(".data.stream");
+	let dataStreams = $();
+	rows.find(".list-table-data > .data.title").each(function() {
+		let ds = $("<td class='data stream'></td>");
+		$(this).after(ds);
+		dataStreams = dataStreams.add(ds);
+	});
 
 	// style dataStreams
 	dataStreams.css("font-weight", "normal");
 	dataStreams.css("line-height", "1.5em");
 
-	// wait
-	let interval = setInterval(function() {
-		let done = true;
-		// put comment into data("comment")
-		rows.each(function() {
-			let td = $(this).find(".td1.borderRBL");
-			// if not loaded yet then check later
-			if (td.length == 0) {
-				done = false;
-				return
-			}
-			let comment = td.html().match(properties.commentsRegex);
-			if (comment) {
-				// match the first capturing group
-				comment = comment[1];
-			} else {
-				comment = null;
-			}
-
-			let dataStream = $(this).find(".data.stream");
-			dataStream.data("comment", comment);
-
-			// check if need to add eplist
-			if (dataStream.find(".eplist").length !== 0) return;
-			if (!comment) return;
-			let url = getUrlFromComment(comment);
-			if (!url) return;
-			// add click to update message
-			dataStream.prepend("<div class='error'><b>Click to update</b></div>");
-			// add eplist
-			let eplistUrl = getEplistUrl[url[0]](url[1]);
-			dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
-			// add favicon
-			let domain = getDomainById(url[0]);
-			if (domain) {
-				let src = "https://www.google.com/s2/favicons?domain=" + domain;
-				dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
-			}
-		});
-
-		if (done) {
-			// collapse more-info
-			rows.find(".more-info").css("display", "none");
-			// remove sheet
-			document.body.removeChild(hideInfoSheet);
-			// load links
-			$(".header-title.stream").trigger("click");
-			// stop interval
-			clearInterval(interval);
-		}
-	}, 100);
+	// request more-info
+	dataStreams.each(function() {
+		requestMoreInfo($(this));
+	});
 
 	// table cell listener
-	dataStreams.on("click", function() {
-		updateList($(this), true, true);
+	dataStreams.on("click", function(e) {
+		// if ctrl is pressed also reload more-info
+		if (e.ctrlKey) {
+			requestMoreInfo($(this));
+		} else {
+			updateList($(this), true, true);
+		}
 	});
 
 	// complete one episode listener
@@ -198,6 +147,62 @@ function loadRows(start, end) {
 		loadRows(end, end + mal.loadRows);
 	});
 	onScrollQueue.push(last);
+}
+
+// request more-info and set data("comment")
+function requestMoreInfo(dataStream) {
+	// listitem
+	let listitem = dataStream.parents(".list-item");
+	// get id
+	let id = listitem.find(".data.title > .link").attr("href").split("/")[2];
+	// execute request
+	GM_xmlhttpRequest({
+		method: "POST",
+		url: "https://myanimelist.net/includes/ajax-no-auth.inc.php?t=6",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+			"Cookie":       document.cookie,
+		},
+		data: jQuery.param({
+			memId:      mal.userId,
+			csrf_token: mal.CSRFToken,
+			type:       properties.mode,
+			id:         id,
+		}),
+		onload: function(resp) {
+			let comment = null;
+			if (resp.status == 200) {
+				// OK
+				try {
+					let respJSON = JSON.parse(resp.response);
+					let m = respJSON.html.match(properties.commentsRegex);
+					comment = m[1];
+				} catch (e) {
+					// do nothing on error
+				}
+			}
+			// set data
+			dataStream.data("comment", comment);
+			// remove old divs
+			dataStream.find(".error").remove();
+			if (!comment) return;
+			let url = getUrlFromComment(comment);
+			if (!url) return;
+			// add eplist
+			dataStream.find(".eplist").remove();
+			let eplistUrl = getEplistUrl[url[0]](url[1]);
+			dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
+			// add favicon
+			dataStream.find(".favicon").remove();
+			let domain = getDomainById(url[0]);
+			if (domain) {
+				let src = "https://www.google.com/s2/favicons?domain=" + domain;
+				dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
+			}
+			// load links
+			updateList(dataStream, true, true);
+		}
+	});
 }
 
 // updates dataStream cell
