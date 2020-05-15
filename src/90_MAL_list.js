@@ -33,7 +33,10 @@ pageLoad["list"] = function() {
 	mal.CSRFToken = $("meta[name=csrf_token]").attr("content");
 
 	// load first n rows, start from 1 to remove header
-	loadRows(1, mal.loadRows + 1);
+	// the timeout is needed to avoid issues with the page load order
+	setTimeout(function() {
+		loadRows(1, mal.loadRows + 1);
+	}, 0);
 
 	// update timer
 	setInterval(function() {
@@ -66,14 +69,10 @@ function loadRows(start, end) {
 	}
 
 	// add cells to column
-	let dataStreams = $();
-	rows.find(".list-table-data > .data.title").each(function() {
-		let ds = $("<td class='data stream'></td>");
-		$(this).after(ds);
-		dataStreams = dataStreams.add(ds);
-	});
+	rows.find(".list-table-data > .data.title").after("<td class='data stream'></td>");
 
 	// style dataStreams
+	let dataStreams = $(".data.stream");
 	dataStreams.css("font-weight", "normal");
 	dataStreams.css("line-height", "1.5em");
 
