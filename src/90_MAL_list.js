@@ -184,22 +184,33 @@ function requestMoreInfo(dataStream) {
 			dataStream.data("comment", comment);
 			// remove old divs
 			dataStream.find(".error").remove();
-			if (!comment) return;
-			let url = getUrlFromComment(comment);
-			if (!url) return;
-			// add eplist
 			dataStream.find(".eplist").remove();
-			let eplistUrl = getEplistUrl[url[0]](url[1]);
-			dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
-			// add favicon
 			dataStream.find(".favicon").remove();
-			let domain = getDomainById(url[0]);
-			if (domain) {
-				let src = "https://www.google.com/s2/favicons?domain=" + domain;
-				dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
+			// check if comment exists and is correct
+			if (comment) {
+				// comment exists
+				// url is an array that contains the streaming service and url relative to that service
+				let url = getUrlFromComment(comment);
+				if (url) {
+					// add eplist
+					let eplistUrl = getEplistUrl[url[0]](url[1]);
+					dataStream.append("<a class='eplist' target='_blank' href='" + eplistUrl + "'>" + properties.ep + " list</a>");
+					// add favicon
+					let domain = getDomainById(url[0]);
+					if (domain) {
+						let src = "https://www.google.com/s2/favicons?domain=" + domain;
+						dataStream.append("<img class='favicon' src='" + src + "' style='position: relative; top: 3px; padding-left: 4px'>");
+					}
+					// load links
+					updateList(dataStream, true, true);
+				} else {
+					// comment invalid
+					dataStream.append("<div class='error'>Invalid Link</div>");
+				}
+			} else {
+				// comment doesn't extst
+				dataStream.append("<div class='error'>No Link</div>");
 			}
-			// load links
-			updateList(dataStream, true, true);
 		}
 	});
 }
@@ -314,7 +325,7 @@ function updateList_doesntExist(dataStream, skipQueue) {
 	let comment = dataStream.data("comment");
 	if (comment) {
 		// comment exists
-		// url is and array that contains the streaming service and url relative to that service
+		// url is an array that contains the streaming service and url relative to that service
 		let url = getUrlFromComment(comment);
 		if (url) {
 			// comment valid
