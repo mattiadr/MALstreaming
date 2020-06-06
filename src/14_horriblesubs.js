@@ -47,8 +47,9 @@ getEpisodes["horriblesubs"] = function(dataStream, url) {
 							// put episodes, may be overridden by next requests
 							putEpisodes(dataStream, episodes, undefined);
 							// check if you need to download another page
-							let latestEp = parseInt(jqPage.find(".rls-info-container:first-child()").attr("id"));
+							let latestEp = parseInt(jqPage.first().attr("id"));
 							let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
+							if (isNaN(nextEp)) nextEp = 0;
 
 							let reqPage = Math.floor((latestEp - nextEp) / horriblesubs.resultsPerPage);
 
@@ -56,7 +57,7 @@ getEpisodes["horriblesubs"] = function(dataStream, url) {
 							for (let i = 0; i < horriblesubs.loadPage && reqPage > 0; i++) {
 								GM_xmlhttpRequest({
 									method: "GET",
-									url: horriblesubs.api + showid + nextid + reqPage,
+									url: horriblesubs.api + showid + horriblesubs.nextid + reqPage,
 									onload: function(resp) {
 										if (resp.status == 200) {
 											// OK

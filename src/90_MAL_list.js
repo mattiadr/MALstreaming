@@ -111,6 +111,7 @@ function loadRows(start, end) {
 		let t = dataStream.data("timeMillis");
 		// get next episode number
 		let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
+		if (isNaN(nextEp)) nextEp = 0;
 		let timeMillis;
 		// if t.ep is set then it needs to be equal to nextEp, else we set timeMillis to false to display Not Yet Aired
 		if (t && (t.ep ? t.ep == nextEp : true)) {
