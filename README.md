@@ -7,14 +7,14 @@ Since version 5.0 it also adds next available manga chapter to your Currently Re
 ![Preview Image](images/list_page.png)
 
 Supported anime websites:
-- [x] [Kissanime](http://kissanime.ru/)
+- [x] ~~[Kissanime](http://kissanime.ru/)~~
 - [x] [9anime](https://9anime.is/)
 - [x] ~~[Masterani](https://www.masterani.me/)~~
 - [x] [Anime Twist](https://twist.moe/)
 - [x] [HorribleSubs](https://horriblesubs.info/)
 
 Supported manga websites:
-- [x] [Kissmanga](http://kissmanga.com/)
+- [x] ~~[Kissmanga](http://kissmanga.com/)~~
 - [x] [MangaDex](https://mangadex.org/)
 - [x] [Jaimini's Box](https://jaiminisbox.com/)
 - [x] [MANGA Plus](https://mangaplus.shueisha.co.jp/)

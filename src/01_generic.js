@@ -3,12 +3,10 @@
 // array of all streaming services
 const streamingServices = [
 	// anime
-	{ id: "kissanime",    type: "anime", name: "Kissanime",     domain: "https://kissanime.ru/"             },
 	{ id: "nineanime",    type: "anime", name: "9anime",        domain: "https://9anime.to/"                },
 	{ id: "animetwist",   type: "anime", name: "Anime Twist",   domain: "https://twist.moe/"                },
 	{ id: "horriblesubs", type: "anime", name: "HorribleSubs",  domain: "https://horriblesubs.info/"        },
 	// manga
-	{ id: "kissmanga",    type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"            },
 	{ id: "mangadex",     type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"             },
 	{ id: "jaiminisbox",  type: "manga", name: "Jaimini's Box", domain: "https://jaiminisbox.com/"          },
 	{ id: "mangaplus",    type: "manga", name: "MANGA Plus",    domain: "https://mangaplus.shueisha.co.jp/" },

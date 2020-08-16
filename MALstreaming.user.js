@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.56
+// @version      5.57
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -15,8 +15,6 @@
 // @match        https://myanimelist.net/mangalist/*
 // @match        https://myanimelist.net/ownlist/manga/*/edit*
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
-// @match        https://kissanime.ru/
-// @match        https://kissmanga.com/
 // @match        https://9anime.to/
 // @match        https://twist.moe/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
@@ -35,12 +33,10 @@
 // array of all streaming services
 const streamingServices = [
 	// anime
-	{ id: "kissanime",    type: "anime", name: "Kissanime",     domain: "https://kissanime.ru/"             },
 	{ id: "nineanime",    type: "anime", name: "9anime",        domain: "https://9anime.to/"                },
 	{ id: "animetwist",   type: "anime", name: "Anime Twist",   domain: "https://twist.moe/"                },
 	{ id: "horriblesubs", type: "anime", name: "HorribleSubs",  domain: "https://horriblesubs.info/"        },
 	// manga
-	{ id: "kissmanga",    type: "manga", name: "Kissmanga",     domain: "https://kissmanga.com/"            },
 	{ id: "mangadex",     type: "manga", name: "MangaDex",      domain: "https://mangadex.org/"             },
 	{ id: "jaiminisbox",  type: "manga", name: "Jaimini's Box", domain: "https://jaiminisbox.com/"          },
 	{ id: "mangaplus",    type: "manga", name: "MANGA Plus",    domain: "https://mangaplus.shueisha.co.jp/" },
@@ -213,123 +209,6 @@ function anilist_setTimeMillis(dataStream, canReload) {
 		// api request to anilist
 		requestTime(id);
 	}
-}
-
-/* kissanime */
-/*******************************************************************************************************************************************************************/
-const kissanime = {};
-kissanime.base = "https://kissanime.ru/";
-kissanime.anime = kissanime.base + "Anime/";
-kissanime.search = kissanime.base + "Search/SearchSuggestx";
-kissanime.server = "&s=rapidvideo";
-// blacklisted urls
-kissanime.epsBlacklist = [
-	"/Anime/Macross/Bunny_Hat-Macross_Special_-4208D135?id=73054",
-	"/Anime/Macross/Bunny_Hat_Raw-30th_Anniversary_Special_-0A1CD40E?id=73055",
-	"/Anime/Macross/Episode-011-original?id=35423"
-];
-// regexes
-kissanime.regexWhitelist = /episode|movie|special|OVA/i;
-kissanime.regexBlacklist = /\b_[a-z]+|recap|\.5/i;
-kissanime.regexCountdown = /\d+(?=\), function)/;
-
-// loads kissanime cookies and then calls back
-function kissanime_loadCookies(callback) {
-	if (GM_getValue("KAloadcookies", false) + 30*1000 < Date.now()) {
-		GM_setValue("KAloadcookies", Date.now());
-		GM_openInTab(kissanime.base, true);
-	}
-	if (callback) {
-		setTimeout(function() {
-			callback();
-		}, 6000);
-	}
-}
-
-// function to execute when script is run on kissanime
-pageLoad["kissanime"] = function() {
-	if (GM_getValue("KAloadcookies", false) && document.title != "Just a moment...") {
-		GM_setValue("KAloadcookies", false);
-		window.close();
-	}
-}
-
-getEpisodes["kissanime"] = function(dataStream, url) {
-	GM_xmlhttpRequest({
-		method: "GET",
-		url: kissanime.anime + url,
-		onload: function(resp) {
-			if (resp.status == 503) {
-				// loading CF cookies
-				kissanime_loadCookies(function() {
-					getEpisodes["kissanime"](dataStream, url);
-				});
-			} else if (resp.status == 200) {
-				// OK
-				let jqPage = $(resp.response);
-				let episodes = [];
-				// get anchors for the episodes
-				let as = jqPage.find(".listing").find("tr > td > a");
-				// get series title to remove it from episode name
-				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
-				// filter and add to episodes array
-				as.each(function() {
-					// title must match regexWhitelist, must not match regexBlacklist and href must not be in epsBlacklist to be considered a valid episode
-					if (kissanime.regexWhitelist.test(this.text) && !kissanime.regexBlacklist.test(this.text) && kissanime.epsBlacklist.indexOf(this.href) == -1) {
-						// prepend new object to array
-						episodes.unshift({
-							text: this.text.split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " "),
-							href: kissanime.anime + this.href.split("/Anime/")[1] + kissanime.server
-						});
-					}
-				});
-				// get time until next episode
-				let timeMillis = Date.now() + parseInt(kissanime.regexCountdown.exec(resp.responseText));
-				// callback
-				putEpisodes(dataStream, episodes, timeMillis);
-			} else {
-				// error
-				errorEpisodes(dataStream, "Kissanime: " + resp.status);
-			}
-		}
-	});
-}
-
-getEplistUrl["kissanime"] = function(partialUrl) {
-	return kissanime.anime + partialUrl;
-}
-
-searchSite["kissanime"] = function(id, title) {
-	GM_xmlhttpRequest({
-		method: "POST",
-		url: kissanime.search,
-		data: "type=Anime" + "&keyword=" + title,
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		onload: function(resp) {
-			if (resp.status == 503) {
-				// loading CF cookies
-				kissanime_loadCookies(function() {
-					searchSite["kissanime"](id, title);
-				});
-			} else if (resp.status == 200) {
-				// OK
-				let results = [];
-
-				let list = $(resp.responseText);
-				list.each(function() {
-					results.push({
-						title: this.text,
-						href:  this.pathname.split("/")[2]
-					});
-				});
-				// callback
-				putResults(id, results);
-			} else {
-				// error
-				errorResults(id, "Kissanime: " + resp.status);
-			}
-		}
-	});
 }
 
 /* 9anime */
@@ -645,121 +524,6 @@ searchSite["horriblesubs"] = function(id, title) {
 			} else {
 				// error
 				errorResults(id, "HorribleSubs: " + resp.status);
-			}
-		}
-	});
-}
-
-/* kissmanga */
-/*******************************************************************************************************************************************************************/
-const kissmanga = {};
-kissmanga.base = "https://kissmanga.com/";
-kissmanga.manga = kissmanga.base + "Manga/";
-kissmanga.search = kissmanga.base + "Search/SearchSuggest";
-// regex
-kissmanga.regexVol = /vol.+?\d+/i;
-
-// loads kissmanga cookies and then calls back
-function kissmanga_loadCookies(callback) {
-	if (GM_getValue("KMloadcookies", false) + 30*1000 < Date.now()) {
-		GM_setValue("KMloadcookies", Date.now());
-		GM_openInTab(kissmanga.base, true);
-	}
-	if (callback) {
-		setTimeout(function() {
-			callback();
-		}, 6000);
-	}
-}
-
-// function to execute when script is run on kissmanga
-pageLoad["kissmanga"] = function() {
-	if (GM_getValue("KMloadcookies", false) && document.title != "Just a moment...") {
-		GM_setValue("KMloadcookies", false);
-		window.close();
-	}
-}
-
-getEpisodes["kissmanga"] = function(dataStream, url) {
-	GM_xmlhttpRequest({
-		method: "GET",
-		url: kissmanga.manga + url,
-		onload: function(resp) {
-			if (resp.status == 503) {
-				// loading CF cookies
-				kissmanga_loadCookies(function() {
-					getEpisodes["kissmanga"](dataStream, url);
-				});
-			} else if (resp.status == 200) {
-				// OK
-				let jqPage = $(resp.response);
-				let episodes = [];
-				// get table rows for the episodes
-				let trs = jqPage.find(".listing").find("tr");
-				// get series title to remove it from chapter name
-				let title = jqPage.find("#leftside > div:nth-child(1) > div.barContent > div:nth-child(2) > a").text();
-				// filter and add to episodes array
-				trs.each(function() {
-					let a = $(this).find("td > a");
-					if (a.length === 0) return;
-					let t = a.text().split(title)[1].substring(1).replace(/ 0+(?=\d+)/, " ");
-					// get all numbers in title
-					let n = t.match(/\d+/g);
-					// if vol is present then get second match else get first
-					n = kissmanga.regexVol.test(t) ? n[1] : n[0];
-					// chapter number - 1 is used as index
-					n = parseInt(n) - 1;
-					// add chapter to array
-					episodes[n] = {
-						text:      t,
-						href:      kissmanga.manga + a.attr('href').split("/Manga/")[1],
-						timestamp: Date.parse($(this).find("td:nth-child(2)").text()),
-					};
-				});
-				// estimate timeMillis
-				let timeMillis = estimateTimeMillis(episodes, 5);
-				// callback
-				putEpisodes(dataStream, episodes, timeMillis);
-			} else {
-				// error
-				errorEpisodes(dataStream, "Kissmanga: " + resp.status);
-			}
-		}
-	});
-}
-
-getEplistUrl["kissmanga"] = function(partialUrl) {
-	return kissmanga.manga + partialUrl;
-}
-
-searchSite["kissmanga"] = function(id, title) {
-	GM_xmlhttpRequest({
-		method: "POST",
-		url: kissmanga.search,
-		data: "type=Manga" + "&keyword=" + title,
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		onload: function(resp) {
-			if (resp.status == 503) {
-				// loading CF cookies
-				kissmanga_loadCookies(function() {
-					searchSite["kissmanga"](id, title);
-				});
-			} else if (resp.status == 200) {
-				// OK
-				let results = [];
-
-				let list = $(resp.responseText);
-				list.each(function() {
-					results.push({
-						title: this.text,
-						href:  this.pathname.split("/")[2],
-					});
-				});
-				// callback
-				putResults(id, results);
-			} else {
-				// error
-				errorResults(id, "Kissmanga: " + resp.status);
 			}
 		}
 	});
@@ -1672,8 +1436,6 @@ function errorResults(id, error) {
 /*******************************************************************************************************************************************************************/
 // associates an url with properties and pageLoad function
 let pages = [
-	{ url: kissanime.base,                           prop: null,    load: "kissanime"  },
-	{ url: kissmanga.base,                           prop: null,    load: "kissmanga"  },
 	{ url: nineanime.base,                           prop: null,    load: "nineanime"  },
 	{ url: animetwist.base,                          prop: null,    load: "animetwist" },
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"       },

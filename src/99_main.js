@@ -2,8 +2,6 @@
 /*******************************************************************************************************************************************************************/
 // associates an url with properties and pageLoad function
 let pages = [
-	{ url: kissanime.base,                           prop: null,    load: "kissanime"  },
-	{ url: kissmanga.base,                           prop: null,    load: "kissmanga"  },
 	{ url: nineanime.base,                           prop: null,    load: "nineanime"  },
 	{ url: animetwist.base,                          prop: null,    load: "animetwist" },
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"       },
