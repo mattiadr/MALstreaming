@@ -86,7 +86,8 @@ function loadRows(start, end) {
 		// if ctrl is pressed also reload more-info
 		if (e.ctrlKey) {
 			requestMoreInfo($(this));
-		} else {
+		} else if (e.target.tagName != "A") {
+			// avoid reloading if clicked on an anchor element
 			updateList($(this), true, true);
 		}
 	});
