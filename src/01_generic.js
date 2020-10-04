@@ -46,7 +46,7 @@ const getEpisodes = {};
 // must contain `maxRequests` and `timout`
 const queueSettings = {};
 queueSettings["default"] = {
-	maxRequests: 2,
+	maxRequests: 1,
 	timeout:     1000,
 }
 // contains all functions to get the episode list url from the partial url
