@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.60
+// @version      5.61
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -15,7 +15,6 @@
 // @match        https://myanimelist.net/mangalist/*
 // @match        https://myanimelist.net/ownlist/manga/*/edit*
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
-// @match        https://9anime.to/
 // @match        https://twist.moe/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require      https://cdn.rawgit.com/dcodeIO/protobuf.js/6.8.8/dist/protobuf.js
@@ -214,26 +213,9 @@ function anilist_setTimeMillis(dataStream, canReload) {
 const nineanime = {};
 nineanime.base = "https://9anime.to/";
 nineanime.anime = nineanime.base + "watch/";
-nineanime.servers = nineanime.base + "ajax/film/servers/";
+nineanime.servers = nineanime.base + "ajax/anime/servers?id=";
 nineanime.search = nineanime.base + "search?keyword=";
 nineanime.regexBlacklist = /preview|special|trailer|CAM/i;
-
-// open captcha page
-function nineanime_openCaptcha() {
-	if (GM_getValue("NAcaptcha", false) + 30*1000 < Date.now()) {
-		GM_setValue("NAcaptcha", Date.now());
-		GM_openInTab(nineanime.base, false);
-	}
-}
-
-// function to execute when script is run on nineanime
-pageLoad["nineanime"] = function() {
-	// close window if opended by script
-	if (GM_getValue("NAcaptcha", false) && document.title != "WAF") {
-		GM_setValue("NAcaptcha", false);
-		window.close();
-	}
-}
 
 getEpisodes["nineanime"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
@@ -241,62 +223,24 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 		url: nineanime.servers + url.match(/\.(\w+)$/)[1],
 		onload: function(resp) {
 			if (resp.status == 200) {
-				// successful response is a json with only html attribute, parse it
-				let json = null;
-				try {
-					json = JSON.parse(resp.response);
-				} catch (e) {
-					// solving captcha
-					nineanime_openCaptcha();
-					return;
-				}
-
 				// OK
-				let jqPage = $(json.html);
+				let jqPage = $(resp.response);
 				let episodes = [];
-				// get servers
-				let servers = jqPage.find("div.widget-body > .server");
-				let as = null;
-				// auto select server with the most videos
-				servers.each(function() {
-					let nas = $(this).find("li > a");
-					if (!as || nas.length > as.length) {
-						as = nas;
+
+				let list = jqPage.find(".episodes > li > a");
+				list.each(function() {
+					// ignore blacklisted episodes
+					if (!nineanime.regexBlacklist.test($(this).text())) {
+						// push episode to array
+						episodes.push({
+							text: "Episode " + $(this).text(),
+							href: nineanime.base + $(this).attr("href").substr(1),
+						});
 					}
 				});
-				if (as) {
-					as.each(function() {
-						// ignore blacklisted episodes
-						if (!nineanime.regexBlacklist.test($(this).text())) {
-							// push episode to array
-							episodes.push({
-								text: "Episode " + $(this).text().replace(/^0+(?=\d+)/, ""),
-								href: nineanime.base + $(this).attr("href").substr(1),
-							});
-						}
-					});
-				}
-				// get time if available
-				GM_xmlhttpRequest({
-					method: "GET",
-					url: nineanime.anime + url,
-					onload: function(resp) {
-						if (resp.status == 200) {
-							// OK
-							let time = $(resp.response).find("#main > div > div.alert.alert-primary > i");
-							let timeMillis = undefined;
-							if (time.length !== 0) {
-								// timer is present
-								timeMillis = time.data("to") * 1000;
-							}
-							// callback
-							putEpisodes(dataStream, episodes, timeMillis);
-						} else {
-							// not OK, callback
-							putEpisodes(dataStream, episodes, undefined);
-						}
-					}
-				});
+
+				// callback
+				putEpisodes(dataStream, episodes, undefined);
 			} else {
 				// error
 				errorEpisodes(dataStream, "9anime: " + resp.status);
@@ -319,14 +263,14 @@ searchSite["nineanime"] = function(id, title) {
 				let jqPage = $(resp.response);
 				let results = [];
 				// get results from response
-				let list = jqPage.find("#main > div > div:nth-child(3) > div.widget-body > div.film-list > .item");
+				let list = jqPage.find("ul.anime-list > li");
 				list = list.slice(0, 10);
 				// add to results
 				list.each(function() {
 					// get anchor for text and href
 					let a = $(this).find("a")[1];
 					// get episode count
-					let ep = $(this).find(".status > .ep").text().match(/\/(\d+)/);
+					let ep = $(this).find(".tag.ep").text().match(/\/(\d+)/);
 					results.push({
 						title:    a.text,
 						href:     a.href.split("/")[4],
@@ -1223,7 +1167,6 @@ function errorResults(id, error) {
 /*******************************************************************************************************************************************************************/
 // associates an url with properties and pageLoad function
 let pages = [
-	{ url: nineanime.base,                           prop: null,    load: "nineanime"  },
 	{ url: animetwist.base,                          prop: null,    load: "animetwist" },
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"       },
 	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list"       },
