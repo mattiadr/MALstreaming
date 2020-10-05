@@ -12,6 +12,7 @@ Supported anime websites:
 - [x] ~~[Masterani](https://www.masterani.me/)~~
 - [x] [Anime Twist](https://twist.moe/)
 - [x] ~~[HorribleSubs](https://horriblesubs.info/)~~
+- [x] [Erai-raws](https://www.erai-raws.info/)
 
 Supported manga websites:
 - [x] ~~[Kissmanga](http://kissmanga.com/)~~

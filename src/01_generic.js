@@ -5,6 +5,7 @@ const streamingServices = [
 	// anime
 	{ id: "nineanime",  type: "anime", name: "9anime",      domain: "https://9anime.to/"                },
 	{ id: "animetwist", type: "anime", name: "Anime Twist", domain: "https://twist.moe/"                },
+	{ id: "erairaws",   type: "anime", name: "Erai-raws",   domain: "https://erai-raws.info/"           },
 	// manga
 	{ id: "mangadex",   type: "manga", name: "MangaDex",    domain: "https://mangadex.org/"             },
 	{ id: "mangaplus",  type: "manga", name: "MANGA Plus",  domain: "https://mangaplus.shueisha.co.jp/" },
