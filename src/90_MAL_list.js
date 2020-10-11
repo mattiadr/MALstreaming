@@ -256,7 +256,7 @@ function updateList_exists(dataStream) {
 		let a = $("<a></a>");
 		a.text(t.length > 13 ? t.substr(0, 12) + "…" : t);
 		if (t.length > 13) a.attr("title", t);
-		a.attr("href", episodes[currEp] ? episodes[currEp].href : "#");
+		a.attr("href", episodes[currEp] ? episodes[currEp].href : "javascript:void(0)");
 		a.attr("target", "_blank");
 		a.attr("class", isAiring ? "airing" : "non-airing");
 		a.css("color", isAiring ? "#2db039" : "#ff730a");
