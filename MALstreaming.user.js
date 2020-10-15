@@ -15,7 +15,6 @@
 // @match        https://myanimelist.net/mangalist/*
 // @match        https://myanimelist.net/ownlist/manga/*/edit*
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
-// @match        https://twist.moe/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require      https://cdn.rawgit.com/dcodeIO/protobuf.js/6.8.8/dist/protobuf.js
 // @grant        GM_xmlhttpRequest
@@ -1292,7 +1291,6 @@ function errorResults(id, error) {
 /*******************************************************************************************************************************************************************/
 // associates an url with properties and pageLoad function
 let pages = [
-	{ url: animetwist.base,                          prop: null,    load: "animetwist" },
 	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"       },
 	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list"       },
 	{ url: "https://myanimelist.net/ownlist/anime/", prop: "anime", load: "edit"       },
