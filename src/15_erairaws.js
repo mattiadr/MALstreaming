@@ -28,7 +28,7 @@ getEpisodes["erairaws"] = function(dataStream, url) {
 
 				jqPage.find(".post-inner").each(function() {
 					// get episode number
-					let title = $(this).find("div:first-child > h1 > a:nth-child(3) > font > font > font").text();
+					let title = $(this).find("div:first-child > h1 > font > a:last-child > font").text();
 					let ep = parseInt(title.match(/\d+/)[0]);
 					// get max resolution magnet
 					let div = $(this).find("div:nth-child(3) > div:nth-child(2) > div");
