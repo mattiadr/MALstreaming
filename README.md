@@ -47,6 +47,7 @@ To easily set the comment, the script provides a search functionality in the edi
 - You can ctrl-click after editing the anime to force a recheck on the comment, without needing to reload the page.
 - Some anime services do not give an estimate for the time until next episode, so the script uses [anilist](https://anilist.co/) to get the time remaining.
 - On MangaDex the timer estimate is often inaccurate, especially if a chapter is "locked" for the next days.
+- Some websites do not start from episode one for seasons after the first. To sync this script with the latest episode you can set the offset below the comment. The value must be the total number of episodes from the previous seasons that you want to exclude.
 - This script will work with most anime, but since there can be exceptions there might be some errors in the episode count. Please report them.
 
 ## How to Install
