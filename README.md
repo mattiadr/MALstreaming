@@ -7,18 +7,21 @@ Since version 5.0 it also adds next available manga chapter to your Currently Re
 ![Preview Image](images/list_page.png)
 
 Supported anime websites:
-- [x] ~~[Kissanime](http://kissanime.ru/)~~
 - [x] [9anime](https://9anime.is/)
-- [x] ~~[Masterani](https://www.masterani.me/)~~
 - [x] [Anime Twist](https://twist.moe/)
-- [x] ~~[HorribleSubs](https://horriblesubs.info/)~~
 - [x] [Erai-raws](https://www.erai-raws.info/)
+- [x] [SubsPlease](https://subsplease.org/)
 
 Supported manga websites:
-- [x] ~~[Kissmanga](http://kissmanga.com/)~~
 - [x] [MangaDex](https://mangadex.org/)
-- [x] ~~[Jaimini's Box](https://jaiminisbox.com/)~~
 - [x] [MANGA Plus](https://mangaplus.shueisha.co.jp/)
+
+Dead Websites:
+- [x] ~~[Kissanime](http://kissanime.ru/)~~
+- [x] ~~[Masterani](https://www.masterani.me/)~~
+- [x] ~~[HorribleSubs](https://horriblesubs.info/)~~
+- [x] ~~[Kissmanga](http://kissmanga.com/)~~
+- [x] ~~[Jaimini's Box](https://jaiminisbox.com/)~~
 
 ## Usage
 The usage is the same for both anime and manga.
