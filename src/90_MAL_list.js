@@ -268,7 +268,7 @@ function updateList_exists(dataStream) {
 		}
 		// add new nextep
 		dataStream.prepend(nextep);
-	} else if (currEp > episodes.length) {
+	} else if (currEp > episodes.length && episodes.length > 0) {
 		// user has watched too many episodes
 		nextep.append($("<div class='ep-error'>" + properties.latest + episodes.length + "</div>").css("color", "red"));
 		// add new nextep
