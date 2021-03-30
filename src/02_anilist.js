@@ -32,6 +32,8 @@ function requestTime(id) {
 			let times = GM_getValue("anilistTimes", {});
 			// get data from response
 			let sched = res.data.Media.airingSchedule.nodes[0];
+			// if there is no episode then it means the last episode just notYetAired
+			if (!sched.episode) return;
 			let ep = sched.episode;
 			let timeMillis = sched.airingAt * 1000;
 			// set time, ep is episode the timer is referring to
@@ -49,9 +51,6 @@ function requestTime(id) {
 function anilist_setTimeMillis(dataStream, canReload) {
 	let listitem = dataStream.parents(".list-item");
 
-	// anime is not airing, exit
-	if (listitem.find(properties.findAiring).length == 0) return;
-
 	let times = GM_getValue("anilistTimes", false);
 	// get anime id
 	let id = listitem.find(".data.title > .link").attr("href").split("/")[2];
@@ -61,11 +60,12 @@ function anilist_setTimeMillis(dataStream, canReload) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anilist timer is referring to next episode
 		dataStream.data("timeMillis", t);
-	} else {
+		dataStream.trigger("update-time");
+	} else if (canReload) {
 		// add value change listener
 		let listenerId = GM_addValueChangeListener("anilistTimes", function(name, old_value, new_value, remote) {
-			// reload, avoid infinite loops
-			if (canReload) anilist_setTimeMillis(dataStream, false);
+			// reload
+			anilist_setTimeMillis(dataStream, false);
 			// remove listener
 			GM_removeValueChangeListener(listenerId);
 		});

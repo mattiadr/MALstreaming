@@ -7,10 +7,10 @@ Since version 5.0 it also adds next available manga chapter to your Currently Re
 ![Preview Image](images/list_page.png)
 
 Supported anime websites:
-- [x] [9anime](https://9anime.is/)
-- [x] [Anime Twist](https://twist.moe/)
-- [x] [Erai-raws](https://www.erai-raws.info/)
-- [x] [SubsPlease](https://subsplease.org/)
+- [x] [9anime](https://9anime.to/) (streaming)
+- [x] [Anime Twist](https://twist.moe/) (streaming)
+- [x] [Erai-raws](https://www.erai-raws.info/) (torrent)
+- [x] [SubsPlease](https://subsplease.org/) (torrent)
 
 Supported manga websites:
 - [x] [MangaDex](https://mangadex.org/)
