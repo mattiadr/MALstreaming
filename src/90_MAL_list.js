@@ -36,7 +36,7 @@ pageLoad["list"] = function() {
 	// the timeout is needed to avoid issues with the page load order
 	setTimeout(function() {
 		loadRows(1, mal.loadRows + 1);
-	}, 0);
+	}, 1);
 
 	// update timer
 	setInterval(function() {
@@ -112,7 +112,7 @@ function loadRows(start, end) {
 		let t = dataStream.data("timeMillis");
 		// get next episode number
 		let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
-		if (isNaN(nextEp)) nextEp = 0;
+		if (isNaN(nextEp)) nextEp = 1;
 		let timeMillis;
 		// if t.ep is set then it needs to be equal to nextEp, else we set timeMillis to false to display Not Yet Aired
 		if (t && (t.ep ? t.ep == nextEp : true)) {
