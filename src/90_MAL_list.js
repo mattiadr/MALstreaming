@@ -33,10 +33,7 @@ pageLoad["list"] = function() {
 	mal.CSRFToken = $("meta[name=csrf_token]").attr("content");
 
 	// load first n rows, start from 1 to remove header
-	// the timeout is needed to avoid issues with the page load order
-	setTimeout(function() {
-		loadRows(1, mal.loadRows + 1);
-	}, 1);
+	loadRows(1, mal.loadRows + 1);
 
 	// update timer
 	setInterval(function() {
@@ -68,24 +65,35 @@ function loadRows(start, end) {
 		return;
 	}
 
-	// add cells to column
-	rows.find(".list-table-data > .data.title").after("<td class='data stream'></td>");
+	// iterate over rows to add dataStream and request more-info
+	// stop if a row is not valid (usually happens only during first iteration)
+	for (let i = 0; i < rows.length; i++) {
+		let row = $(rows[i]);
+		// if href does not exist then row is invalid
+		let href = row.find(".list-table-data > .data.title > .link").attr("href");
+		if (!href) {
+			// row was invalid, schedule retry and quit
+			setTimeout(function() {
+				loadRows(start, end);
+			}, 100);
+			return;
+		}
+		// add dataStream to row
+		let dataStream = $("<td class='data stream' style='font-weight: normal; line-height: 1.5em;'></td>");
+		row.find(".list-table-data > .data.title").after(dataStream);
+		// get id to make request
+		let id = href.split("/")[2];
+		// finally request more info
+		requestMoreInfo(id, dataStream);
+	}
 
-	// style dataStreams
 	let dataStreams = $(".data.stream");
-	dataStreams.css("font-weight", "normal");
-	dataStreams.css("line-height", "1.5em");
-
-	// request more-info
-	dataStreams.each(function() {
-		requestMoreInfo($(this));
-	});
 
 	// table cell listener
 	dataStreams.on("click", function(e) {
 		// if ctrl is pressed also reload more-info
 		if (e.ctrlKey) {
-			requestMoreInfo($(this));
+			requestMoreInfo(null, $(this));
 		} else if (e.target.tagName != "A") {
 			// avoid reloading if clicked on an anchor element
 			updateList($(this), true, true);
@@ -151,11 +159,11 @@ function loadRows(start, end) {
 }
 
 // request more-info and set data("comment")
-function requestMoreInfo(dataStream) {
-	// listitem
-	let listitem = dataStream.parents(".list-item");
-	// get id
-	let id = listitem.find(".data.title > .link").attr("href").split("/")[2];
+function requestMoreInfo(id, dataStream) {
+	// if id is not set, get it from dataStream
+	if (!id) {
+		id = dataStream.parents(".list-item").find(".data.title > .link").attr("href").split("/")[2];
+	}
 	// execute request
 	GM_xmlhttpRequest({
 		method: "POST",
@@ -187,6 +195,8 @@ function requestMoreInfo(dataStream) {
 			// remove old divs
 			dataStream.find(".error").remove();
 			dataStream.find(".eplist").remove();
+			dataStream.find(".nextep").remove();
+			dataStream.find(".loading").remove();
 			dataStream.find(".favicon").remove();
 			// check if comment exists and is correct
 			if (comment) {
