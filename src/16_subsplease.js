@@ -71,7 +71,7 @@ searchSite["subsplease"] = function(id, title) {
 		method: "GET",
 		url: subsplease.anime,
 		onload: function(resp) {
-			if (resp.status = 200) {
+			if (resp.status == 200) {
 				// OK
 				let jqPage = $(resp.response);
 				let results = [];
