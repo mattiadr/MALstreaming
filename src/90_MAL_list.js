@@ -197,6 +197,7 @@ function requestMoreInfo(id, dataStream) {
 			dataStream.find(".eplist").remove();
 			dataStream.find(".nextep").remove();
 			dataStream.find(".loading").remove();
+			dataStream.find(".timer").remove();
 			dataStream.find(".favicon").remove();
 			// check if comment exists and is correct
 			if (comment) {
