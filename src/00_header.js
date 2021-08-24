@@ -15,6 +15,7 @@
 // @match        https://myanimelist.net/mangalist/*
 // @match        https://myanimelist.net/ownlist/manga/*/edit*
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
+// @match        https://9anime.to/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require      https://cdn.rawgit.com/dcodeIO/protobuf.js/6.8.8/dist/protobuf.js
 // @grant        GM_xmlhttpRequest

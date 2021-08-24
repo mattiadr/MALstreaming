@@ -14,7 +14,8 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
-				let jqPage = $(resp.response);
+				let res = JSON.parse(resp.response);
+				let jqPage = $(res.html);
 				let episodes = [];
 
 				let list = jqPage.find(".episodes > li > a");
@@ -32,8 +33,13 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				// callback
 				putEpisodes(dataStream, episodes, undefined);
 			} else {
+				let cs = needsCookies("nineanime", resp.status);
 				// error
-				errorEpisodes(dataStream, "9anime: " + resp.status);
+				if (!cs) return errorEpisodes(dataStream, "9anime: " + resp.status);
+				// load cookies
+				loadCookies(cs, function() {
+					getEpisodes["nineanime"](dataStream, url);
+				});
 			}
 		}
 	});
@@ -70,8 +76,13 @@ searchSite["nineanime"] = function(id, title) {
 				// callback
 				putResults(id, results);
 			} else {
+				let cs = needsCookies("nineanime", resp.status);
 				// error
-				errorResults(id, "9anime: " + resp.status);
+				if (!cs) return errorResults(id, "9anime: " + resp.status);
+				// load cookies
+				loadCookies(cs, function() {
+					searchSite["nineanime"](id, title);
+				});
 			}
 		}
 	});

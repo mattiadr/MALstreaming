@@ -15,6 +15,7 @@
 // @match        https://myanimelist.net/mangalist/*
 // @match        https://myanimelist.net/ownlist/manga/*/edit*
 // @match        https://myanimelist.net/ownlist/manga/add?selected_manga_id=*
+// @match        https://9anime.to/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require      https://cdn.rawgit.com/dcodeIO/protobuf.js/6.8.8/dist/protobuf.js
 // @grant        GM_xmlhttpRequest
@@ -209,6 +210,48 @@ function anilist_setTimeMillis(dataStream, canReload) {
 	}
 }
 
+/* cookies */
+/*******************************************************************************************************************************************************************/
+// array with services that require cookies to make requests
+const cookieServices = [
+	// anime
+	{ id: "nineanime", status: 401, url: "https://9anime.to/", loaded: _ => document.title != "Redirecting...", timeout: 1000 },
+	// manga
+];
+
+// checks if i need/can load cookies and returns the cookieService
+function needsCookies(id, status) {
+	for (let i = 0; i < cookieServices.length; i++) {
+		if (cookieServices[i].id == id && cookieServices[i].status == status) return cookieServices[i];
+	}
+	return false;
+}
+
+// load cookies for specified service, then calls back
+function loadCookies(cookieService, callback) {
+	let lc = GM_getValue("loadCookies", {});
+	if (lc[cookieService.id] === undefined || lc[cookieService.id] + 30*1000 < Date.now()) {
+		lc[cookieService.id] = Date.now();
+		GM_setValue("loadCookies", lc);
+		GM_openInTab(cookieService.url, true);
+	}
+	if (callback) {
+		setTimeout(function() {
+			callback();
+		}, cookieService.timeout);
+	}
+}
+
+// function to execute when script is run on website to load cookies from
+pageLoad["loadCookies"] = function(cookieService) {
+	let lc = GM_getValue("loadCookies", {});
+	if (lc[cookieService.id] && cookieService.loaded()) {
+		lc[cookieService.id] = false;
+		GM_setValue("loadCookies", lc);
+		window.close();
+	}
+}
+
 /* 9anime */
 /*******************************************************************************************************************************************************************/
 const nineanime = {};
@@ -225,7 +268,8 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
-				let jqPage = $(resp.response);
+				let res = JSON.parse(resp.response);
+				let jqPage = $(res.html);
 				let episodes = [];
 
 				let list = jqPage.find(".episodes > li > a");
@@ -243,8 +287,13 @@ getEpisodes["nineanime"] = function(dataStream, url) {
 				// callback
 				putEpisodes(dataStream, episodes, undefined);
 			} else {
+				let cs = needsCookies("nineanime", resp.status);
 				// error
-				errorEpisodes(dataStream, "9anime: " + resp.status);
+				if (!cs) return errorEpisodes(dataStream, "9anime: " + resp.status);
+				// load cookies
+				loadCookies(cs, function() {
+					getEpisodes["nineanime"](dataStream, url);
+				});
 			}
 		}
 	});
@@ -281,8 +330,13 @@ searchSite["nineanime"] = function(id, title) {
 				// callback
 				putResults(id, results);
 			} else {
+				let cs = needsCookies("nineanime", resp.status);
 				// error
-				errorResults(id, "9anime: " + resp.status);
+				if (!cs) return errorResults(id, "9anime: " + resp.status);
+				// load cookies
+				loadCookies(cs, function() {
+					searchSite["nineanime"](id, title);
+				});
 			}
 		}
 	});
@@ -1399,18 +1453,27 @@ function errorResults(id, error) {
 /*******************************************************************************************************************************************************************/
 // associates an url with properties and pageLoad function
 let pages = [
-	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list"       },
-	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list"       },
-	{ url: "https://myanimelist.net/ownlist/anime/", prop: "anime", load: "edit"       },
-	{ url: "https://myanimelist.net/ownlist/manga/", prop: "manga", load: "edit"       },
+	{ url: "https://myanimelist.net/animelist/",     prop: "anime", load: "list" },
+	{ url: "https://myanimelist.net/mangalist/",     prop: "manga", load: "list" },
+	{ url: "https://myanimelist.net/ownlist/anime/", prop: "anime", load: "edit" },
+	{ url: "https://myanimelist.net/ownlist/manga/", prop: "manga", load: "edit" },
 ];
 
 (function($) {
+	// check on which page we are
 	for (let i = 0; i < pages.length; i++) {
 		if (window.location.href.indexOf(pages[i].url) != -1) {
 			properties = properties[pages[i].prop];
 			pageLoad[pages[i].load]();
-			break;
+			return;
+		}
+	}
+
+	// check if we are on a load cookies page
+	for (let i = 0; i < cookieServices.length; i++) {
+		if (window.location.href.indexOf(cookieServices[i].url) != -1) {
+			pageLoad["loadCookies"](cookieServices[i]);
+			return;
 		}
 	}
 })(jQuery);
