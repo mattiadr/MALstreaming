@@ -3,6 +3,7 @@
 const mal = {};
 mal.timerRate = 15000;
 mal.loadRows = 25;
+mal.epStrLen = 14;
 mal.genericErrorRequest = "Error while performing request";
 mal.userId = null;
 mal.CSRFToken = null;
@@ -265,8 +266,8 @@ function updateList_exists(dataStream) {
 		let t = episodes[currEp] ? episodes[currEp].text : ("Missing #" + (currEp + 1));
 
 		let a = $("<a></a>");
-		a.text(t.length > 13 ? t.substr(0, 12) + "…" : t);
-		if (t.length > 13) a.attr("title", t);
+		a.text(t.length > mal.epStrLen ? t.substr(0, mal.epStrLen - 1) + "…" : t);
+		if (t.length > mal.epStrLen) a.attr("title", t);
 		a.attr("href", episodes[currEp] ? episodes[currEp].href : "javascript:void(0)");
 		a.attr("target", "_blank");
 		a.attr("class", isAiring ? "airing" : "non-airing");
