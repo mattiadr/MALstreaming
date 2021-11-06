@@ -3,7 +3,7 @@
 const animetwist = {};
 animetwist.base = "https://twist.moe/";
 animetwist.anime = animetwist.base + "a/"
-animetwist.api = "https://api.twist.moe/api/anime";
+animetwist.api = "https://api.twist.moe/api/anime/";
 animetwist.token = "1rj2vRtegS8Y60B3w3qNZm5T2Q0TN2NR";
 
 getEpisodes["animetwist"] = function(dataStream, url) {

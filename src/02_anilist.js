@@ -33,7 +33,7 @@ function requestTime(id) {
 			// get data from response
 			let sched = res.data.Media.airingSchedule.nodes[0];
 			// if there is no episode then it means the last episode just notYetAired
-			if (!sched.episode) return;
+			if (!sched || !sched.episode) return;
 			let ep = sched.episode;
 			let timeMillis = sched.airingAt * 1000;
 			// set time, ep is episode the timer is referring to
