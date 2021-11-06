@@ -11,6 +11,11 @@ mangaplus.lang_table = {
 	undefined: "english",
 	0:         "english",
 	1:         "spanish",
+	2:         "french",
+	3:         "indonesian",
+	4:         "portuguese",
+	5:         "russian",
+	6:         "thai",
 }
 
 /* =============== *\
