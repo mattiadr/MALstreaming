@@ -2,39 +2,44 @@
 /*******************************************************************************************************************************************************************/
 const mangadex = {};
 mangadex.base = "https://mangadex.org/";
-mangadex.manga = mangadex.base + "manga/";
-mangadex.manga_api = mangadex.base + "api/manga/";
+mangadex.base_api = "https://api.mangadex.org/";
+mangadex.manga = mangadex.base + "title/"
+mangadex.lang_code = "en";
+mangadex.manga_api = mangadex.base_api + `manga/{0}/feed?limit=500&order[chapter]=asc&offset={1}&translatedLanguage[]=${mangadex.lang_code}`;
 mangadex.chapter = mangadex.base + "chapter/";
-mangadex.lang_code = "gb";
-mangadex.search = mangadex.base + "quick_search/";
+mangadex.search_api = mangadex.base_api + "manga?title=";
 
-getEpisodes["mangadex"] = function(dataStream, url) {
+getEpisodes["mangadex"] = function(dataStream, url, offset=0, episodes=[]) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: mangadex.manga_api + url,
+		url: mangadex.manga_api.formatUnicorn(url, offset),
 		onload: function(resp) {
 			if (resp.status == 200) {
+				let res = JSON.parse(resp.response);
+				if (res.result != "ok") {
+					// error
+					errorResults(id, "MangaDex: " + res.result);
+				}
 				// OK
-				let res_ch = JSON.parse(resp.response).chapter;
-				let episodes = [];
-				// parse json
-				for (let key in res_ch) {
-					if (res_ch.hasOwnProperty(key)) {
-						let ch = res_ch[key];
-						// skip wrong language
-						if (ch.lang_code != mangadex.lang_code) continue;
-						// put into episodes array
-						episodes[ch.chapter - 1] = {
-							text:      (ch.volume && `Vol. ${ch.volume} `) + `Ch. ${ch.chapter}`,
-							href:      mangadex.chapter + key,
-							timestamp: ch.timestamp,
-						}
+				for (let i = 0; i < res.data.length; i++) {
+					let chapter = res.data[i];
+					let n = chapter.attributes.chapter;
+					episodes[n - 1] = {
+						text:      `Chapter ${n}: ${chapter.attributes.title}`,
+						href:      mangadex.chapter + chapter.id,
+						timestamp: new Date(chapter.attributes.createdAt).getTime(),
 					}
 				}
-				// estimate timeMillis
-				let timeMillis = estimateTimeMillis(episodes, 5);
-				// callback
-				putEpisodes(dataStream, episodes, timeMillis);
+				// check if we got all the episodes
+				if (offset + 500 >= res.total) {
+					// estimate timeMillis
+					let timeMillis = estimateTimeMillis(episodes, 5);
+					// callback
+					putEpisodes(dataStream, episodes, timeMillis);
+				} else {
+					// request next 500 episodes
+					getEpisodes["mangadex"](dataStream, url, offset + 500, episodes);
+				}
 			} else {
 				// error
 				errorEpisodes(dataStream, "MangaDex: " + resp.status);
@@ -50,19 +55,23 @@ getEplistUrl["mangadex"] = function(partialUrl) {
 searchSite["mangadex"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: mangadex.search + encodeURI(title),
+		url: mangadex.search_api + encodeURI(title),
 		onload: function(resp) {
 			if (resp.status == 200) {
+				let res = JSON.parse(resp.response);
+				if (res.result != "ok") {
+					// error
+					errorResults(id, "MangaDex: " + res.result);
+				}
 				// OK
 				let results = [];
-				// get title anchors
-				let titles = $(resp.response).find("#search_manga").find("a.manga_title");
-				titles.each(function() {
+				for (let i = 0; i < res.data.length; i++) {
+					let manga = res.data[i];
 					results.push({
-						title: this.title,
-						href:  this.pathname.split("/")[2]
+						title: manga.attributes.title.en || manga.attributes.title.jp,
+						href:  manga.id,
 					});
-				});
+				}
 				// callback
 				putResults(id, results);
 			} else {

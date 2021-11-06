@@ -69,6 +69,7 @@ function getUrlFromComment(comment) {
 
 // estimate time before next chapter as min of last n chapters
 function estimateTimeMillis(episodes, n) {
+	if (episodes.length == 0) return undefined;
 	let prev = null;
 	let min = undefined;
 	for (let i = episodes.length - 1; i > Math.max(0, episodes.length - 1 - n); i--) {
@@ -103,5 +104,17 @@ function matchResult(result, title) {
 		}
 	}
 	return true;
+}
+
+// stackexchange's string format utility
+String.prototype.formatUnicorn = function() {
+	let e = this.toString();
+	if (!arguments.length) return e;
+	let t = typeof arguments[0];
+	let n = "string" === t || "number" === t ? Array.prototype.slice.call(arguments) : arguments[0];
+	for (let i in n) {
+		e = e.replace(new RegExp("\\{" + i + "\\}", "gi"), n[i]);
+	}
+	return e;
 }
 
