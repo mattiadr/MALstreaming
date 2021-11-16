@@ -3,14 +3,12 @@
 const animetwist = {};
 animetwist.base = "https://twist.moe/";
 animetwist.anime = animetwist.base + "a/"
-animetwist.api = "https://api.twist.moe/api/anime/";
-animetwist.token = "1rj2vRtegS8Y60B3w3qNZm5T2Q0TN2NR";
+animetwist.api = "https://api.twist.moe/api/anime";
 
 getEpisodes["animetwist"] = function(dataStream, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
-		url: animetwist.api + url,
-		headers: { "x-access-token": animetwist.token },
+		url: `${animetwist.api}/${url}`,
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
@@ -42,7 +40,6 @@ searchSite["animetwist"] = function(id, title) {
 	GM_xmlhttpRequest({
 		method: "GET",
 		url: animetwist.api,
-		headers: { "x-access-token": animetwist.token },
 		onload: function(resp) {
 			if (resp.status == 200) {
 				// OK
