@@ -593,7 +593,7 @@ function subsplease_getEpisodesFromAPI(dataStream, id) {
 				// loop through values
 				Object.values(res.episode).forEach(ep => {
 					let dwn = ep.downloads.pop();
-					episodes[ep.episode - 1] = {
+					episodes[parseInt(ep.episode) - 1] = {
 						text: `Ep ${ep.episode} (${dwn.res}p)`,
 						href: dwn.magnet
 					};
