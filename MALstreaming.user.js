@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.79
+// @version      5.80
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -986,6 +986,7 @@ searchSite["mangaplus"] = function(id, title) {
 /*******************************************************************************************************************************************************************/
 const mal = {};
 mal.timerRate = 15000;
+mal.recheckInterval = 4; // as a multiple of timerRate
 mal.loadRows = 25;
 mal.epStrLen = 14;
 mal.genericErrorRequest = "Error while performing request";
@@ -994,6 +995,7 @@ mal.CSRFToken = null;
 
 let onScrollQueue = [];
 let requestsQueues = {};
+let timerEventCounter = 0;
 
 pageLoad["list"] = function() {
 	// own list
@@ -1022,7 +1024,7 @@ pageLoad["list"] = function() {
 
 	// update timer
 	setInterval(function() {
-		$(".data.stream").trigger("update-time");
+		$(".data.stream").trigger("update-time", [timerEventCounter++]);
 	}, mal.timerRate);
 
 	// check when an element comes into view
@@ -1095,7 +1097,7 @@ function loadRows(start, end) {
 	});
 
 	// timer event
-	dataStreams.on("update-time", function() {
+	dataStreams.on("update-time", function(_, count) {
 		let dataStream = $(this);
 		if (dataStream.find(".nextep, .loading, .error").length > 0) {
 			// do nothing if timer is not needed
@@ -1117,6 +1119,12 @@ function loadRows(start, end) {
 		let time;
 		if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 			time = properties.notAired;
+			if (count !== false && count % mal.recheckInterval === 0) {
+				console.log("updating list");
+				updateList(dataStream, true, false);
+				// we don't need to add the timer again, since updateList will add it if needed, so we can safely return
+				return;
+			}
 		} else {
 			const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
 			const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -1271,7 +1279,7 @@ function updateList_exists(dataStream) {
 		dataStream.prepend(nextep);
 	} else {
 		// there aren't episodes available, trigger timer
-		dataStream.trigger("update-time");
+		dataStream.trigger("update-time", [false]);
 	}
 }
 

@@ -2,6 +2,7 @@
 /*******************************************************************************************************************************************************************/
 const mal = {};
 mal.timerRate = 15000;
+mal.recheckInterval = 4; // as a multiple of timerRate
 mal.loadRows = 25;
 mal.epStrLen = 14;
 mal.genericErrorRequest = "Error while performing request";
@@ -10,6 +11,7 @@ mal.CSRFToken = null;
 
 let onScrollQueue = [];
 let requestsQueues = {};
+let timerEventCounter = 0;
 
 pageLoad["list"] = function() {
 	// own list
@@ -38,7 +40,7 @@ pageLoad["list"] = function() {
 
 	// update timer
 	setInterval(function() {
-		$(".data.stream").trigger("update-time");
+		$(".data.stream").trigger("update-time", [timerEventCounter++]);
 	}, mal.timerRate);
 
 	// check when an element comes into view
@@ -111,7 +113,7 @@ function loadRows(start, end) {
 	});
 
 	// timer event
-	dataStreams.on("update-time", function() {
+	dataStreams.on("update-time", function(_, count) {
 		let dataStream = $(this);
 		if (dataStream.find(".nextep, .loading, .error").length > 0) {
 			// do nothing if timer is not needed
@@ -133,6 +135,12 @@ function loadRows(start, end) {
 		let time;
 		if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 			time = properties.notAired;
+			if (count !== false && count % mal.recheckInterval === 0) {
+				console.log("updating list");
+				updateList(dataStream, true, false);
+				// we don't need to add the timer again, since updateList will add it if needed, so we can safely return
+				return;
+			}
 		} else {
 			const d = Math.floor(timeMillis / (1000 * 60 * 60 * 24));
 			const h = Math.floor((timeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -287,7 +295,7 @@ function updateList_exists(dataStream) {
 		dataStream.prepend(nextep);
 	} else {
 		// there aren't episodes available, trigger timer
-		dataStream.trigger("update-time");
+		dataStream.trigger("update-time", [false]);
 	}
 }
 
