@@ -30,7 +30,7 @@ properties.manga = {
 	mode:          "manga",
 	watching:      ".list-unit.reading",
 	colHeaderText: "Read",
-	commentsRegex: /Notes: ([\S ]+)\n/,
+	commentsRegex: /Notes: ([\S ]+)&nbsp;/,
 	iconAdd:       ".icon-add-chapter",
 	findProgress:  ".data.chapter",
 	findAiring:    "span.content-status:contains('Publishing')",

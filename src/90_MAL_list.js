@@ -271,16 +271,24 @@ function updateList_exists(dataStream) {
 	if (episodes.length > currEp) {
 		// there are episodes available
 		let isAiring = listitem.find(properties.findAiring).length !== 0;
-		let t = episodes[currEp] ? episodes[currEp].text : ("Missing #" + (currEp + 1));
 
-		let a = $("<a></a>");
-		a.text(t.length > mal.epStrLen ? t.substr(0, mal.epStrLen - 1) + "…" : t);
-		if (t.length > mal.epStrLen) a.attr("title", t);
-		a.attr("href", episodes[currEp] ? episodes[currEp].href : "javascript:void(0)");
-		if (episodes[currEp]) a.attr("target", "_blank");
-		a.attr("class", isAiring ? "airing" : "non-airing");
-		a.css("color", isAiring ? "#2db039" : "#ff730a");
-		nextep.append(a);
+		if (episodes[currEp]) {
+			// episode is present
+			let a = $("<a></a>");
+			let t = episodes[currEp].text;
+			a.text(t.length > mal.epStrLen ? t.substr(0, mal.epStrLen - 1) + "…" : t);
+			if (t.length > mal.epStrLen) a.attr("title", t);
+			a.attr("href", episodes[currEp].href);
+			a.attr("target", "_blank");
+			a.attr("class", isAiring ? "airing" : "non-airing");
+			a.css("color", isAiring ? "#2db039" : "#ff730a");
+			nextep.append(a);
+		} else {
+			// episode is missing
+			let s = $(`<span>Missing #${currEp + 1}</span>`);
+			s.css("color", "red");
+			nextep.append(s);
+		}
 
 		if (episodes.length - currEp > 1) {
 			// if there is more than 1 new ep then put the amount in parenthesis

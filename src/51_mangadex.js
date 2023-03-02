@@ -24,8 +24,10 @@ getEpisodes["mangadex"] = function(dataStream, url, offset=0, episodes=[]) {
 				for (let i = 0; i < res.data.length; i++) {
 					let chapter = res.data[i];
 					let n = chapter.attributes.chapter;
+					let t = `Chapter ${n}`;
+					if (chapter.attributes.title) t += `: ${chapter.attributes.title}`;
 					episodes[n - 1] = {
-						text:      `Chapter ${n}: ${chapter.attributes.title}`,
+						text:      t,
 						href:      mangadex.chapter + chapter.id,
 						timestamp: new Date(chapter.attributes.createdAt).getTime(),
 					}
