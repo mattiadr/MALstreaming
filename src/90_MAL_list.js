@@ -125,9 +125,11 @@ function loadRows(start, end) {
 		let nextEp = parseInt(dataStream.parents(".list-item").find(properties.findProgress).find(".link").text()) + 1;
 		if (isNaN(nextEp)) nextEp = 1;
 		let timeMillis;
-		// if t.ep is set then it needs to be equal to nextEp, else we set timeMillis to false to display Not Yet Aired
-		if (t && (t.ep ? t.ep == nextEp : true)) {
-			timeMillis = (t.highPriority || t.lowPriority) - Date.now();
+		// if there is an high priority time use that, otherwise check if episode matches and use low priority time
+		if (t && t.highPriority) {
+			timeMillis = t.highPriority - Date.now();
+		} else if (t && (t.ep ? t.ep == nextEp : true)) {
+			timeMillis = t.lowPriority - Date.now();
 		} else {
 			timeMillis = false;
 		}

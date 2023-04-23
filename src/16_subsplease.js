@@ -70,8 +70,9 @@ function subsplease_getAirTime(dataStream, url) {
 	let now = +new Date();
 
 	// request at most once every 5 minutes
-	if (lastTs < now + 5 * 60 * 1000) {
-		// we request schedule and set the date immediately to avoid other dataStream requesting it too
+	if (now > lastTs + 5 * 60 * 1000) {
+		// we request schedule, invalidate the cache and set the date immediately to avoid other dataStream requesting it too
+		GM_deleteValue("subspleaseSchedule")
 		GM_setValue("subspleaseScheduleDate", now);
 		// and we start the request for the schedule
 		GM_xmlhttpRequest({
@@ -83,11 +84,12 @@ function subsplease_getAirTime(dataStream, url) {
 					// OK
 					let res = JSON.parse(resp.response);
 					let schedule = {};
-					let today = new Date().toISOString().slice(0, 10);
 					res.schedule.forEach(s => {
 						if (!s.aired) {
-							let t = +new Date(today + " " + s.time);
-							schedule[s.page] = t;
+							let airTime = new Date();
+							let t = s.time.split(":");
+							airTime.setHours(t[0], t[1], 0, 0);
+							schedule[s.page] = +airTime;
 						}
 					});
 					// set time
