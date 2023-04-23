@@ -66,12 +66,13 @@ function subsplease_getEpisodesFromAPI(dataStream, id, url) {
 }
 
 function subsplease_getAirTime(dataStream, url) {
-	let date = GM_getValue("subspleaseScheduleDate", "0000-00-00");
-	let today = new Date().toISOString().slice(0, 10);
+	let lastTs = GM_getValue("subspleaseScheduleDate", 0);
+	let now = +new Date();
 
-	if (date < today) {
+	// request at most once every 5 minutes
+	if (lastTs < now + 5 * 60 * 1000) {
 		// we request schedule and set the date immediately to avoid other dataStream requesting it too
-		GM_setValue("subspleaseScheduleDate", today);
+		GM_setValue("subspleaseScheduleDate", now);
 		// and we start the request for the schedule
 		GM_xmlhttpRequest({
 			method: "GET",
@@ -82,9 +83,12 @@ function subsplease_getAirTime(dataStream, url) {
 					// OK
 					let res = JSON.parse(resp.response);
 					let schedule = {};
+					let today = new Date().toISOString().slice(0, 10);
 					res.schedule.forEach(s => {
-						let t = +new Date(today + " " + s.time);
-						schedule[s.page] = t;
+						if (!s.aired) {
+							let t = +new Date(today + " " + s.time);
+							schedule[s.page] = t;
+						}
 					});
 					// set time
 					let time = schedule[url];
