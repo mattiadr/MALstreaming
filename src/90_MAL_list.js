@@ -127,7 +127,7 @@ function loadRows(start, end) {
 		let timeMillis;
 		// if t.ep is set then it needs to be equal to nextEp, else we set timeMillis to false to display Not Yet Aired
 		if (t && (t.ep ? t.ep == nextEp : true)) {
-			timeMillis = t.timeMillis - Date.now();
+			timeMillis = (t.highPriority || t.lowPriority) - Date.now();
 		} else {
 			timeMillis = false;
 		}
@@ -136,7 +136,6 @@ function loadRows(start, end) {
 		if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 			time = properties.notAired;
 			if (count !== false && count % mal.recheckInterval === 0) {
-				console.log("updating list");
 				updateList(dataStream, true, false);
 				// we don't need to add the timer again, since updateList will add it if needed, so we can safely return
 				return;
@@ -379,18 +378,33 @@ function updateList_doesntExist(dataStream, skipQueue) {
 	}
 }
 
-// save episodeList and timeMillis inside .data.stream of listitem
+// save episodeList in dataStream
+// timeMillis can be the unix timestamp of the next airing episode
 function putEpisodes(dataStream, episodes, timeMillis) {
 	// add episodes to dataStream
 	dataStream.data("episodeList", episodes);
 	// add timeMillis to dataStream
 	if (timeMillis) {
 		// timeMillis is valid
-		dataStream.data("timeMillis", { timeMillis: timeMillis });
+		dataStream.data("timeMillis", { highPriority: timeMillis });
 	} else if (properties.mode == "anime") {
 		// timeMillis doesn't exist, get time from anilist
 		anilist_setTimeMillis(dataStream, true);
 	}
+	updateList(dataStream, false, false);
+}
+
+// save unix timestamp of next airing episode in dataStream
+function putTimeMillis(dataStream, timeMillis, highPriority, ep) {
+	let t = dataStream.data("timeMillis") || {};
+	if (highPriority) {
+		t.highPriority = timeMillis;
+	} else {
+		t.lowPriority = timeMillis;
+	}
+	if (ep) t.ep = ep;
+	dataStream.data("timeMillis", t);
+	dataStream.trigger("update-time");
 	updateList(dataStream, false, false);
 }
 

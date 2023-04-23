@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MALstreaming
 // @namespace    https://github.com/mattiadr/MALstreaming
-// @version      5.81
+// @version      5.82
 // @author       https://github.com/mattiadr
 // @description  Adds various anime and manga links to MAL
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQRDic4ysC1kQAAA+lJREFUWMPtlk1sVFUUx3/n3vvmvU6nnXbESkTCR9DYCCQSFqQiMdEY4zeJuiBhwUISAyaIHzHGaDTxKyzEr6ULNboiRonRhQrRCMhGiDFGA+WjhQ4NVKbtzJuP9969Lt4wlGnBxk03vZv3cu495/7u/5x7cmX1xk8dczjUXG4+DzAPMA8AYNoNIunXudnZ2+enrvkvn2kADkhiiwM8o6YEEuLE4pxDK0GakZUIoiCOHXFiW2uNEqyjZdNaIbMB0Ero7gwQ4OJEDa0VSoR6lNDT5eMZRaUa0YgSjFZU6zG1ekK+y6er00eJECWWchiRMYp8VwBAOYyw1l0dQIlQrcfcvKSHT968j+5chg+/OMoHnx9FCdwzsIRdz24gGxhe2v0Le74/htaKFYvzbNm4knWrF3J9IYtSQq0e8+C2r+jwDXvefYjEWja98B2DQyU6fINty8cVCigl9HYHiMCOzWs4/HuR4XNl3n5mPbmsB0DgGyYrDR69ewXvvXgXgW+oNxLOX6ySJJaebp/+ZQWOD5fIZT2cS5WddRGCw9oU5rVtA1SqEfmcTxRZPE8RxZbe7oBXnlpH4BtGx0Ke2PkNt624jte3DzBWqjF4ZhzP6GYBOtw1qtC07Y2I0IgTisUKtyztBaB4voLWQl8hS1iLuL2/j0V9OQC+/fkkx4ZK3L9hGQt6Oyj0BCiR1qZpwV5dgRn7gBLh1Y8OcmpkAoDndv3E6IUQgCRx9BWy6b91bH64n7P7tvL8lrU4l/pOi6dSRZWSaShmJgDPKIbPTfLy+wdYfEMXB46M0JXLNE8ElWoEQK0e8/fJi8SJpa+QZemi7hmiOSphxESlQRRb/IzGKMHNBOCaJwTI53wOHhnBM5pCPqDRSFIHrTh1drzls/2Nffx18h+efGwV7+y8kyi2l+O5VKW1KxeycEEn2Q6PPwfHKE3WMVpwrg1AAK1TkaxzBBlDEGiSxLXsgW84cWacE2fGWX5TnnsHlnB8qEQ2SG+J1qnM0lTLaMVbO+5AJL2ijzy9l7FSDaMV4FIAh0MpoRxGfL1vECRtHiK0Gsj+w8OcHpmkeKFCWIv54dAQWx9fxfo1N/Lxl38wVJzgx1+HCGsx1XoMwN79gy1VfU9zujjB2dFJfE9dLtKpb0JrHeUwzW8u66Gm3N9yGJEkls6sR5I4+pcX2PTArez+7DcmK+lcWIsRgc5mzyhXoivSq5W0+klL9fZH6SWpL9VCy64ERLDW4lyaorAaE2Q0xihE0kqnmfepsaZSJPYanXCmjVt265rnaAKJkM9lsM7hXLPg2nyvFuuaALMdjumn+T9jzh8k8wDzAPMAcw7wLz7iq04ifbsDAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTE3VDE0OjM5OjU2LTA0OjAw6I0f5AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0xN1QxNDozOTo1Ni0wNDowMJnQp1gAAAAASUVORK5CYII=
@@ -23,6 +23,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_addValueChangeListener
+// @grant        GM_removeValueChangeListener
 // @grant        window.close
 // @connect      *
 // ==/UserScript==
@@ -208,8 +209,7 @@ function anilist_setTimeMillis(dataStream, canReload) {
 	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anilist timer is referring to next episode
-		dataStream.data("timeMillis", t);
-		dataStream.trigger("update-time");
+		putTimeMillis(dataStream, t.timeMillis, false, t.ep);
 	} else if (canReload) {
 		// add value change listener
 		let listenerId = GM_addValueChangeListener("anilistTimes", function(name, old_value, new_value, remote) {
@@ -549,13 +549,15 @@ searchSite["erairaws"] = function(id, title) {
 const subsplease = {};
 subsplease.base = "https://subsplease.org/";
 subsplease.anime = subsplease.base + "shows/";
-subsplease.api = subsplease.base + "api/?f=show&tz=" + Intl.DateTimeFormat().resolvedOptions().timeZone + "&sid=";
+subsplease.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+subsplease.api = subsplease.base + "api/?f=show&tz=" + subsplease.timezone + "&sid=";
+subsplease.schedule = subsplease.base + "api/?f=schedule&h=true&tz=" + subsplease.timezone
 
 getEpisodes["subsplease"] = function(dataStream, url) {
 	let ids = GM_getValue("subspleaseIDS", {});
 	if (ids[url]) {
 		// found id, request episodes
-		subsplease_getEpisodesFromAPI(dataStream, ids[url]);
+		subsplease_getEpisodesFromAPI(dataStream, ids[url], url);
 	} else {
 		// id not found, request id then episodes
 		GM_xmlhttpRequest({
@@ -571,7 +573,7 @@ getEpisodes["subsplease"] = function(dataStream, url) {
 					ids[url] = id;
 					GM_setValue("subspleaseIDS", ids);
 					// get episodes
-					subsplease_getEpisodesFromAPI(dataStream, id);
+					subsplease_getEpisodesFromAPI(dataStream, id, url);
 				} else {
 					// error
 					errorEpisodes(dataStream, "SubsPlease: " + resp.status);
@@ -581,7 +583,7 @@ getEpisodes["subsplease"] = function(dataStream, url) {
 	}
 }
 
-function subsplease_getEpisodesFromAPI(dataStream, id) {
+function subsplease_getEpisodesFromAPI(dataStream, id, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
 		url: subsplease.api + id,
@@ -600,12 +602,69 @@ function subsplease_getEpisodesFromAPI(dataStream, id) {
 				});
 				// callback
 				putEpisodes(dataStream, episodes, undefined);
+				subsplease_getAirTime(dataStream, url);
 			} else {
 				// error
 				errorEpisodes(dataStream, "SubsPlease: " + resp.status);
 			}
 		}
 	});
+}
+
+function subsplease_getAirTime(dataStream, url) {
+	let date = GM_getValue("subspleaseScheduleDate", "0000-00-00");
+	let today = new Date().toISOString().slice(0, 10);
+
+	if (date < today) {
+		// we request schedule and set the date immediately to avoid other dataStream requesting it too
+		GM_setValue("subspleaseScheduleDate", today);
+		// and we start the request for the schedule
+		GM_xmlhttpRequest({
+			method: "GET",
+			url: subsplease.schedule,
+			onload: function(resp) {
+				let timeMillis = undefined;
+				if (resp.status == 200) {
+					// OK
+					let res = JSON.parse(resp.response);
+					let schedule = {};
+					res.schedule.forEach(s => {
+						let t = +new Date(today + " " + s.time);
+						schedule[s.page] = t;
+					});
+					// set time
+					let time = schedule[url];
+					if (time) {
+						putTimeMillis(dataStream, time, true);
+					}
+					// save schedule
+					GM_setValue("subspleaseSchedule", schedule);
+				} else {
+					// error, remove date so we may retry the request
+					GM_deleteValue("subspleaseScheduleDate");
+				}
+			}
+		});
+	} else {
+		let schedule = GM_getValue("subspleaseSchedule", {});
+		let time = schedule[url];
+		if (time) {
+			// time is valid, just callback
+			putTimeMillis(dataStream, time, true);
+		} else {
+			// time is not available, can happen if we already sent a request from another dataStream and we are waiting for results
+			// or if the time is actually not available (usually because it's the wrong day of week)
+			// we set the listener in case we are waiting on another request
+			let listenerId = GM_addValueChangeListener("subspleaseSchedule", function(name, old_value, new_value, remote) {
+				let time = new_value[url];
+				if (time) {
+					putTimeMillis(dataStream, time, true);
+				}
+				// remove listener
+				GM_removeValueChangeListener(listenerId);
+			});
+		}
+	}
 }
 
 getEplistUrl["subsplease"] = function(partialUrl) {
@@ -1113,7 +1172,7 @@ function loadRows(start, end) {
 		let timeMillis;
 		// if t.ep is set then it needs to be equal to nextEp, else we set timeMillis to false to display Not Yet Aired
 		if (t && (t.ep ? t.ep == nextEp : true)) {
-			timeMillis = t.timeMillis - Date.now();
+			timeMillis = (t.highPriority || t.lowPriority) - Date.now();
 		} else {
 			timeMillis = false;
 		}
@@ -1122,7 +1181,6 @@ function loadRows(start, end) {
 		if (!timeMillis || isNaN(timeMillis) || timeMillis < 1000) {
 			time = properties.notAired;
 			if (count !== false && count % mal.recheckInterval === 0) {
-				console.log("updating list");
 				updateList(dataStream, true, false);
 				// we don't need to add the timer again, since updateList will add it if needed, so we can safely return
 				return;
@@ -1365,18 +1423,33 @@ function updateList_doesntExist(dataStream, skipQueue) {
 	}
 }
 
-// save episodeList and timeMillis inside .data.stream of listitem
+// save episodeList in dataStream
+// timeMillis can be the unix timestamp of the next airing episode
 function putEpisodes(dataStream, episodes, timeMillis) {
 	// add episodes to dataStream
 	dataStream.data("episodeList", episodes);
 	// add timeMillis to dataStream
 	if (timeMillis) {
 		// timeMillis is valid
-		dataStream.data("timeMillis", { timeMillis: timeMillis });
+		dataStream.data("timeMillis", { highPriority: timeMillis });
 	} else if (properties.mode == "anime") {
 		// timeMillis doesn't exist, get time from anilist
 		anilist_setTimeMillis(dataStream, true);
 	}
+	updateList(dataStream, false, false);
+}
+
+// save unix timestamp of next airing episode in dataStream
+function putTimeMillis(dataStream, timeMillis, highPriority, ep) {
+	let t = dataStream.data("timeMillis") || {};
+	if (highPriority) {
+		t.highPriority = timeMillis;
+	} else {
+		t.lowPriority = timeMillis;
+	}
+	if (ep) t.ep = ep;
+	dataStream.data("timeMillis", t);
+	dataStream.trigger("update-time");
 	updateList(dataStream, false, false);
 }
 

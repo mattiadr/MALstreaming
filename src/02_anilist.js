@@ -59,8 +59,7 @@ function anilist_setTimeMillis(dataStream, canReload) {
 	if (times && t && Date.now() < t.timeMillis) {
 		// time doesn't need to update
 		// set timeMillis, this is used to check if anilist timer is referring to next episode
-		dataStream.data("timeMillis", t);
-		dataStream.trigger("update-time");
+		putTimeMillis(dataStream, t.timeMillis, false, t.ep);
 	} else if (canReload) {
 		// add value change listener
 		let listenerId = GM_addValueChangeListener("anilistTimes", function(name, old_value, new_value, remote) {

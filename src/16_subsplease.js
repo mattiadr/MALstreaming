@@ -3,13 +3,15 @@
 const subsplease = {};
 subsplease.base = "https://subsplease.org/";
 subsplease.anime = subsplease.base + "shows/";
-subsplease.api = subsplease.base + "api/?f=show&tz=" + Intl.DateTimeFormat().resolvedOptions().timeZone + "&sid=";
+subsplease.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+subsplease.api = subsplease.base + "api/?f=show&tz=" + subsplease.timezone + "&sid=";
+subsplease.schedule = subsplease.base + "api/?f=schedule&h=true&tz=" + subsplease.timezone
 
 getEpisodes["subsplease"] = function(dataStream, url) {
 	let ids = GM_getValue("subspleaseIDS", {});
 	if (ids[url]) {
 		// found id, request episodes
-		subsplease_getEpisodesFromAPI(dataStream, ids[url]);
+		subsplease_getEpisodesFromAPI(dataStream, ids[url], url);
 	} else {
 		// id not found, request id then episodes
 		GM_xmlhttpRequest({
@@ -25,7 +27,7 @@ getEpisodes["subsplease"] = function(dataStream, url) {
 					ids[url] = id;
 					GM_setValue("subspleaseIDS", ids);
 					// get episodes
-					subsplease_getEpisodesFromAPI(dataStream, id);
+					subsplease_getEpisodesFromAPI(dataStream, id, url);
 				} else {
 					// error
 					errorEpisodes(dataStream, "SubsPlease: " + resp.status);
@@ -35,7 +37,7 @@ getEpisodes["subsplease"] = function(dataStream, url) {
 	}
 }
 
-function subsplease_getEpisodesFromAPI(dataStream, id) {
+function subsplease_getEpisodesFromAPI(dataStream, id, url) {
 	GM_xmlhttpRequest({
 		method: "GET",
 		url: subsplease.api + id,
@@ -54,12 +56,69 @@ function subsplease_getEpisodesFromAPI(dataStream, id) {
 				});
 				// callback
 				putEpisodes(dataStream, episodes, undefined);
+				subsplease_getAirTime(dataStream, url);
 			} else {
 				// error
 				errorEpisodes(dataStream, "SubsPlease: " + resp.status);
 			}
 		}
 	});
+}
+
+function subsplease_getAirTime(dataStream, url) {
+	let date = GM_getValue("subspleaseScheduleDate", "0000-00-00");
+	let today = new Date().toISOString().slice(0, 10);
+
+	if (date < today) {
+		// we request schedule and set the date immediately to avoid other dataStream requesting it too
+		GM_setValue("subspleaseScheduleDate", today);
+		// and we start the request for the schedule
+		GM_xmlhttpRequest({
+			method: "GET",
+			url: subsplease.schedule,
+			onload: function(resp) {
+				let timeMillis = undefined;
+				if (resp.status == 200) {
+					// OK
+					let res = JSON.parse(resp.response);
+					let schedule = {};
+					res.schedule.forEach(s => {
+						let t = +new Date(today + " " + s.time);
+						schedule[s.page] = t;
+					});
+					// set time
+					let time = schedule[url];
+					if (time) {
+						putTimeMillis(dataStream, time, true);
+					}
+					// save schedule
+					GM_setValue("subspleaseSchedule", schedule);
+				} else {
+					// error, remove date so we may retry the request
+					GM_deleteValue("subspleaseScheduleDate");
+				}
+			}
+		});
+	} else {
+		let schedule = GM_getValue("subspleaseSchedule", {});
+		let time = schedule[url];
+		if (time) {
+			// time is valid, just callback
+			putTimeMillis(dataStream, time, true);
+		} else {
+			// time is not available, can happen if we already sent a request from another dataStream and we are waiting for results
+			// or if the time is actually not available (usually because it's the wrong day of week)
+			// we set the listener in case we are waiting on another request
+			let listenerId = GM_addValueChangeListener("subspleaseSchedule", function(name, old_value, new_value, remote) {
+				let time = new_value[url];
+				if (time) {
+					putTimeMillis(dataStream, time, true);
+				}
+				// remove listener
+				GM_removeValueChangeListener(listenerId);
+			});
+		}
+	}
 }
 
 getEplistUrl["subsplease"] = function(partialUrl) {
