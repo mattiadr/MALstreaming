@@ -7,8 +7,6 @@ Since version 5.0 it also adds next available manga chapter to your Currently Re
 ![Preview Image](images/list_page.png)
 
 Supported anime websites:
-- [x] [9anime](https://9anime.to/) (streaming)
-- [x] [Anime Twist](https://twist.moe/) (streaming)
 - [x] [Erai-raws](https://www.erai-raws.info/) (torrent)
 - [x] [SubsPlease](https://subsplease.org/) (torrent)
 
@@ -22,6 +20,8 @@ Dead Websites:
 - [x] ~~[HorribleSubs](https://horriblesubs.info/)~~
 - [x] ~~[Kissmanga](http://kissmanga.com/)~~
 - [x] ~~[Jaimini's Box](https://jaiminisbox.com/)~~
+- [x] ~~[9anime](https://9anime.to/) (streaming)~~
+- [x] ~~[Anime Twist](https://twist.moe/) (streaming)~~
 
 ## Usage
 The usage is the same for both anime and manga.
