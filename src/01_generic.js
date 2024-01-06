@@ -3,8 +3,6 @@
 // array of all streaming services
 const streamingServices = [
 	// anime
-	{ id: "nineanime",  type: "anime", name: "9anime",      domain: "9anime.to"                },
-	{ id: "animetwist", type: "anime", name: "Anime Twist", domain: "twist.moe"                },
 	{ id: "erairaws",   type: "anime", name: "Erai-raws",   domain: "www.erai-raws.info"       },
 	{ id: "subsplease", type: "anime", name: "SubsPlease",  domain: "subsplease.org"           },
 	// manga

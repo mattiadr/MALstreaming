@@ -3,7 +3,6 @@
 // array with services that require cookies to make requests
 const cookieServices = [
 	// anime
-	{ id: "nineanime", status: 401, url: "https://9anime.to/", loaded: _ => document.title != "Redirecting...", timeout: 1000 },
 	// manga
 ];
 
