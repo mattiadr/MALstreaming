@@ -22,7 +22,7 @@ getEpisodes["erairaws"] = function(dataStream, url) {
 					let m = tt.next().text().match(/[\d\.]+/g);
 
 					let release = $(this).find(".release-links").first();
-					let magnet = release.find(".load_more_links_buttons:contains(magnet)");
+					let magnet = release.find(".load_more_links_buttons:contains(magnet)").attr("href");
 
 					if (type == "B") {
 						// batch
