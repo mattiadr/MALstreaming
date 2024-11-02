@@ -293,7 +293,25 @@ function updateList_exists(dataStream) {
 
 		if (episodes.length - currEp > 1) {
 			// if there is more than 1 new ep then put the amount in parenthesis
-			nextep.append(" (" + (episodes.length - currEp) + ")");
+			let batchSize = episodes.length - currEp;
+			let a = $("<a></a>");
+			a.text(batchSize);
+			a.attr("title", properties.bulkTooltip.replace("%d", batchSize));
+			a.css("cursor", "pointer");
+			a.on("click", () => {
+				// open all episodes in non-focused tabs
+				for (let ep of episodes.slice(currEp)) {
+					if (new URL(ep.href).protocol == "magnet:") {
+						window.open(ep.href, ep.text).blur();
+					} else {
+						GM_openInTab(ep.href, true);
+					}
+				}
+				window.focus();
+			});
+			nextep.append(" (");
+			nextep.append(a);
+			nextep.append(")");
 		}
 		// add new nextep
 		dataStream.prepend(nextep);

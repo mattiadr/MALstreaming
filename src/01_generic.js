@@ -23,6 +23,7 @@ properties.anime = {
 	notAired:      "Not Yet Aired",
 	ep:            "Ep.",
 	editPageBox:   "#add_anime_comments",
+	bulkTooltip:   "Open %d episodes in bulk",
 };
 properties.manga = {
 	mode:          "manga",
@@ -36,6 +37,7 @@ properties.manga = {
 	notAired:      "Not Yet Published",
 	ep:            "Ch.",
 	editPageBox:   "#add_manga_comments",
+	bulkTooltip:   "Open %d chapters in bulk",
 };
 // contains all functions to execute on page load
 const pageLoad = {};
