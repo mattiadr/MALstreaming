@@ -280,7 +280,6 @@ function updateList_exists(dataStream) {
 			a.text(t.length > mal.epStrLen ? t.substr(0, mal.epStrLen - 1) + "…" : t);
 			if (t.length > mal.epStrLen) a.attr("title", t);
 			a.attr("href", episodes[currEp].href);
-			a.attr("target", "_blank");
 			a.attr("class", isAiring ? "airing" : "non-airing");
 			a.css("color", isAiring ? "#2db039" : "#ff730a");
 			nextep.append(a);
