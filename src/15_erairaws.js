@@ -76,7 +76,7 @@ searchSite["erairaws"] = function(id, title) {
 			if (resp.status == 200) {
 				// OK
 				let jqPage = $(resp.response);
-				let results = jqPage.find("#main .entry-title > a").map(function() {
+				let results = jqPage.find("#main > .search-results-list tr a").map(function() {
 					return {
 						title: $(this).text().trim(),
 						href:  $(this).attr("href").split("/")[4],
