@@ -301,7 +301,13 @@ function updateList_exists(dataStream) {
 				// open all episodes in non-focused tabs
 				for (let ep of episodes.slice(currEp)) {
 					if (new URL(ep.href).protocol == "magnet:") {
-						window.open(ep.href, ep.text).blur();
+						// create hidden iframe and automatically remove it
+						const iframe = $("<iframe>", {
+							src: ep.href,
+							css: { display: "none" },
+						});
+						$("body").append(iframe);
+						setTimeout(() => iframe.remove(), 1000);
 					} else {
 						GM_openInTab(ep.href, true);
 					}
