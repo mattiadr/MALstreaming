@@ -47,7 +47,7 @@ function subsplease_getEpisodesFromAPI(dataStream, id, url) {
 				let res = JSON.parse(resp.response);
 				let episodes = [];
 				// loop through values
-				Object.values(res.episode).forEach(ep => {
+				Object.values(res.episode).reverse().forEach(ep => {
 					let dwn = ep.downloads.pop();
 					episodes[parseInt(ep.episode) - 1] = {
 						text: `Ep ${ep.episode} (${dwn.res}p)`,
